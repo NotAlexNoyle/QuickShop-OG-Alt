@@ -108,7 +108,8 @@ public final class PlayerFinder {
         int amount = 0;
         int errorAmount = 0;
         int doneAmount = 0;
-        for (OfflinePlayer offlinePlayer : quickShop.getServer().getOfflinePlayers()) {
+        int reportingInterval = Math.max(1000, offlinePlayers.length / 20); // Reduce the amount of log spam from caching offline players
+        for (OfflinePlayer offlinePlayer : offlinePlayers) { // use the existing offlinePlayers array
             try {
                 String name = offlinePlayer.getName();
                 if (name != null) {
@@ -120,8 +121,8 @@ public final class PlayerFinder {
                 errorAmount++;
             }
             amount++;
-            if (amount == 1000) {
-                doneAmount += 1000;
+            if (amount == reportingInterval) {
+                doneAmount += reportingInterval;
                 amount = 0;
                 quickShop.getLogger().log(Level.INFO, "Caching Offline player...cached " + doneAmount + "/" + offlinePlayers.length + " players, " + errorAmount + " errors got when caching players.");
             }

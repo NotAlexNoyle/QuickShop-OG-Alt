@@ -96,7 +96,7 @@ public class LockListener extends AbstractProtectionListener {
             }
             // If they owned it or have bypass perms, they can destroy it
             if (!shop.getOwner().equals(p.getUniqueId())
-                    && !QuickShop.getPermissionManager().hasPermission(p, "quickshop.other.destroy")) {
+                    && !QuickShop.getPermissionManager().hasPermission(p, "quickshop.other.destroy.block")) { // Seperate permissions for breaking & /remove command
                 e.setCancelled(true);
                 plugin.text().of(p, "no-permission").send();
             }
@@ -124,7 +124,7 @@ public class LockListener extends AbstractProtectionListener {
             // If they're the shop owner or have bypass perms, they can destroy
             // it.
             if (!shop.getOwner().equals(p.getUniqueId())
-                    && !QuickShop.getPermissionManager().hasPermission(p, "quickshop.other.destroy")) {
+                    && !QuickShop.getPermissionManager().hasPermission(p, "quickshop.other.destroy.block")) {
                 e.setCancelled(true);
                 plugin.text().of(p, "no-permission").send();
             }

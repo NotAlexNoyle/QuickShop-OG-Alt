@@ -1037,7 +1037,7 @@ public class ContainerShop implements Shop {
             Util.debugLog("Dupe load request, canceled.");
             return;
         }
-        Map<Location, Shop> shopsInChunk = plugin.getShopManager().getShops(getLocation().getChunk());
+        Map<Location, Shop> shopsInChunk = plugin.getShopManager().getShops(location.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4); // Avoid loading chunks during shop loading
 
         if (shopsInChunk == null || !shopsInChunk.containsValue(this)) {
             throw new IllegalStateException("Shop must register into ShopManager before loading.");

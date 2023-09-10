@@ -171,7 +171,7 @@ public class ShopLoader {
                 // Load to RAM
                 plugin.getShopManager().loadShop(shopLocation.getWorld().getName(), shop);
 
-                if (Util.isLoaded(shopLocation)) {
+                if (false && Util.isLoaded(shopLocation)) { // Never going to be loaded
                     // Load to World
                     if (!Util.canBeShop(shopLocation.getBlock())) {
                         Util.debugLog("Target block can't be a shop, removing it from the memory...");
