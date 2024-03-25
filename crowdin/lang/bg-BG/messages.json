@@ -163,7 +163,7 @@
       "setowner": "&eChanges the ownership of a shop.",
       "owner": "&eChanges the ownership of a shop.",
       "setbuy": "&eChanges a shop to &dBUY&e mode",
-      "sell": "&eChanges a shop to &bSELL&e mode",
+      "setsell": "&eChanges a shop to &bSELL&e mode",
       "price": "&eChanges the buy/sell price of a shop",
       "clean": "&eRemoves all (loaded) shops without any stock",
       "find": "&eLocates the nearest shop of a specific type.",
