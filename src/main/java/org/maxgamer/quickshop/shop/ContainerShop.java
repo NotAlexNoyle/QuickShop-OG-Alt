@@ -100,7 +100,7 @@ import static org.maxgamer.quickshop.chat.platform.minedown.BungeeQuickChat.toLe
 public class ContainerShop implements Shop {
     @EqualsAndHashCode.Exclude
     @Deprecated
-    private static final String SHOP_SIGN_PREFIX = "§d§o §r";
+    private static final String SHOP_SIGN_PREFIX = "§d§o §0";
     @NotNull
     private final Location location;
     private final YamlConfiguration extra;

@@ -245,4 +245,16 @@ public class Trader implements OfflinePlayer {
     public void setOp(boolean value) {
         offlinePlayer.setOp(value);
     }
+
+    @Nullable
+    @Override
+    public Location getLocation() {
+        return offlinePlayer.getLocation();
+    }
+
+    @Nullable
+    @Override
+    public Location getRespawnLocation() {
+        return offlinePlayer.getRespawnLocation();
+    }
 }
