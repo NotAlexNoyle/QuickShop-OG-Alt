@@ -19,10 +19,10 @@
 
 package org.maxgamer.quickshop.watcher;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipParameters;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.maxgamer.quickshop.QuickShop;
 
@@ -36,9 +36,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
-public class LogWatcher extends BukkitRunnable implements AutoCloseable {
+public class LogWatcher implements Consumer<ScheduledTask>, AutoCloseable {
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").withZone(ZoneId.systemDefault());
     private static final DateTimeFormatter LOG_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
     private final Queue<String> logs = new ConcurrentLinkedQueue<>();
@@ -111,7 +112,7 @@ public class LogWatcher extends BukkitRunnable implements AutoCloseable {
     }
 
     @Override
-    public void run() {
+    public void accept(ScheduledTask task) {
         if (printWriter == null) {
             //Waiting for init
             return;

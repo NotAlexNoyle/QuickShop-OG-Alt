@@ -19,15 +19,18 @@
 
 package org.maxgamer.quickshop.watcher;
 
-import org.bukkit.scheduler.BukkitRunnable;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.jetbrains.annotations.NotNull;
+import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.shop.Shop;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.function.Consumer;
 
-public class SignUpdateWatcher extends BukkitRunnable {
+public class SignUpdateWatcher implements Consumer<ScheduledTask> {
     private final Queue<Shop> signUpdateQueue = new LinkedList<>();
+    private final QuickShop plugin = QuickShop.getInstance();
 
     public void scheduleSignUpdate(@NotNull Shop shop) {
         if (signUpdateQueue.contains(shop)) {
@@ -37,11 +40,11 @@ public class SignUpdateWatcher extends BukkitRunnable {
     }
 
     @Override
-    public void run() {
-        Shop shop = signUpdateQueue.poll();
-        while (shop != null && !shop.isDeleted()) {
-            shop.setSignText();
-            shop = signUpdateQueue.poll();
+    public void accept(ScheduledTask scheduledTask) {
+        Shop shop;
+        while ((shop = signUpdateQueue.poll()) != null && !shop.isDeleted()) {
+            final Shop s = shop;
+            plugin.getServer().getRegionScheduler().run(plugin, shop.getLocation(), t -> s.setSignText());
         }
     }
 

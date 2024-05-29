@@ -32,13 +32,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Tag;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -50,6 +44,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -1023,8 +1018,8 @@ public class Util {
         }
         // Calculate the chunks coordinates. These are 1,2,3 for each chunk, NOT
         // location rounded to the nearest 16.
-        int x = (int) Math.floor((loc.getBlockX()) / 16.0);
-        int z = (int) Math.floor((loc.getBlockZ()) / 16.0);
+        int x = loc.getBlockX() >> 4;
+        int z = loc.getBlockZ() >> 4;
         return (loc.getWorld().isChunkLoaded(x, z));
     }
 
@@ -1358,7 +1353,7 @@ public class Util {
         }
         file.createNewFile();
 
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
             StringBuilder finalReport = new StringBuilder();
             plugin.getShopLoader()
                     .getOriginShopsInDatabase()
@@ -1489,30 +1484,62 @@ public class Util {
         return joiner.toString();
     }
 
+    public static void ensureThread(Location location, boolean async) {
+        ensureThread(Bukkit.getServer().isOwnedByCurrentRegion(location), async);
+    }
+
+    public static void ensureThread(Entity entity, boolean async) {
+        ensureThread(Bukkit.getServer().isOwnedByCurrentRegion(entity), async);
+    }
+
+    public static void ensureThread(Shop shop, boolean async) {
+        ensureThread(shop.getLocation(), async);
+    }
+
     /**
      * Ensure this method is calling from specific thread
      *
      * @param async on async thread or main server thread.
      */
-    public static void ensureThread(boolean async) {
-        boolean isMainThread = Bukkit.isPrimaryThread();
+    private static void ensureThread(boolean isTickThread, boolean async) {
         if (async) {
-            if (isMainThread) {
+            if (isTickThread) {
                 throw new IllegalStateException("#[Illegal Access] This method require runs on async thread.");
             }
         } else {
-            if (!isMainThread) {
+            if (!isTickThread) {
                 throw new IllegalStateException("#[Illegal Access] This method require runs on server main thread.");
             }
         }
     }
 
+    @Deprecated
     public static void mainThreadRun(@NotNull Runnable runnable) {
         if (Bukkit.isPrimaryThread()) {
             runnable.run();
         } else {
-            Bukkit.getScheduler().runTask(QuickShop.getInstance(), runnable);
+            Bukkit.getGlobalRegionScheduler().run(QuickShop.getInstance(), t -> runnable.run());
         }
+    }
+
+    public static void runOnRegion(@NotNull Location location, @NotNull Runnable runnable) {
+        final Server server = plugin.getServer();
+        if (server.isOwnedByCurrentRegion(location))
+            runnable.run();
+        else
+            server.getRegionScheduler().run(plugin, location, task -> runnable.run());
+    }
+
+    public static void runOnRegion(@NotNull Entity entity, @NotNull Runnable runnable) {
+        final Server server = plugin.getServer();
+        if (server.isOwnedByCurrentRegion(entity))
+            runnable.run();
+        else
+            entity.getScheduler().run(plugin, task -> runnable.run(), () -> {});
+    }
+
+    public static void runOnRegion(@NotNull Shop shop, @NotNull Runnable runnable) {
+        runOnRegion(shop.getLocation(), runnable);
     }
 
     // http://www.java2s.com/Tutorials/Java/Data_Type_How_to/Date_Convert/Convert_long_type_timestamp_to_LocalDate_and_LocalDateTime.htm

@@ -19,9 +19,9 @@
 
 package org.maxgamer.quickshop.watcher;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.economy.EconomyTransaction;
@@ -38,12 +38,13 @@ import org.maxgamer.quickshop.util.WarningSender;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * Check the shops after server booted up, make sure shop can correct self-deleted when container
  * lost.
  */
-public class OngoingFeeWatcher extends BukkitRunnable {
+public class OngoingFeeWatcher implements Consumer<ScheduledTask> {
     private final QuickShop plugin;
     private final WarningSender warningSender;
 
@@ -53,7 +54,7 @@ public class OngoingFeeWatcher extends BukkitRunnable {
     }
 
     @Override
-    public void run() {
+    public void accept(ScheduledTask task) {
         Util.debugLog("Run task for ongoing fee...");
         if (plugin.getEconomy() == null) {
             Util.debugLog("Economy hadn't get ready.");
@@ -90,7 +91,7 @@ public class OngoingFeeWatcher extends BukkitRunnable {
                     cost = event.getCost();
                     double finalCost = cost;
 
-                    Util.mainThreadRun(() -> {
+                    Util.runOnRegion(shop, () -> {
                         EconomyTransaction transaction = EconomyTransaction.builder()
                                 .allowLoan(allowLoan)
                                 .currency(shop.getCurrency())
@@ -118,7 +119,7 @@ public class OngoingFeeWatcher extends BukkitRunnable {
      * @param shop The shop was remove cause no enough ongoing fee
      */
     public void removeShop(@NotNull Shop shop) {
-        Util.mainThreadRun(shop::delete);
+        Util.runOnRegion(shop, shop::delete);
 
         MsgUtil.send(shop, shop.getOwner(), ShopTransactionMessageContainer.ofLocalizedMessageWithItem(
                 LocalizedMessagePair.of("shop-removed-cause-ongoing-fee", "World:"

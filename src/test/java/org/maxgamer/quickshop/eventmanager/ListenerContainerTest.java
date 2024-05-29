@@ -21,6 +21,7 @@ package org.maxgamer.quickshop.eventmanager;
 
 
 import io.papermc.paper.plugin.configuration.PluginMeta;
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -158,6 +159,11 @@ public class ListenerContainerTest {
             @Override
             public String getName() {
                 return "QuickTest";
+            }
+
+            @Override
+            public @NotNull LifecycleEventManager<Plugin> getLifecycleManager() {
+                return null;
             }
 
             @Override

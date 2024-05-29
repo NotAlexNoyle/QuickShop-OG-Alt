@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
 public abstract class TestBukkitBase {
     @BeforeAll
     public static void setUp() {
-        MockBukkit.mock();
+        MockBukkit.getOrCreateMock();
         System.getProperties().setProperty("org.maxgamer.quickshop.util.envcheck.skip.SIGNATURE_VERIFY", "true");
         System.getProperties().setProperty("org.maxgamer.quickshop.util.envcheck.skip.POTENTIAL_INFECTION_CHARACTERISTICS_CHECK", "true");
         //Prevent network flow to OTA

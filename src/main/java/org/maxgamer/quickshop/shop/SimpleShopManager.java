@@ -128,7 +128,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
 
 
     public SimpleShopManager(@NotNull QuickShop plugin) {
-        Util.ensureThread(false);
+        //Util.ensureThread(false); // only used in onEnable
         this.plugin = plugin;
         this.formatter = new EconomyFormatter(plugin);
         plugin.getReloadManager().register(this);
@@ -167,7 +167,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
 
     @Override
     public ReloadResult reloadModule() {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, this::init);
+        plugin.getServer().getAsyncScheduler().runNow(plugin, task -> this.init());
         return ReloadResult.builder().status(ReloadStatus.SCHEDULED).build();
     }
 
@@ -181,7 +181,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
      */
     @Override
     public boolean canBuildShop(@NotNull Player p, @NotNull Block b, @NotNull BlockFace bf) {
-        Util.ensureThread(false);
+        Util.ensureThread(b.getLocation(), false);
         if (plugin.isLimit()) {
             int owned = 0;
             if (useOldCanBuildAlgorithm) {
@@ -230,7 +230,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
      */
     @Override
     public void clear() {
-        Util.ensureThread(false);
+        //Util.ensureThread(false);
         if (plugin.isDisplayEnabled()) {
             for (World world : plugin.getServer().getWorlds()) {
                 for (Chunk chunk : world.getLoadedChunks()) {
@@ -240,7 +240,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
                     }
                     for (Shop shop : inChunk.values()) {
                         if (shop.isLoaded()) {
-                            shop.onUnload();
+                            Util.runOnRegion(shop.getLocation(), shop::onUnload);
                         }
                     }
                 }
@@ -315,7 +315,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
      */
     @Override
     public void createShop(@NotNull Shop shop, @NotNull Info info) {
-        Util.ensureThread(false);
+        Util.ensureThread(shop, false);
         Player player = plugin.getServer().getPlayer(shop.getOwner());
         if (player == null) {
             throw new IllegalStateException("The owner creating the shop is offline or not exist");
@@ -339,7 +339,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
         shop.setSignText();
         // save to database
         plugin.getDatabaseHelper().createShop(shop, null, e ->
-                Util.mainThreadRun(() -> {
+                Util.runOnRegion(shop, () -> {
                     // also remove from memory when failed
                     shop.delete(true);
                     plugin.getLogger()
@@ -356,7 +356,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
                                 .log(Level.SEVERE, "Shop create failed, auto fix failed, the changes may won't commit to database.", e2);
                         // MsgUtil.sendMessage(player, "shop-creation-failed");
                         plugin.text().of(player, "shop-creation-failed").send();
-                        Util.mainThreadRun(() -> {
+                        Util.runOnRegion(shop, () -> {
                             shop.onUnload();
                             removeShop(shop);
                             shop.delete();
@@ -502,7 +502,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
         // Use from the main thread, because Bukkit hates life
         String finalMessage = message;
 
-        Util.mainThreadRun(() -> {
+        Util.runOnRegion(p, () -> {
             Map<UUID, Info> actions = getActions();
             // They wanted to do something.
             Info info = actions.remove(p.getUniqueId());
@@ -709,7 +709,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
             @NotNull Info info,
             @NotNull Shop shop,
             int amount) {
-        Util.ensureThread(false);
+        Util.ensureThread(shop, false);
         if (shopIsNotValid(buyer, info, shop)) {
             return;
         }
@@ -827,7 +827,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
     @Deprecated
     public void actionBuy(@NotNull Player p, @NotNull AbstractEconomy eco, @NotNull SimpleInfo info,
                           @NotNull Shop shop, int amount) {
-        Util.ensureThread(false);
+        Util.ensureThread(shop, false);
         actionBuy(p.getUniqueId(), p.getInventory(), eco, info, shop, amount);
     }
 
@@ -839,7 +839,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
 
     @Override
     public double getTax(@NotNull Shop shop, @NotNull UUID p) {
-        Util.ensureThread(false);
+        Util.ensureThread(shop, false);
         double tax = plugin.getConfig().getDouble("tax");
         Player player = plugin.getServer().getPlayer(p);
         if (player != null) {
@@ -868,7 +868,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
     }
 
     public void actionCreate(@NotNull Player p, Info info, @NotNull String message) {
-        Util.ensureThread(false);
+        Util.ensureThread(p, false);
         if (plugin.getEconomy() == null) {
             MsgUtil.sendDirectMessage(p, "Error: Economy system not loaded, type /qs main command to get details.");
             return;
@@ -1062,7 +1062,8 @@ public class SimpleShopManager implements ShopManager, Reloadable {
     public void actionSell(
             @NotNull Player p, @NotNull AbstractEconomy eco, @NotNull SimpleInfo info, @NotNull Shop shop,
             int amount) {
-        Util.ensureThread(false);
+        Util.ensureThread(shop, false);
+        Util.ensureThread(p, false);
         actionSell(p.getUniqueId(), p.getInventory(), eco, info, shop, amount);
     }
 
@@ -1073,7 +1074,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
             @NotNull Info info,
             @NotNull Shop shop,
             int amount) {
-        Util.ensureThread(false);
+        Util.ensureThread(shop, false);
         if (shopIsNotValid(seller, info, shop)) {
             return;
         }
@@ -1348,7 +1349,7 @@ public class SimpleShopManager implements ShopManager, Reloadable {
     }
 
     private void actionTrade(@NotNull Player p, Info info, @NotNull String message) {
-        Util.ensureThread(false);
+        Util.ensureThread(p, false);
         if (plugin.getEconomy() == null) {
             MsgUtil.sendDirectMessage(p, "Error: Economy system not loaded, type /qs main command to get details.");
             return;

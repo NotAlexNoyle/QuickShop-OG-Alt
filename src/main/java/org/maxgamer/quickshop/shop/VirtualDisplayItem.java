@@ -92,7 +92,7 @@ public class VirtualDisplayItem extends AbstractDisplayItem {
     //Due to the delay task in ChunkListener
     //We must move load task to first spawn to prevent some bug and make the check lesser
     private void load() {
-        Util.ensureThread(false);
+        Util.ensureThread(shop, false);
         //some time shop can be loaded when world isn't loaded
         Chunk chunk = shop.getLocation().getChunk();
         chunkLocation = new SimpleShopChunk(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
@@ -177,7 +177,7 @@ public class VirtualDisplayItem extends AbstractDisplayItem {
 
     @Override
     public void respawn() {
-        Util.ensureThread(false);
+        Util.ensureThread(shop, false);
         remove();
         spawn();
     }
@@ -195,7 +195,7 @@ public class VirtualDisplayItem extends AbstractDisplayItem {
 
     @Override
     public void spawn() {
-        Util.ensureThread(false);
+        Util.ensureThread(shop, false);
         if (shop.isLeftShop() || isDisplay || shop.isDeleted() || !shop.isLoaded()) {
             return;
         }

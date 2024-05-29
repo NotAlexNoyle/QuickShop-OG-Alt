@@ -414,9 +414,9 @@ public class PlayerListener extends AbstractQSListener {
         // Notify the player any messages they were sent
         if (plugin.getConfig().getBoolean("shop.auto-fetch-shop-messages")) {
             //Run Task later to make sure locale is correct
-            plugin.getServer().getScheduler().runTaskLater(plugin, () ->
+            e.getPlayer().getScheduler().runDelayed(plugin, task ->
                             MsgUtil.flush(PlayerFinder.findOfflinePlayerByUUID(e.getPlayer().getUniqueId()))
-                    , 50);
+                    , () -> {}, 50);
         }
     }
 

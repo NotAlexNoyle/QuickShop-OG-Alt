@@ -22,6 +22,8 @@ package org.maxgamer.quickshop;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.papermc.paper.threadedregions.scheduler.AsyncScheduler;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -50,6 +52,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.zip.GZIPOutputStream;
 
@@ -265,21 +268,23 @@ public class Metrics {
 
     // Executor service for requests
     // We use an executor service because the Bukkit scheduler is affected by server lags
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, threadFactory);
+    //private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, threadFactory);
 
     /**
      * Starts the Scheduler which submits our data every 30 minutes.
      */
     private void startSubmitting() {
-        final Runnable submitTask = () -> {
+        final Consumer<ScheduledTask> submitTask = task -> {
             if (!plugin.isEnabled()) { // Plugin was disabled
-                scheduler.shutdown();
+                task.cancel();
                 return;
             }
             // Nevertheless we want our code to run in the Bukkit main thread, so we have to use the Bukkit scheduler
             // Don't be afraid! The connection to the bStats server is still async, only the stats collection is sync ;)
-            plugin.getServer().getScheduler().runTask(plugin, this::submitData);
+            // global region is the closest thing we have to a main thread
+            plugin.getServer().getGlobalRegionScheduler().run(plugin, t -> submitData());
         };
+
 
         // Many servers tend to restart at a fixed time at xx:00 which causes an uneven distribution of requests on the
         // bStats backend. To circumvent this problem, we introduce some randomness into the initial and second delay.
@@ -287,8 +292,9 @@ public class Metrics {
         // WARNING: Modifying this code will get your plugin banned on bStats. Just don't do it!
         long initialDelay = (long) (1000 * 60 * (3 + Math.random() * 3));
         long secondDelay = (long) (1000 * 60 * (Math.random() * 30));
-        scheduler.schedule(submitTask, initialDelay, TimeUnit.MILLISECONDS);
-        scheduler.scheduleAtFixedRate(submitTask, initialDelay + secondDelay, 1000 * 60 * 30, TimeUnit.MILLISECONDS);
+        AsyncScheduler scheduler = plugin.getServer().getAsyncScheduler();
+        scheduler.runDelayed(plugin, submitTask, initialDelay, TimeUnit.MILLISECONDS);
+        scheduler.runAtFixedRate(plugin, submitTask, initialDelay + secondDelay, 1000 * 60 * 30, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -328,9 +334,9 @@ public class Metrics {
                             }
                         }
                     } catch (NullPointerException
-                            | NoSuchMethodException
-                            | IllegalAccessException
-                            | InvocationTargetException ignored) {
+                             | NoSuchMethodException
+                             | IllegalAccessException
+                             | InvocationTargetException ignored) {
                     }
                 }
             } catch (NoSuchFieldException ignored) {
@@ -340,22 +346,17 @@ public class Metrics {
         data.add("plugins", pluginData);
 
         // Create a new thread for the connection to the bStats server
-        new Thread(
-                () -> {
-                    try {
-                        // Send the data
-                        sendData(plugin, data);
-                    } catch (Exception e) {
-                        // Something went wrong! :(
-                        if (logFailedRequests) {
-                            plugin
-                                    .getLogger()
-                                    .log(
-                                            Level.WARNING, "Could not submit plugin stats of " + plugin.getName(), e);
-                        }
-                    }
-                })
-                .start();
+        plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
+            try {
+                // Send the data
+                sendData(plugin, data);
+            } catch (Exception e) {
+                // Something went wrong! :(
+                if (logFailedRequests) {
+                    plugin.getLogger().log(Level.WARNING, "Could not submit plugin stats of " + plugin.getName(), e);
+                }
+            }
+        });
     }
 
     /**

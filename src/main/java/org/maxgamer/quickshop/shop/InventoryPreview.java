@@ -62,7 +62,7 @@ public class InventoryPreview implements Listener {
      * @param plugin    The plugin instance.
      */
     public InventoryPreview(@NotNull QuickShop plugin, @NotNull ItemStack itemStack, @NotNull String locale) {
-        Util.ensureThread(false);
+        //Util.ensureThread(false); // moved up to call
         this.itemStack = itemStack.clone();
         ItemMeta itemMeta;
         if (itemStack.hasItemMeta()) {
@@ -101,7 +101,7 @@ public class InventoryPreview implements Listener {
      * Open the preview GUI for player.
      */
     public void show(Player player) {
-        Util.ensureThread(false);
+        Util.ensureThread(player, false);
         if (itemStack == null || player == null || player.isSleeping()) // Null pointer exception
         {
             return;
@@ -122,13 +122,13 @@ public class InventoryPreview implements Listener {
     }
 
     public void close() {
-        Util.ensureThread(false);
+        //Util.ensureThread(false);
         if (inventory == null) {
             return;
         }
 
         for (HumanEntity player : new ArrayList<>(inventory.getViewers())) {
-            player.closeInventory();
+            Util.runOnRegion(player, player::closeInventory);
         }
         inventory = null; // Destroy
     }

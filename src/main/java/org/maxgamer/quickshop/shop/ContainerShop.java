@@ -143,7 +143,7 @@ public class ContainerShop implements Shop {
 
 
     private ContainerShop(@NotNull ContainerShop s) {
-        Util.ensureThread(false);
+        //Util.ensureThread(s.getLocation(), false);
         this.shopType = s.shopType;
         this.item = s.item.clone();
         this.location = s.location.clone();
@@ -190,7 +190,7 @@ public class ContainerShop implements Shop {
             @Nullable String currency,
             boolean disableDisplay,
             @Nullable UUID taxAccount) {
-        Util.ensureThread(false);
+        //Util.ensureThread(location, false);
         this.location = location;
         this.price = price;
         this.moderator = moderator;
@@ -276,7 +276,7 @@ public class ContainerShop implements Shop {
     }
 
     private void initDisplayItem() {
-        Util.ensureThread(false);
+        //Util.ensureThread(this.getLocation(), false);
         if (plugin.isDisplayEnabled() && !isDisableDisplay()) {
             switch (AbstractDisplayItem.getNowUsing()) {
                 case REALITEM:
@@ -305,7 +305,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void add(@NotNull ItemStack item, int amount) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (this.unlimited) {
             return;
         }
@@ -324,13 +324,12 @@ public class ContainerShop implements Shop {
 
     @Override
     public boolean addStaff(@NotNull UUID player) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         setDirty();
         boolean result = this.moderator.addStaff(player);
         update();
         if (result) {
-            Util.mainThreadRun(() -> plugin.getServer().getPluginManager()
-                    .callEvent(new ShopModeratorChangedEvent(this, this.moderator)));
+            plugin.getServer().getPluginManager().callEvent(new ShopModeratorChangedEvent(this, this.moderator));
         }
         return result;
     }
@@ -346,7 +345,7 @@ public class ContainerShop implements Shop {
     @Override
     public void buy(@NotNull UUID buyer, @NotNull Inventory buyerInventory,
                     @NotNull Location loc2Drop, int amount) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         amount = amount * item.getAmount();
         if (amount < 0) {
             this.sell(buyer, buyerInventory, loc2Drop, -amount);
@@ -414,7 +413,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public void checkDisplay() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (!plugin.isDisplayEnabled() || this.disableDisplay || !this.isLoaded || this.isDeleted()) { // FIXME: Reinit scheduler on reloading config
             if (this.displayItem != null && this.displayItem.isSpawned()) {
                 this.displayItem.remove();
@@ -464,19 +463,19 @@ public class ContainerShop implements Shop {
     public void clearStaffs() {
         setDirty();
         this.moderator.clearStaffs();
-        Util.mainThreadRun(() -> plugin.getServer().getPluginManager()
-                .callEvent(new ShopModeratorChangedEvent(this, this.moderator)));
+        plugin.getServer().getPluginManager()
+                .callEvent(new ShopModeratorChangedEvent(this, this.moderator));
         update();
     }
 
     @Override
     public boolean delStaff(@NotNull UUID player) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         setDirty();
         boolean result = this.moderator.delStaff(player);
         update();
         if (result) {
-            Util.mainThreadRun(() -> plugin.getServer().getPluginManager().callEvent(new ShopModeratorChangedEvent(this, this.moderator)));
+            plugin.getServer().getPluginManager().callEvent(new ShopModeratorChangedEvent(this, this.moderator));
         }
         return result;
     }
@@ -486,7 +485,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void delete() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         delete(false);
     }
 
@@ -497,7 +496,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void delete(boolean memoryOnly) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         // Get a copy of the attached shop to save it from deletion
         ContainerShop neighbor = getAttachedShop();
         setDirty();
@@ -556,7 +555,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public boolean isAttached(@NotNull Block b) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         return this.getLocation().getBlock().equals(Util.getAttached(b));
     }
 
@@ -580,7 +579,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public void onClick() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         refresh();
         setSignText();
     }
@@ -597,7 +596,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void onUnload() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (!this.isLoaded) {
             Util.debugLog("Dupe unload request, canceled.");
             return;
@@ -660,7 +659,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void remove(@NotNull ItemStack item, int amount) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (this.unlimited) {
             return;
         }
@@ -688,7 +687,7 @@ public class ContainerShop implements Shop {
     @Override
     public void sell(@NotNull UUID seller, @NotNull Inventory sellerInventory,
                      @NotNull Location loc2Drop, int amount) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         amount = item.getAmount() * amount;
         if (amount < 0) {
             this.buy(seller, sellerInventory, loc2Drop, -amount);
@@ -757,7 +756,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public List<ComponentPackage> getSignText(@NotNull String locale) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         List<ComponentPackage> lines = new ArrayList<>();
         //Line 1
         String statusStringKey = inventoryAvailable() ? "signs.status-available" : "signs.status-unavailable";
@@ -846,7 +845,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setSignText(@NotNull List<ComponentPackage> lines) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         List<Sign> signs = this.getSigns();
         for (Sign sign : signs) {
             if (this.plugin.getNbtapi() != null) {
@@ -913,7 +912,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setSignText() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (!Util.isLoaded(this.location)) {
             return;
         }
@@ -927,7 +926,7 @@ public class ContainerShop implements Shop {
     @Override
     public void update() {
         //TODO: check isDirty()
-        Util.ensureThread(false);
+        //Util.ensureThread(this.getLocation(), false);
         if (updating) {
             return;
         }
@@ -981,7 +980,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public void setItem(@NotNull ItemStack item) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         ShopItemChangeEvent event = new ShopItemChangeEvent(this, this.item, item);
         if (Util.fireCancellableEvent(event)) {
             Util.debugLog("A plugin cancelled the item change event.");
@@ -995,7 +994,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public void refresh() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (inventoryPreview != null) {
             inventoryPreview.close();
             inventoryPreview = null;
@@ -1032,7 +1031,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void onLoad() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (this.isLoaded) {
             Util.debugLog("Dupe load request, canceled.");
             return;
@@ -1079,7 +1078,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public void setModerator(@NotNull ShopModerator shopModerator) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         setDirty();
         this.moderator = shopModerator;
         update();
@@ -1101,7 +1100,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setOwner(@NotNull UUID owner) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         this.moderator.setOwner(owner);
         setSignText();
         update();
@@ -1123,7 +1122,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setPrice(double price) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         ShopPriceChangeEvent event = new ShopPriceChangeEvent(this, this.price, price);
         if (Util.fireCancellableEvent(event)) {
             Util.debugLog("A plugin cancelled the price change event.");
@@ -1142,7 +1141,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public int getRemainingSpace() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (this.unlimited && !isAlwaysCountingContainer()) {
             return -1;
         }
@@ -1158,7 +1157,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public int getRemainingStock() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (this.unlimited && !isAlwaysCountingContainer()) {
             return -1;
         }
@@ -1179,7 +1178,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setShopType(@NotNull ShopType newShopType) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (this.shopType == newShopType) {
             return; //Ignore if there actually no changes
         }
@@ -1201,7 +1200,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public @NotNull List<Sign> getSigns() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         List<Sign> signs = new ArrayList<>(4);
         if (this.getLocation().getWorld() == null) {
             return Collections.emptyList();
@@ -1269,7 +1268,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public void setUnlimited(boolean unlimited) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         this.unlimited = unlimited;
         this.setSignText();
         update();
@@ -1282,7 +1281,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public boolean isValid() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (this.isDeleted) {
             return false;
         }
@@ -1367,7 +1366,7 @@ public class ContainerShop implements Shop {
      * @return The chest this shop is based on.
      */
     public @Nullable Inventory getInventory() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         BlockState state = PaperLib.getBlockState(location.getBlock(), false).getState();
         Inventory inv = null;
         if (state.getType() == Material.ENDER_CHEST && plugin.getOpenInvPlugin() != null) {
@@ -1416,7 +1415,7 @@ public class ContainerShop implements Shop {
      * this is buying/selling.
      */
     public boolean isDoubleShop() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (attachedShop == null) {
             return false;
         }
@@ -1438,7 +1437,7 @@ public class ContainerShop implements Shop {
     @Override
     public void updateAttachedShop() {
         //TODO: Rewrite centering item feature, currently implement is buggy and mess
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         Block attachedChest = Util
                 .getSecondHalf(this.getLocation().getBlock());
 
@@ -1507,7 +1506,7 @@ public class ContainerShop implements Shop {
      */
     @Override
     public boolean isRealDouble() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (attachedShop == null) {
             return false;
         }
@@ -1530,7 +1529,7 @@ public class ContainerShop implements Shop {
      * @return true if create on double chest.
      */
     public boolean isDoubleChestShop() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         return Util.isDoubleChest(this.getLocation().getBlock().getBlockData());
     }
 
@@ -1538,7 +1537,7 @@ public class ContainerShop implements Shop {
      * Check the container still there and we can keep use it.
      */
     public void checkContainer() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.getLocation(), false);
         if (!this.isLoaded) {
             return;
         }
@@ -1638,6 +1637,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public void openPreview(@NotNull Player player) {
+        Util.ensureThread(player, false);
         if (inventoryPreview == null) {
             inventoryPreview = new InventoryPreview(plugin, getItem().clone(), player.getLocale());
         }

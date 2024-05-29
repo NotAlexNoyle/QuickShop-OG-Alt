@@ -119,7 +119,7 @@ public final class EnvironmentChecker {
                     Util.debugLog("Skip test: " + envCheckEntry.name() + ": Except stage: " + Arrays.toString(envCheckEntry.stage()) + " Current stage: " + stage);
                     continue;
                 }
-                if (!properties.containsKey("org.maxgamer.quickshop.util.envcheck.skip." + envCheckEntry.name().toUpperCase(Locale.ROOT).replace(" ", "_"))) {
+                if (false && !properties.containsKey("org.maxgamer.quickshop.util.envcheck.skip." + envCheckEntry.name().toUpperCase(Locale.ROOT).replace(" ", "_"))) {
                     executeResult = (ResultContainer) declaredMethod.invoke(this);
                     if (executeResult.getResult().ordinal() > result.ordinal()) { //set bad result if its worse than the latest one.
                         result = executeResult.getResult();

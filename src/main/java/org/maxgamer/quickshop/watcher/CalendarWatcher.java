@@ -19,11 +19,10 @@
 
 package org.maxgamer.quickshop.watcher;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.event.CalendarEvent;
 import org.maxgamer.quickshop.util.Util;
@@ -31,6 +30,8 @@ import org.maxgamer.quickshop.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
@@ -38,13 +39,13 @@ import java.util.logging.Level;
  *
  * @author Ghost_chu
  */
-public class CalendarWatcher extends BukkitRunnable {
+public class CalendarWatcher implements Consumer<ScheduledTask> {
     @Getter
     private final File calendarFile = new File(Util.getCacheFolder(), "calendar.cache");
     @Getter
     private final YamlConfiguration configuration;
     private final QuickShop plugin;
-    private BukkitTask task;
+    private ScheduledTask task;
 
     public CalendarWatcher(QuickShop plugin) {
         this.plugin = plugin;
@@ -59,7 +60,7 @@ public class CalendarWatcher extends BukkitRunnable {
     }
 
     public void start() {
-        task = this.runTaskTimerAsynchronously(plugin, 20, 20);
+        task = plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, this, 20 * 50, 20 * 50, TimeUnit.MILLISECONDS);
     }
 
     public void stop() {
@@ -142,8 +143,8 @@ public class CalendarWatcher extends BukkitRunnable {
      * The action to be performed by this timer task.
      */
     @Override
-    public void run() {
+    public void accept(ScheduledTask task) {
         CalendarEvent.CalendarTriggerType type = getAndUpdate();
-        Util.mainThreadRun(() -> Bukkit.getPluginManager().callEvent(new CalendarEvent(type)));
+        Bukkit.getPluginManager().callEvent(new CalendarEvent(type));
     }
 }

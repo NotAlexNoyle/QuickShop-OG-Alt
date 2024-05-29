@@ -188,16 +188,16 @@ public class ShopLoader {
                     loadAfterChunkLoaded++;
                 }
             }
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                for (Shop shop : pendingLoading) {
+            for (Shop shop : pendingLoading) {
+                plugin.getServer().getRegionScheduler().run(plugin, shop.getLocation(), task -> {
                     try {
                         shop.onLoad();
                     } catch (Throwable throwable) {
                         exceptionHandler(throwable, shop.getLocation());
                     }
                     shop.update();
-                }
-            }, 1);
+                });
+            }
             this.plugin.getLogger().info(">> Shop Loader Information");
             this.plugin.getLogger().info("Total           shops: " + total);
             this.plugin.getLogger().info("Valid           shops: " + valid);
@@ -287,7 +287,7 @@ public class ShopLoader {
         logger.warning("  >> Target Location Info");
         logger.warning("Location: " + ((shopLocation == null) ? "NULL" : shopLocation.toString()));
         logger.warning(
-                "Block: " + ((shopLocation == null) ? "NULL" : shopLocation.getBlock().getType().name()));
+                "Block: " + ((shopLocation == null || !plugin.getServer().isOwnedByCurrentRegion(shopLocation)) ? "NULL" : shopLocation.getBlock().getType().name()));
         logger.warning("#######################################");
         if (errors > 10) {
             logger.severe(
@@ -311,39 +311,42 @@ public class ShopLoader {
         }
         plugin.getLogger().info("Processed " + total + "/" + total + " - [ Valid " + list.size() + "]");
         // Load to RAM
-        Util.mainThreadRun(() -> {
+        //Util.mainThreadRun(() -> {
             plugin.getLogger().info("Loading recovered shops...");
             for (ShopRawDatabaseInfo rawDatabaseInfo : list) {
                 ShopDatabaseInfo data = new ShopDatabaseInfo(rawDatabaseInfo);
                 if (shopNullCheck(data)) {
                     continue;
                 }
-                Shop shop;
-                try {
-                    shop = new ContainerShop(plugin,
-                            data.getLocation(),
-                            data.getPrice(),
-                            data.getItem(),
-                            data.getModerators(),
-                            data.isUnlimited(),
-                            data.getType(),
-                            data.getExtra(),
-                            data.getCurrency(),
-                            data.isDisableDisplay(),
-                            data.getTaxAccount());
-                } catch (Exception exception) {
-                    exceptionHandler(exception, data.location);
-                    continue;
-                }
-                plugin.getDatabaseHelper().createShop(shop, null, null);
-                plugin.getShopManager().loadShop(data.getWorld().getName(), shop);
-                shop.update();
-                if (Util.isLoaded(shop.getLocation()) && !shop.isLoaded()) {
-                    shop.onLoad();
-                }
+                Util.runOnRegion(data.getLocation(), () -> {
+                    Shop shop;
+                    try {
+                        shop = new ContainerShop(plugin,
+                                data.getLocation(),
+                                data.getPrice(),
+                                data.getItem(),
+                                data.getModerators(),
+                                data.isUnlimited(),
+                                data.getType(),
+                                data.getExtra(),
+                                data.getCurrency(),
+                                data.isDisableDisplay(),
+                                data.getTaxAccount());
+                    } catch (Exception exception) {
+                        exceptionHandler(exception, data.location);
+                        return;
+                    }
+
+                    plugin.getDatabaseHelper().createShop(shop, null, null);
+                    plugin.getShopManager().loadShop(data.getWorld().getName(), shop);
+                    shop.update();
+                    if (Util.isLoaded(shop.getLocation()) && !shop.isLoaded()) {
+                        shop.onLoad();
+                    }
+                });
             }
             plugin.getLogger().info("Finished!");
-        });
+        //});
     }
 
     @NotNull

@@ -19,38 +19,35 @@
 
 package org.maxgamer.quickshop.watcher;
 
-import org.bukkit.scheduler.BukkitRunnable;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.jetbrains.annotations.NotNull;
+import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.shop.Shop;
 import org.maxgamer.quickshop.shop.ContainerShop;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.function.Consumer;
 
 /**
  * Check the shops after server booted up, make sure shop can correct self-deleted when container
  * lost.
  */
-public class ShopContainerWatcher extends BukkitRunnable {
+public class ShopContainerWatcher implements Consumer<ScheduledTask> {
     private final Queue<Shop> checkQueue = new LinkedList<>();
+    private final QuickShop plugin = QuickShop.getInstance();
 
     public void scheduleCheck(@NotNull Shop shop) {
         checkQueue.add(shop);
     }
 
     @Override
-    public void run() {
-        long beginTime = System.currentTimeMillis();
-        Shop shop = checkQueue.poll();
-        while (shop != null && !shop.isDeleted()) {
-            if (shop instanceof ContainerShop) {
-                ((ContainerShop) shop).checkContainer();
+    public void accept(ScheduledTask scheduledTask) {
+        Shop shop;
+        while ((shop = checkQueue.poll()) != null && !shop.isDeleted()) {
+            if (shop instanceof ContainerShop cs) {
+                plugin.getServer().getRegionScheduler().run(plugin, cs.getLocation(), task -> cs.checkContainer());
             }
-            if (System.currentTimeMillis() - beginTime
-                    > 45) { // Don't let quickshop eat more than 45 ms per tick.
-                break;
-            }
-            shop = checkQueue.poll();
         }
     }
 

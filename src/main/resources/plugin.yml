@@ -72,6 +72,7 @@ softdepend:
   - NBTAPI
 
 api-version: 1.15
+folia-supported: true
 
 commands:
   qs:

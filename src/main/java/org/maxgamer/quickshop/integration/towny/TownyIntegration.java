@@ -123,7 +123,7 @@ public class TownyIntegration extends AbstractQSIntegratedPlugin implements List
                                     //It should be equal in address
                                     if (WorldCoord.parseWorldCoord(shop.getLocation()).getTownBlock().getTown() == town) {
                                         //delete it
-                                        shop.delete();
+                                        Util.runOnRegion(shop, shop::delete);
                                     }
                                 } catch (NotRegisteredException ignored) {
                                     //Is not in town, continue
@@ -159,7 +159,7 @@ public class TownyIntegration extends AbstractQSIntegratedPlugin implements List
                             //Matching Owner
                             if (WorldCoord.parseWorldCoord(shop.getLocation()).equals(worldCoord)) {
                                 //delete it
-                                shop.delete();
+                                Util.runOnRegion(shop, shop::delete);
                             }
                         }
                     }
@@ -170,11 +170,7 @@ public class TownyIntegration extends AbstractQSIntegratedPlugin implements List
 
     @EventHandler
     public void onPlayerLeave(TownRemoveResidentEvent event) {
-        if (Bukkit.isPrimaryThread()) {
-            deleteShops(TownyAPI.getInstance().getPlayerUUID(event.getResident()), event.getTown());
-        } else {
-            Util.mainThreadRun(() -> deleteShops(TownyAPI.getInstance().getPlayerUUID(event.getResident()), event.getTown()));
-        }
+        deleteShops(TownyAPI.getInstance().getPlayerUUID(event.getResident()), event.getTown());
     }
 
     @EventHandler
@@ -182,11 +178,7 @@ public class TownyIntegration extends AbstractQSIntegratedPlugin implements List
         if (!deleteShopOnPlotClear) {
             return;
         }
-        if (Bukkit.isPrimaryThread()) {
-            purgeShops(event.getTownBlock());
-        } else {
-            Util.mainThreadRun(() -> purgeShops(event.getTownBlock()));
-        }
+        purgeShops(event.getTownBlock());
     }
 
     @EventHandler
@@ -194,11 +186,8 @@ public class TownyIntegration extends AbstractQSIntegratedPlugin implements List
         if (!deleteShopOnPlotDestroy) {
             return;
         }
-        if (Bukkit.isPrimaryThread()) {
-            purgeShops(event.getWorldCoord());
-        } else {
-            Util.mainThreadRun(() -> purgeShops(event.getWorldCoord()));
-        }
+
+        purgeShops(event.getWorldCoord());
     }
 
     @Override

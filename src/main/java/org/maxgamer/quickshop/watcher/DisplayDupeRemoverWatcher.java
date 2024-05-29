@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.maxgamer.quickshop.api.shop.AbstractDisplayItem;
 
 @Deprecated
-public class DisplayDupeRemoverWatcher extends BukkitRunnable {
+public class DisplayDupeRemoverWatcher extends BukkitRunnable { // ?!
     @Override
     public void run() {
     }

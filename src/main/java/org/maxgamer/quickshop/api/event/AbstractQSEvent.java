@@ -49,13 +49,6 @@ public abstract class AbstractQSEvent extends Event {
     }
 
     /**
-     * Fire event on Bukkit event bus
-     */
-    public void callEvent() {
-        QuickShop.getInstance().getServer().getPluginManager().callEvent(this);
-    }
-
-    /**
      * Call event on Bukkit event bus and check if cancelled
      *
      * @return Returns true if cancelled, and false if didn't cancel

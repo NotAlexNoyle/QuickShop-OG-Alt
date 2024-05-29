@@ -42,7 +42,7 @@ public class SubCommand_Paste implements CommandHandler<CommandSender> {
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
         // do actions
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
             if (plugin.getServer().getPluginManager().getPlugin("ConsoleSpamFix") != null) {
                 if (cmdArg.length < 1) {
                     sender.sendMessage("Warning: ConsoleSpamFix is installed! Please disable it before reporting any errors!");

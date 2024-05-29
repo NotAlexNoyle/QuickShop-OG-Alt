@@ -146,13 +146,15 @@ public class LandsIntegration extends AbstractQSIntegratedPlugin implements List
                         //Matching Owner and delete it
                         Map<Location, Shop> shops = chunkedShopEntry.getValue();
                         List<Shop> shopToRemove = new CopyOnWriteArrayList<>(shops.values()).parallelStream().filter(shop -> finalTargets.contains(shop.getOwner())).collect(Collectors.toList());
-                        Util.mainThreadRun(() -> {
+                        //Util.mainThreadRun(() -> {
                             final String reasonStr = "[Lands Integration] " + reason.message;
                             for (Shop shop : shopToRemove) {
-                                plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(), reasonStr, shop.saveToInfoStorage()));
-                                shop.delete();
+                                Util.runOnRegion(shop, () -> {
+                                    plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(), reasonStr, shop.saveToInfoStorage()));
+                                    shop.delete();
+                                });
                             }
-                        });
+                        //});
                     }
                 }
             }

@@ -103,9 +103,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <release>8</release>
+                    <source>17</source>
+                    <target>17</target>
+                    <release>17</release>
                     <encoding>UTF-8</encoding>
                     <!--Use this comments args when compiler is NullPointerException-->
                     <!--<forceJavacCompilerUse>true</forceJavacCompilerUse>-->
@@ -406,7 +406,7 @@
         </repository>
         <repository>
             <id>papermc</id>
-            <url>https://papermc.io/repo/repository/maven-public/</url>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
         <repository>
             <id>bg-repo</id>
@@ -583,7 +583,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.9.2</version>
+            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
@@ -596,8 +596,8 @@
         <!-- Documentation of MockBukkit: https://github.com/MockBukkit/MockBukkit -->
         <dependency>
             <groupId>com.github.seeseemelk</groupId>
-            <artifactId>MockBukkit-v1.19</artifactId>
-            <version>3.1.0</version>
+            <artifactId>MockBukkit-v1.20</artifactId>
+            <version>3.87.0</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -625,8 +625,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
             <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>

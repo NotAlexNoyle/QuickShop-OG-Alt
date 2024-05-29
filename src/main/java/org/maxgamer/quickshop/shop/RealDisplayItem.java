@@ -60,7 +60,7 @@ public class RealDisplayItem extends AbstractDisplayItem {
 
     @Override
     public boolean checkDisplayIsMoved() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.shop.getLocation(), false);
         if (this.item == null) {
             return false;
         }
@@ -78,7 +78,7 @@ public class RealDisplayItem extends AbstractDisplayItem {
 
     @Override
     public boolean checkDisplayNeedRegen() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.shop.getLocation(), false);
         if (this.item == null) {
             return false;
         }
@@ -87,7 +87,7 @@ public class RealDisplayItem extends AbstractDisplayItem {
 
     @Override
     public boolean checkIsShopEntity(@NotNull Entity entity) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.shop.getLocation(), false);
         if (!(entity instanceof Item)) {
             return false;
         }
@@ -96,7 +96,7 @@ public class RealDisplayItem extends AbstractDisplayItem {
 
     @Override
     public void fixDisplayMoved() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.shop.getLocation(), false);
         Location location = this.getDisplayLocation();
         if (this.item != null && location != null) {
             this.item.teleport(location);
@@ -106,7 +106,8 @@ public class RealDisplayItem extends AbstractDisplayItem {
     }
 
     public void fixDisplayMovedOld() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.shop.getLocation(), false);
+        if (true) return; // nuh uh
         for (Entity entity : Objects.requireNonNull(this.shop.getLocation().getWorld())
                 .getEntities()) {
             if (!(entity instanceof Item)) {
@@ -126,13 +127,13 @@ public class RealDisplayItem extends AbstractDisplayItem {
 
     @Override
     public void fixDisplayNeedRegen() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.shop.getLocation(), false);
         respawn();
     }
 
     @Override
     public void remove() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.shop.getLocation(), false);
         if (this.item == null) {
             Util.debugLog("Ignore the Item removing because the Item is already gone or it's a left shop.");
             return;
@@ -147,7 +148,7 @@ public class RealDisplayItem extends AbstractDisplayItem {
 
     @Override
     public boolean removeDupe() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.shop.getLocation(), false);
         if (shop.isLeftShop()) {
             return false;
         }
@@ -187,14 +188,14 @@ public class RealDisplayItem extends AbstractDisplayItem {
 
     @Override
     public void respawn() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.shop.getLocation(), false);
         remove();
         spawn();
     }
 
     @Override
     public void safeGuard(@NotNull Entity entity) {
-        Util.ensureThread(false);
+        Util.ensureThread(entity, false);
         if (!(entity instanceof Item)) {
             Util.debugLog(
                     "Failed to safeGuard " + entity.getLocation() + ", cause target not a Item");
@@ -218,7 +219,7 @@ public class RealDisplayItem extends AbstractDisplayItem {
 
     @Override
     public void spawn() {
-        Util.ensureThread(false);
+        Util.ensureThread(this.shop.getLocation(), false);
         if (shop.isLeftShop()) {
             return;
         }
@@ -271,7 +272,7 @@ public class RealDisplayItem extends AbstractDisplayItem {
      * @return The display location of the item.
      */
     public @Nullable Location getDoubleShopDisplayLocations(boolean thisItem) {
-        Util.ensureThread(false);
+        Util.ensureThread(this.shop.getLocation(), false);
         if (!shop.isRealDouble()) {
             return null;
         }

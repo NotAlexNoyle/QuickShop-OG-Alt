@@ -47,7 +47,7 @@ public class ChunkListener extends AbstractQSListener {
         if (inChunk == null) {
             return;
         }
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+        plugin.getServer().getRegionScheduler().runDelayed(plugin, e.getWorld(), e.getChunk().getX(), e.getChunk().getZ(), task -> {
             for (Shop shop : inChunk.values()) {
                 shop.onLoad();
             }

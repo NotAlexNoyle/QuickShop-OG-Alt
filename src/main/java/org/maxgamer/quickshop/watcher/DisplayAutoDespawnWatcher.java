@@ -19,12 +19,12 @@
 
 package org.maxgamer.quickshop.watcher;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.AllArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.shop.AbstractDisplayItem;
@@ -34,8 +34,10 @@ import org.maxgamer.quickshop.util.reload.ReloadResult;
 import org.maxgamer.quickshop.util.reload.ReloadStatus;
 import org.maxgamer.quickshop.util.reload.Reloadable;
 
+import java.util.function.Consumer;
+
 @AllArgsConstructor
-public class DisplayAutoDespawnWatcher extends BukkitRunnable implements Reloadable {
+public class DisplayAutoDespawnWatcher implements Consumer<ScheduledTask>, Reloadable {
     private final QuickShop plugin;
     private int range;
 
@@ -56,33 +58,36 @@ public class DisplayAutoDespawnWatcher extends BukkitRunnable implements Reloada
     }
 
     @Override
-    public void run() {
+    public void accept(ScheduledTask task) {
         for (Shop shop : plugin.getShopManager().getLoadedShops()) {
             //Shop may be deleted or unloaded when iterating
             if (shop.isDeleted() || !shop.isLoaded() || shop.isDisableDisplay()) {
                 continue;
             }
-            Location location = shop.getLocation();
-            World world = shop.getLocation().getWorld(); //Cache this, because it will took some time.
-            AbstractDisplayItem displayItem = shop.getDisplay();
-            if (displayItem != null) {
-                // Check the range has player?
-                boolean anyPlayerInRegion = false;
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    if ((player.getWorld() == world) && (player.getLocation().distance(location) <= range)) {
-                        anyPlayerInRegion = true;
-                        break;
+            plugin.getServer().getRegionScheduler().run(plugin, shop.getLocation(), t -> {
+
+                Location location = shop.getLocation();
+                World world = shop.getLocation().getWorld(); //Cache this, because it will took some time.
+                AbstractDisplayItem displayItem = shop.getDisplay();
+                if (displayItem != null) {
+                    // Check the range has player?
+                    boolean anyPlayerInRegion = false;
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        if ((player.getWorld() == world) && (player.getLocation().distance(location) <= range)) {
+                            anyPlayerInRegion = true;
+                            break;
+                        }
+                    }
+                    if (anyPlayerInRegion) {
+                        if (!displayItem.isSpawned()) {
+                            Util.debugLog("Respawning the shop " + shop + " the display, cause it was despawned and a player close to it");
+                            displayItem.spawn();
+                        }
+                    } else if (displayItem.isSpawned()) {
+                        displayItem.remove();
                     }
                 }
-                if (anyPlayerInRegion) {
-                    if (!displayItem.isSpawned()) {
-                        Util.debugLog("Respawning the shop " + shop + " the display, cause it was despawned and a player close to it");
-                        displayItem.spawn();
-                    }
-                } else if (displayItem.isSpawned()) {
-                    displayItem.remove();
-                }
-            }
+            });
         }
     }
 

@@ -20,7 +20,6 @@
 package org.maxgamer.quickshop.shop;
 
 import org.bukkit.OfflinePlayer;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.economy.EconomyTransaction;
 import org.maxgamer.quickshop.api.shop.Shop;
@@ -50,12 +49,12 @@ public class ShopPurger {
         if (executing) {
             plugin.getLogger().info("[Shop Purger] Another purge task still running!");
         } else {
-            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, this::run);
+            plugin.getServer().getAsyncScheduler().runNow(plugin, t -> this.run());
         }
     }
 
     private void run() {
-        Util.ensureThread(true);
+        //Util.ensureThread(true);
         executing = true;
         try {
             if (plugin.getConfig().getBoolean("purge.backup")) {
@@ -97,41 +96,35 @@ public class ShopPurger {
                 pendingRemovalShops.add(shop);
             }
             if (pendingRemovalShops.size() > 0) {
-                plugin.getLogger().info("[Shop Purger] Found " + pendingRemovalShops.size() + " need to removed, will remove in the next tick.");
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Iterator<Shop> shopIterator = pendingRemovalShops.iterator();
-                            long startTimeMs = System.currentTimeMillis();
-                            while (shopIterator.hasNext()) {
-                                if (startTimeMs - System.currentTimeMillis() > 130) {
-                                    plugin.getLogger().info("[Shop Purger] it seems taking long time to purge shop (>130ms), do it in the next tick...");
-                                }
-                                Shop shop = shopIterator.next();
-                                shop.delete(false);
-                                if (returnCreationFee) {
-                                    EconomyTransaction transaction =
-                                            EconomyTransaction.builder()
-                                                    .amount(plugin.getConfig().getDouble("shop.cost"))
-                                                    .allowLoan(false)
-                                                    .core(QuickShop.getInstance().getEconomy())
-                                                    .currency(shop.getCurrency())
-                                                    .world(shop.getLocation().getWorld())
-                                                    .to(shop.getOwner())
-                                                    .build();
-                                    transaction.failSafeCommit();
-                                }
-                                shopIterator.remove();
-                                plugin.getLogger().info("[Shop Purger] Shop " + shop + " has been purged.");
-                            }
-                            plugin.getLogger().info("[Shop Purger] Task completed, " + pendingRemovalShops.size() + " shops was purged");
-                        } finally {
-                            this.cancel();
-                            executing = false;
+                plugin.getLogger().info("[Shop Purger] Found " + pendingRemovalShops.size() + " need to removed.");
+                plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
+                    try {
+                        Iterator<Shop> shopIterator = pendingRemovalShops.iterator();
+                        while (shopIterator.hasNext()) {
+                            Shop shop = shopIterator.next();
+                            Util.runOnRegion(shop, () -> {
+                                        shop.delete(false);
+                                        if (returnCreationFee) {
+                                            EconomyTransaction transaction =
+                                                    EconomyTransaction.builder()
+                                                            .amount(plugin.getConfig().getDouble("shop.cost"))
+                                                            .allowLoan(false)
+                                                            .core(QuickShop.getInstance().getEconomy())
+                                                            .currency(shop.getCurrency())
+                                                            .world(shop.getLocation().getWorld())
+                                                            .to(shop.getOwner())
+                                                            .build();
+                                            transaction.failSafeCommit();
+                                        }
+                                    });
+                            shopIterator.remove();
+                            plugin.getLogger().info("[Shop Purger] Shop " + shop + " has been purged.");
                         }
+                        plugin.getLogger().info("[Shop Purger] Task completed, " + pendingRemovalShops.size() + " shops was purged");
+                    } finally {
+                        executing = false;
                     }
-                }.runTaskTimer(plugin, 1L, 1L);
+                });
             } else {
                 plugin.getLogger().info("[Shop Purger] Task completed, No shops need to purge.");
                 executing = false;

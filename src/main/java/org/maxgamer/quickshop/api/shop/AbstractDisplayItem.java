@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -79,7 +80,7 @@ public abstract class AbstractDisplayItem implements Reloadable {
         if (getNowUsing() == DisplayType.VIRTUALITEM) {
             return false;
         }
-        Util.ensureThread(false);
+        //Util.ensureThread(false); // :(
         if (itemStack == null) {
             return false;
         }
@@ -354,7 +355,7 @@ public abstract class AbstractDisplayItem implements Reloadable {
      */
     public @Nullable Location getDisplayLocation() {
         //TODO: Rewrite centering item feature, currently implement is buggy and mess
-        Util.ensureThread(false);
+        Util.ensureThread(shop, false);
         if (shop.isRealDouble()) {
             if (shop.isLeftShop()) {
                 Util.debugLog("Shop is left shop, so location is null.");

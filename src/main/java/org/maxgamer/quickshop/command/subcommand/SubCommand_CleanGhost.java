@@ -21,6 +21,7 @@ package org.maxgamer.quickshop.command.subcommand;
 
 import lombok.AllArgsConstructor;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +31,8 @@ import org.maxgamer.quickshop.api.shop.Shop;
 import org.maxgamer.quickshop.util.MsgUtil;
 import org.maxgamer.quickshop.util.Util;
 import org.maxgamer.quickshop.util.logging.container.ShopRemoveLog;
+
+import java.util.function.Consumer;
 
 @AllArgsConstructor
 public class SubCommand_CleanGhost implements CommandHandler<CommandSender> {
@@ -56,7 +59,7 @@ public class SubCommand_CleanGhost implements CommandHandler<CommandSender> {
                 ChatColor.GREEN
                         + "Starting to check for ghost shops (missing container blocks). All non-existing shops will be removed...");
 
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
             MsgUtil.sendDirectMessage(sender, ChatColor.GREEN + "Starting async thread, please wait...");
             Util.backupDatabase(); // Already warn the user, don't care about backup result.
             for (Shop shop : plugin.getShopManager().getAllShops()) {
@@ -72,13 +75,13 @@ public class SubCommand_CleanGhost implements CommandHandler<CommandSender> {
                     MsgUtil.sendDirectMessage(sender,
                             ChatColor.YELLOW + "Deleting shop " + shop + " because of corrupted item data.");
                     plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "/qs cleanghost command", shop.saveToInfoStorage()));
-                    Util.mainThreadRun(shop::delete);
+                    Util.runOnRegion(shop, shop::delete);
                     continue;
                 }
                 if (!shop.getLocation().isWorldLoaded()) {
                     MsgUtil.sendDirectMessage(sender,
                             ChatColor.YELLOW + "Deleting shop " + shop + " because the its world is not loaded.");
-                    Util.mainThreadRun(shop::delete);
+                    Util.runOnRegion(shop, shop::delete);
                     plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "/qs cleanghost command", shop.saveToInfoStorage()));
                     continue;
                 }
@@ -86,29 +89,25 @@ public class SubCommand_CleanGhost implements CommandHandler<CommandSender> {
                 if (shop.getOwner() == null) {
                     MsgUtil.sendDirectMessage(sender,
                             ChatColor.YELLOW + "Deleting shop " + shop + " because of corrupted owner data.");
-                    Util.mainThreadRun(shop::delete);
+                    Util.runOnRegion(shop, shop::delete);
                     plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "/qs cleanghost command", shop.saveToInfoStorage()));
                     continue;
                 }
                 // Shop exist check
-                Util.mainThreadRun(() -> {
-                    Util.debugLog(
-                            "Posted to main server thread to continue accessing Bukkit API for shop "
-                                    + shop);
-                    if (!Util.canBeShop(shop.getLocation().getBlock())) {
-                        MsgUtil.sendDirectMessage(sender,
-                                ChatColor.YELLOW
-                                        + "Deleting shop "
-                                        + shop
-                                        + " because it is no longer on the target location or it is not allowed to create shops in this location.");
-                        shop.delete();
-                    }
+                Util.runOnRegion(shop, () -> {
+                    Util.debugLog("Posted to main server thread to continue accessing Bukkit API for shop " + shop);
+
+                    shop.getLocation().getWorld().getChunkAtAsync(shop.getLocation(), (Consumer<? super Chunk>) c-> {
+                        if (!Util.canBeShop(shop.getLocation().getBlock())) {
+                            MsgUtil.sendDirectMessage(sender,
+                                    ChatColor.YELLOW
+                                            + "Deleting shop "
+                                            + shop
+                                            + " because it is no longer on the target location or it is not allowed to create shops in this location.");
+                            shop.delete();
+                        }
+                    });
                 }); // Post to server main thread to check.
-                try {
-                    Thread.sleep(20); // Have a rest, don't blow up the main server thread.
-                } catch (InterruptedException e) {
-                    Thread.interrupted();
-                }
             }
             MsgUtil.sendDirectMessage(sender, ChatColor.GREEN + "All shops have been checked!");
         });

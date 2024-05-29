@@ -70,7 +70,7 @@ public class WorldEditBlockListener extends AbstractDelegateExtent {
                 if (shop != null) {
                     plugin.getLogger().info("Removing shop at " + location + " because removed by WorldEdit.");
                     plugin.logEvent(new ShopRemoveLog(actor.getUniqueId() != null ? actor.getUniqueId() : Util.getNilUniqueId(), "WorldEdit", shop.saveToInfoStorage()));
-                    Util.mainThreadRun(shop::delete);
+                    Util.runOnRegion(shop, shop::delete);
                 }
             }
         }

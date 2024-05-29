@@ -131,7 +131,7 @@ public class ShopProtectionListener extends AbstractProtectionListener {
 
                 //Printing warning
                 if (disableHopperMoveEvents) {
-                    plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    //plugin.getServer().getScheduler().runTask(plugin, () -> {
                         plugin.getLogger()
                                 .warning("World " + world.getName()
                                         + " have shops and Hopper protection is enabled. But we detected" +
@@ -140,7 +140,7 @@ public class ShopProtectionListener extends AbstractProtectionListener {
                                 .warning("If you still want keep enable disableHopperMoveEvents enables " +
                                         "in this world, please disable Hopper protection or make sure no shops in this world.");
 
-                    });
+                    //});
                 }
                 //File related changes
                 if (disableHopperMoveEvents) {

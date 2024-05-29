@@ -183,7 +183,7 @@ public class RollbarErrorReporter implements IErrorReporter {
     @Override
     public void sendError(@NotNull Throwable throwable, @NotNull String... context) {
         if (Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> sendError0(throwable, context));
+            Bukkit.getAsyncScheduler().runNow(plugin, task -> sendError0(throwable, context));
             //ignore async response
         } else {
             sendError0(throwable, context);

@@ -62,6 +62,11 @@ public class Trader implements OfflinePlayer {
     }
 
     @Override
+    public boolean isConnected() {
+        return offlinePlayer.isConnected();
+    }
+
+    @Override
     public @Nullable String getName() {
         return lastKnownName == null && offlinePlayer.isOnline() ? lastKnownName = offlinePlayer.getName() : lastKnownName;
     }
@@ -71,9 +76,8 @@ public class Trader implements OfflinePlayer {
         return offlinePlayer.getUniqueId();
     }
 
-    @NotNull
     @Override
-    public PlayerProfile getPlayerProfile() {
+    public com.destroystokyo.paper.profile.@NotNull PlayerProfile getPlayerProfile() {
         return offlinePlayer.getPlayerProfile();
     }
 
@@ -133,6 +137,16 @@ public class Trader implements OfflinePlayer {
     @Override
     public @Nullable Location getBedSpawnLocation() {
         return offlinePlayer.getBedSpawnLocation();
+    }
+
+    @Override
+    public long getLastLogin() {
+        return offlinePlayer.getLastLogin();
+    }
+
+    @Override
+    public long getLastSeen() {
+        return offlinePlayer.getLastSeen();
     }
 
     @Override
