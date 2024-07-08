@@ -1050,7 +1050,7 @@ public class ContainerShop implements Shop {
         //Shop manger done this already
         //plugin.getShopManager().loadShop(this.getLocation().getWorld().getName(), this);
         plugin.getShopManager().getLoadedShops().add(this);
-        plugin.getShopContainerWatcher().scheduleCheck(this);
+        //plugin.getShopContainerWatcher().scheduleCheck(this);
 
         // check price restriction
         PriceLimiterCheckResult priceRestriction = plugin.getShopManager().getPriceLimiter().check(item, price);
@@ -1536,21 +1536,22 @@ public class ContainerShop implements Shop {
     /**
      * Check the container still there and we can keep use it.
      */
-    public void checkContainer() {
+    public boolean checkContainer() {
         Util.ensureThread(this.getLocation(), false);
-        if (!this.isLoaded) {
-            return;
+        if (!this.isLoaded || !Util.isLoaded(this.getLocation())) {
+            return true;
         }
-        if (!Util.isLoaded(this.getLocation())) {
-            return;
-        }
+
         if (!Util.canBeShop(this.getLocation().getBlock())) {
             Util.debugLog("Shop at " + this.getLocation() + "@" + this.getLocation().getBlock()
                     + " container was missing, deleting...");
             plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(), "Container invalid", saveToInfoStorage()));
             this.onUnload();
             this.delete(false);
+            return false;
         }
+
+        return true;
     }
 
     @Override

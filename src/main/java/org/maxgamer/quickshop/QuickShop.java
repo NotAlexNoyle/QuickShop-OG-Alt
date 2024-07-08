@@ -1126,7 +1126,7 @@ public class QuickShop extends JavaPlugin implements QuickShopAPI {
         calendarWatcher = new CalendarWatcher(this);
         // shopVaildWatcher.runTaskTimer(this, 0, 20 * 60); // Nobody use it
         timerTaskList.add(getServer().getAsyncScheduler().runAtFixedRate(this, signUpdateWatcher, 1, 500, TimeUnit.MILLISECONDS));
-        timerTaskList.add(getServer().getAsyncScheduler().runAtFixedRate(this, shopContainerWatcher, 1, 250, TimeUnit.MILLISECONDS)); // Nobody use it
+        //timerTaskList.add(getServer().getAsyncScheduler().runAtFixedRate(this, shopContainerWatcher, 1, 250, TimeUnit.MILLISECONDS)); // Nobody use it
 
         if (logWatcher != null) {
             timerTaskList.add(getServer().getAsyncScheduler().runAtFixedRate(this, logWatcher, 250, 250, TimeUnit.MILLISECONDS));
