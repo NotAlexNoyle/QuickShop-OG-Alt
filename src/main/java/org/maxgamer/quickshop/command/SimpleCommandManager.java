@@ -76,6 +76,7 @@ public class SimpleCommandManager implements CommandManager, TabCompleter, Comma
                         .permission("quickshop.unlimited")
                         .executor(new SubCommand_SilentUnlimited(plugin))
                         .build());
+        /*
         registerCmd(
                 CommandContainer.builder()
                         .prefix("alwayscounting")
@@ -83,6 +84,7 @@ public class SimpleCommandManager implements CommandManager, TabCompleter, Comma
                         .permission("quickshop.alwayscounting")
                         .executor(new SubCommand_AlwaysCounting(plugin))
                         .build());
+        */
         registerCmd(
                 CommandContainer.builder()
                         .prefix("silentalwayscounting")

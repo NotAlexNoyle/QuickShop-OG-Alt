@@ -103,7 +103,7 @@ public class ContainerShop implements Shop {
     private static final String SHOP_SIGN_PREFIX = "§d§o §0";
     @NotNull
     private final Location location;
-    private final YamlConfiguration extra;
+    private @Nullable YamlConfiguration extra;
     @EqualsAndHashCode.Exclude
     private final QuickShop plugin;
     @EqualsAndHashCode.Exclude
@@ -112,7 +112,6 @@ public class ContainerShop implements Shop {
     private double price;
     private ShopType shopType;
     private boolean unlimited;
-    private boolean isAlwaysCountingContainer;
     @NotNull
     private ItemStack item;
     @Nullable
@@ -160,7 +159,6 @@ public class ContainerShop implements Shop {
         this.currency = s.currency;
         this.disableDisplay = s.disableDisplay;
         this.taxAccount = s.taxAccount;
-        this.isAlwaysCountingContainer = s.isAlwaysCountingContainer;
         initDisplayItem();
     }
 
@@ -186,7 +184,7 @@ public class ContainerShop implements Shop {
             @NotNull ShopModerator moderator,
             boolean unlimited,
             @NotNull ShopType type,
-            @NotNull YamlConfiguration extra,
+            @Nullable YamlConfiguration extra,
             @Nullable String currency,
             boolean disableDisplay,
             @Nullable UUID taxAccount) {
@@ -211,14 +209,13 @@ public class ContainerShop implements Shop {
         }
         this.shopType = type;
         this.unlimited = unlimited;
-        this.extra = extra;
+        this.extra = null;
         this.currency = currency;
         this.disableDisplay = disableDisplay;
         this.taxAccount = taxAccount;
         initDisplayItem();
         this.dirty = false;
         updateShopData();
-        isAlwaysCountingContainer = getExtra(plugin).getBoolean("is-always-counting-container", false);
     }
 
     private void updateShopData() {
@@ -352,7 +349,7 @@ public class ContainerShop implements Shop {
             return;
         }
         ItemStack[] contents = buyerInventory.getContents();
-        if (this.isUnlimited() && !isAlwaysCountingContainer) {
+        if (this.isUnlimited() && !isAlwaysCountingContainer()) {
             for (int i = 0; amount > 0 && i < contents.length; i++) {
                 ItemStack stack = contents[i];
                 if (stack == null || stack.getType() == Material.AIR) {
@@ -636,14 +633,11 @@ public class ContainerShop implements Shop {
 
     @Override
     public boolean isAlwaysCountingContainer() {
-        return isAlwaysCountingContainer;
+        return false;
     }
 
     public void setAlwaysCountingContainer(boolean value) {
-        isAlwaysCountingContainer = value;
-        getExtra(plugin).set("is-always-counting-container", value);
-        setDirty();
-        update();
+
     }
 
     @Override
@@ -1556,7 +1550,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public @NotNull String saveExtraToYaml() {
-        return extra.saveToString();
+        return "";
     }
 
     /**
@@ -1569,6 +1563,9 @@ public class ContainerShop implements Shop {
      */
     @Override
     public @NotNull ConfigurationSection getExtra(@NotNull Plugin plugin) {
+        if (extra == null)
+            extra = new YamlConfiguration();
+
         ConfigurationSection section = extra.getConfigurationSection(plugin.getName());
         if (section == null) {
             section = extra.createSection(plugin.getName());
@@ -1585,6 +1582,9 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setExtra(@NotNull Plugin plugin, @NotNull ConfigurationSection data) {
+        if (extra == null)
+            extra = new YamlConfiguration();
+
         extra.set(plugin.getName(), data);
         setDirty();
         update();
