@@ -119,13 +119,13 @@ public class SimpleCommandManager implements CommandManager, TabCompleter, Comma
                         .build());
         registerCmd(
                 CommandContainer.builder()
-                        .prefix("buy")
+                        .prefix("setbuy")
                         .permission("quickshop.create.buy")
                         .executor(new SubCommand_Buy(plugin))
                         .build());
         registerCmd(
                 CommandContainer.builder()
-                        .prefix("sell")
+                        .prefix("setsell")
                         .permission("quickshop.create.sell")
                         .executor(new SubCommand_Sell(plugin))
                         .build());

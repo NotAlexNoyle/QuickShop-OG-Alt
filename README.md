@@ -1,5 +1,7 @@
 # QuickShop-Reremake
 
+**Credit to nfish2021 for their command changes. Licensed under GPLv3.
+
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/e33e2fafe3ac4d4eb9048d154bbd874e)](https://www.codacy.com/gh/PotatoCraft-Studio/QuickShop-Reremake/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PotatoCraft-Studio/QuickShop-Reremake&amp;utm_campaign=Badge_Grade)
 [![CodeFactor](https://www.codefactor.io/repository/github/potatocraft-studio/quickshop-reremake/badge)](https://www.codefactor.io/repository/github/potatocraft-studio/quickshop-reremake)
 ![BuildStatus](https://ci.codemc.io/job/PotatoCraft-Studio/job/QuickShop-Reremake/21/badge/icon)
