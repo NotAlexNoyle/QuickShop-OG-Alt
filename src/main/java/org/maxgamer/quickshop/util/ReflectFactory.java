@@ -40,11 +40,13 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
- * ReflectFactory is library builtin QuickShop to get/execute stuff that cannot be access with BukkitAPI with reflect way.
+ * ReflectFactory is library builtin QuickShop to get/execute stuff that cannot
+ * be access with BukkitAPI with reflect way.
  *
  * @author Ghost_chu
  */
 public class ReflectFactory {
+
     private static String cachedVersion = null;
     private static Method craftItemStack_asNMSCopyMethod;
     private static Method itemStack_saveMethod;
@@ -58,49 +60,78 @@ public class ReflectFactory {
 //    private static Field tpsField;
 
     static {
+
         String nmsVersion = getNMSVersion();
 
         try {
-            craftItemStack_asNMSCopyMethod =
-                    Class.forName("org.bukkit.craftbukkit." + nmsVersion + ".inventory.CraftItemStack")
-                            .getDeclaredMethod("asNMSCopy", ItemStack.class);
+
+            craftItemStack_asNMSCopyMethod = Class
+                    .forName("org.bukkit.craftbukkit." + nmsVersion + ".inventory.CraftItemStack")
+                    .getDeclaredMethod("asNMSCopy", ItemStack.class);
 
             GameVersion gameVersion = GameVersion.get(nmsVersion);
             if (gameVersion.isNewNmsName()) {
+
                 // 1.17+
                 nbtTagCompoundClass = Class.forName("net.minecraft.nbt.NBTTagCompound");
-                List<Method> methodList = Arrays.stream(Class.forName("net.minecraft.world.item.ItemStack").getDeclaredMethods()).filter(method ->
+                List<Method> methodList = Arrays
+                        .stream(Class.forName("net.minecraft.world.item.ItemStack").getDeclaredMethods())
+                        .filter(method ->
                         {
+
                             Class<?> returnType = method.getReturnType();
                             Parameter[] parameters = method.getParameters();
-                            //Save method sign is foo(net/minecraft/nbt/NBTTagCompound)L(net/minecraft/nbt/NBTTagCompound)
-                            return !method.isSynthetic() && !method.isBridge() && parameters.length == 1 && returnType.equals(nbtTagCompoundClass) && parameters[0].getType().equals(nbtTagCompoundClass);
-                        }
-                ).collect(Collectors.toList());
+                            // Save method sign is
+                            // foo(net/minecraft/nbt/NBTTagCompound)L(net/minecraft/nbt/NBTTagCompound)
+                            return !method.isSynthetic() && !method.isBridge() && parameters.length == 1
+                                    && returnType.equals(nbtTagCompoundClass)
+                                    && parameters[0].getType().equals(nbtTagCompoundClass);
+
+                        }).collect(Collectors.toList());
                 if (methodList.size() == 1) {
+
                     itemStack_saveMethod = methodList.get(0);
+
                 } else {
-                    throw new RuntimeException("Unable to find correct itemStack save method, got " + methodList + ", please report!");
+
+                    throw new RuntimeException(
+                            "Unable to find correct itemStack save method, got " + methodList + ", please report!");
+
                 }
+
             } else {
+
                 // Before 1.17
                 nbtTagCompoundClass = Class.forName("net.minecraft.server." + nmsVersion + ".NBTTagCompound");
-                itemStack_saveMethod = Class.forName("net.minecraft.server." + nmsVersion + ".ItemStack").getDeclaredMethod("save", nbtTagCompoundClass);
+                itemStack_saveMethod = Class.forName("net.minecraft.server." + nmsVersion + ".ItemStack")
+                        .getDeclaredMethod("save", nbtTagCompoundClass);
+
             }
+
             craftServerClass = Class.forName("org.bukkit.craftbukkit." + nmsVersion + ".CraftServer");
 
         } catch (Exception t) {
-            QuickShop.getInstance().getLogger().log(Level.WARNING, "Failed to loading up net.minecraft.server support module, usually this caused by NMS changes but QuickShop not support yet, Did you have up-to-date?", t);
+
+            QuickShop.getInstance().getLogger().log(Level.WARNING,
+                    "Failed to loading up net.minecraft.server support module, usually this caused by NMS changes but QuickShop not support yet, Did you have up-to-date?",
+                    t);
+
         }
+
     }
 
     @NotNull
     public static String getNMSVersion() {
+
         if (nmsVersion == null) {
+
             String name = Bukkit.getServer().getClass().getPackage().getName();
             nmsVersion = name.substring(name.lastIndexOf('.') + 1);
+
         }
+
         return nmsVersion;
+
     }
 
     /**
@@ -110,7 +141,9 @@ public class ReflectFactory {
      */
     @NotNull
     public static Double getTPS() {
+
         return QuickShop.getInstance().getTpsWatcher().getAverageTPS();
+
 //        if (serverInstance == null || tpsField == null) {
 //            try {
 //                serverInstance = getNMSClass("MinecraftServer").getMethod("getServer").invoke(null);
@@ -141,46 +174,71 @@ public class ReflectFactory {
 
     @NotNull
     public static Class<?> getNMSClass(@Nullable String className) {
+
         if (cachedNMSClass != null) {
+
             return cachedNMSClass;
+
         }
+
         if (className == null) {
+
             className = "MinecraftServer";
+
         }
+
         String name = Bukkit.getServer().getClass().getPackage().getName();
         String version = name.substring(name.lastIndexOf('.') + 1);
         try {
+
             cachedNMSClass = Class.forName("net.minecraft.server." + version + "." + className);
             return cachedNMSClass;
+
         } catch (ClassNotFoundException e) {
+
             throw new RuntimeException(e);
+
         }
+
     }
 
     @NotNull
     public static String getServerVersion() {
+
         if (cachedVersion != null) {
+
             return cachedVersion;
+
         }
+
         try {
+
             Field consoleField = Bukkit.getServer().getClass().getDeclaredField("console");
             // protected
             consoleField.setAccessible(true);
             // dedicated server
             Object console = consoleField.get(Bukkit.getServer());
-            cachedVersion = String.valueOf(
-                    console.getClass().getSuperclass().getMethod("getVersion").invoke(console));
+            cachedVersion = String.valueOf(console.getClass().getSuperclass().getMethod("getVersion").invoke(console));
             return cachedVersion;
+
         } catch (Exception e) {
-            //Fallback to common substring
+
+            // Fallback to common substring
             String[] strings = StringUtils.substringsBetween(Bukkit.getServer().getVersion(), "(MC: ", ")");
             if (strings != null && strings.length == 1) {
+
                 cachedVersion = strings[0];
+
             } else {
+
                 cachedVersion = "Unknown";
+
             }
+
             return cachedVersion;
+
         }
+
     }
 
     /**
@@ -194,15 +252,24 @@ public class ReflectFactory {
      * @throws InstantiationException    throws
      */
     @Nullable
-    public static String convertBukkitItemStackToJson(@NotNull ItemStack bStack) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException {
-        if (bStack.getType() == Material.AIR || craftItemStack_asNMSCopyMethod == null || nbtTagCompoundClass == null || itemStack_saveMethod == null) {
+    public static String convertBukkitItemStackToJson(@NotNull ItemStack bStack)
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException
+    {
+
+        if (bStack.getType() == Material.AIR || craftItemStack_asNMSCopyMethod == null || nbtTagCompoundClass == null
+                || itemStack_saveMethod == null)
+        {
+
             return null;
+
         }
+
         Object mcStack = craftItemStack_asNMSCopyMethod.invoke(null, bStack);
         Object nbtTagCompound = nbtTagCompoundClass.getDeclaredConstructor().newInstance();
 
         itemStack_saveMethod.invoke(mcStack, nbtTagCompound);
         return nbtTagCompound.toString();
+
     }
 
     /**
@@ -216,92 +283,154 @@ public class ReflectFactory {
      * @throws InstantiationException    throws
      */
     @Nullable
-    public static Object convertBukkitItemStackToMojangItemStack(@NotNull ItemStack bStack) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException {
+    public static Object convertBukkitItemStackToMojangItemStack(@NotNull ItemStack bStack)
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException
+    {
+
         if (bStack.getType() == Material.AIR) {
+
             return null;
+
         }
+
         Object mcStack = craftItemStack_asNMSCopyMethod.invoke(null, bStack);
         Object nbtTagCompound = nbtTagCompoundClass.getDeclaredConstructor().newInstance();
 
         itemStack_saveMethod.invoke(mcStack, nbtTagCompound);
         return nbtTagCompound.toString();
+
     }
 
     public static CommandMap getCommandMap() throws NoSuchFieldException, IllegalAccessException {
+
         Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
         commandMapField.setAccessible(true);
         return (CommandMap) commandMapField.get(Bukkit.getServer());
+
     }
 
     public static void syncCommands() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
         Method method = craftServerClass.getDeclaredMethod("syncCommands");
         try {
+
             method.setAccessible(true);
+
         } catch (Exception ignored) {
+
         }
+
         method.invoke(Bukkit.getServer(), (Object[]) null);
+
     }
 
-    private static Method findMethod(Class<?> targetClass, Class<?> returnType, Predicate<Method> filter, Class<?>... args) {
-        FindProcess:
-        for (Method method : targetClass.getMethods()) {
+    private static Method findMethod(Class<?> targetClass, Class<?> returnType, Predicate<Method> filter,
+            Class<?>... args)
+    {
+
+        FindProcess: for (Method method : targetClass.getMethods()) {
+
             if (method.isBridge() && method.isSynthetic()) {
+
                 continue;
+
             }
+
             if (method.getReturnType() == returnType) {
+
                 if (method.getParameterCount() == args.length) {
+
                     Parameter[] parameters = method.getParameters();
                     for (int i = 0; i < args.length; i++) {
+
                         if (parameters[i].getType() != args[i]) {
+
                             continue FindProcess;
+
                         }
+
                     }
+
                     if (filter.test(method)) {
+
                         return method;
+
                     }
+
                 }
+
             }
+
         }
         return null;
+
     }
 
     @Nullable
     public static String getMaterialMinecraftNamespacedKey(Material material) {
+
         Object nmsItem;
         try {
-            nmsItem = Class.forName("org.bukkit.craftbukkit." + getNMSVersion() + ".util.CraftMagicNumbers").getMethod("getItem", Material.class).invoke(null, material);
+
+            nmsItem = Class.forName("org.bukkit.craftbukkit." + getNMSVersion() + ".util.CraftMagicNumbers")
+                    .getMethod("getItem", Material.class).invoke(null, material);
 
             if (nmsItem == null) {
+
                 Util.debugLog("nmsItem null");
                 return null;
+
             }
+
             try {
+
                 getMinecraftKeyNameMethod = nmsItem.getClass().getMethod("getName");
+
             } catch (NoSuchMethodException exception) {
+
                 Util.debugLog("Mapping changed during minecraft update, dynamic searching...");
                 getMinecraftKeyNameMethod = findMethod(nmsItem.getClass(), String.class, method -> {
+
                     try {
-                        return !"toString".equals(method.getName()) && ((String) method.invoke(nmsItem)).toLowerCase().contains(material.getKey().getKey().toLowerCase(Locale.ROOT));
+
+                        return !"toString".equals(method.getName()) && ((String) method.invoke(nmsItem)).toLowerCase()
+                                .contains(material.getKey().getKey().toLowerCase(Locale.ROOT));
+
                     } catch (Throwable throwable) {
+
                         return false;
+
                     }
+
                 });
+
             }
 
             if (getMinecraftKeyNameMethod == null) {
+
                 Util.debugLog("getMinecraftKeyNameMethod is null");
                 return null;
+
             } else {
+
                 return (String) getMinecraftKeyNameMethod.invoke(nmsItem);
+
             }
-        } catch (IllegalAccessException | ClassNotFoundException | NoSuchMethodException |
-                 InvocationTargetException e) {
+
+        } catch (IllegalAccessException | ClassNotFoundException | NoSuchMethodException
+                | InvocationTargetException e)
+        {
+
             Util.debugLog("getMinecraftKeyNameMethod, error: " + e);
             return null;
+
         } catch (Throwable throwable) {
+
             Util.debugLog("getMinecraftKeyNameMethod, Unknown error: " + throwable);
             return null;
+
         }
+
     }
 
 }

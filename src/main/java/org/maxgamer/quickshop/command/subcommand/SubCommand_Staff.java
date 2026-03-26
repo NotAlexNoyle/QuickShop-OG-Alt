@@ -41,22 +41,30 @@ import java.util.UUID;
 public class SubCommand_Staff implements CommandHandler<Player> {
 
     private final QuickShop plugin;
-    private final List<String> tabCompleteList = Collections.unmodifiableList(
-            Arrays.asList("add", "del", "list", "clear")
-    );
+    private final List<String> tabCompleteList = Collections
+            .unmodifiableList(Arrays.asList("add", "del", "list", "clear"));
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         BlockIterator bIt = new BlockIterator(sender, 10);
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
-            if (shop == null || (!shop.getModerator().isModerator(sender.getUniqueId()) && !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.staff"))) {
+            if (shop == null || (!shop.getModerator().isModerator(sender.getUniqueId())
+                    && !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.staff")))
+            {
+
                 continue;
+
             }
+
             switch (cmdArg.length) {
+
                 case 1:
                     switch (cmdArg[0]) {
+
                         case "clear":
                             shop.clearStaffs();
                             plugin.text().of(sender, "shop-staff-cleared").send();
@@ -64,17 +72,18 @@ public class SubCommand_Staff implements CommandHandler<Player> {
                         case "list":
                             final List<UUID> staffs = shop.getStaffs();
                             if (staffs.isEmpty()) {
-                                MsgUtil.sendDirectMessage(sender,
-                                        ChatColor.GREEN
-                                                + plugin.text().of(sender, "tableformat.left_begin").forLocale()
-                                                + "Empty");
+
+                                MsgUtil.sendDirectMessage(sender, ChatColor.GREEN
+                                        + plugin.text().of(sender, "tableformat.left_begin").forLocale() + "Empty");
                                 return;
+
                             }
                             for (UUID uuid : staffs) {
+
                                 MsgUtil.sendDirectMessage(sender,
-                                        ChatColor.GREEN
-                                                + plugin.text().of(sender, "tableformat.left_begin").forLocale()
+                                        ChatColor.GREEN + plugin.text().of(sender, "tableformat.left_begin").forLocale()
                                                 + PlayerFinder.findNameByUUID(uuid));
+
                             }
                             return;
                         case "add":
@@ -82,53 +91,72 @@ public class SubCommand_Staff implements CommandHandler<Player> {
                         default:
                             plugin.text().of(sender, "command.wrong-args").send();
                             return;
+
                     }
                 case 2:
-                    final PlayerFinder.PlayerProfile profile = PlayerFinder.findPlayerProfileByName(cmdArg[1], false, plugin.isIncludeOfflinePlayer());
+                    final PlayerFinder.PlayerProfile profile = PlayerFinder.findPlayerProfileByName(cmdArg[1], false,
+                            plugin.isIncludeOfflinePlayer());
                     if (profile == null) {
+
                         plugin.text().of(sender, "unknown-player").send();
                         return;
+
                     }
                     String offlinePlayerName = profile.getName();
                     if (offlinePlayerName == null) {
+
                         offlinePlayerName = "null";
+
                     }
                     switch (cmdArg[0]) {
+
                         case "add":
                             shop.addStaff(profile.getUuid());
                             plugin.text().of(sender, "shop-staff-added", offlinePlayerName).send();
                             return;
                         case "del":
                             shop.delStaff(profile.getUuid());
-                            plugin.text().of(sender,
-                                    "shop-staff-deleted", offlinePlayerName).send();
+                            plugin.text().of(sender, "shop-staff-deleted", offlinePlayerName).send();
                             return;
                         default:
                             plugin.text().of(sender, "command.wrong-args").send();
                             return;
+
                     }
                 default:
                     plugin.text().of(sender, "command.wrong-args").send();
                     return;
+
             }
+
         }
-        //no match shop
+
+        // no match shop
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
     @NotNull
     @Override
-    public List<String> onTabComplete(
-            @NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
 
         if (cmdArg.length == 1) {
+
             return tabCompleteList;
+
         } else if (cmdArg.length == 2) {
+
             String prefix = cmdArg[0].toLowerCase();
             if ("add".equals(prefix) || "del".equals(cmdArg[0])) {
+
                 return Util.getPlayerList();
+
             }
+
         }
+
         return Collections.emptyList();
+
     }
+
 }

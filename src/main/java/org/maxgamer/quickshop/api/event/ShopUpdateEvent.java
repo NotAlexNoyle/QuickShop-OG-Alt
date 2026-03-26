@@ -39,18 +39,24 @@ public class ShopUpdateEvent extends AbstractQSEvent implements Cancellable {
      * @param shop The shop bought from
      */
     public ShopUpdateEvent(@NotNull Shop shop) {
+
         super();
         this.shop = shop;
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return this.cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean cancelled) {
+
         this.cancelled = cancelled;
+
     }
 
     /**
@@ -59,6 +65,9 @@ public class ShopUpdateEvent extends AbstractQSEvent implements Cancellable {
      * @return the shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
+
 }

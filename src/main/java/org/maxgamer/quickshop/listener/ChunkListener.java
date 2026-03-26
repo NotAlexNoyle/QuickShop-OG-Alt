@@ -35,40 +35,64 @@ import java.util.Map;
 public class ChunkListener extends AbstractQSListener {
 
     public ChunkListener(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onChunkLoad(ChunkLoadEvent e) {
 
         if (e.isNewChunk()) {
+
             return;
+
         }
+
         final Map<Location, Shop> inChunk = plugin.getShopManager().getShops(e.getChunk());
         if (inChunk == null) {
-            return;
-        }
-        plugin.getServer().getRegionScheduler().runDelayed(plugin, e.getWorld(), e.getChunk().getX(), e.getChunk().getZ(), task -> {
-            for (Shop shop : inChunk.values()) {
-                if (shop instanceof ContainerShop cs && !cs.checkContainer())
-                    continue;
 
-                shop.onLoad();
-            }
-        }, 1);
+            return;
+
+        }
+
+        plugin.getServer().getRegionScheduler().runDelayed(plugin, e.getWorld(), e.getChunk().getX(),
+                e.getChunk().getZ(), task ->
+                {
+
+                    for (Shop shop : inChunk.values()) {
+
+                        if (shop instanceof ContainerShop cs && !cs.checkContainer())
+                            continue;
+
+                        shop.onLoad();
+
+                    }
+
+                }, 1);
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onChunkUnload(ChunkUnloadEvent e) {
+
         final Map<Location, Shop> inChunk = plugin.getShopManager().getShops(e.getChunk());
         if (inChunk == null) {
+
             return;
+
         }
+
         for (Shop shop : inChunk.values()) {
+
             if (shop.isLoaded()) {
+
                 shop.onUnload();
+
             }
+
         }
+
     }
 
     /**
@@ -78,6 +102,9 @@ public class ChunkListener extends AbstractQSListener {
      */
     @Override
     public ReloadResult reloadModule() {
+
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
+
 }

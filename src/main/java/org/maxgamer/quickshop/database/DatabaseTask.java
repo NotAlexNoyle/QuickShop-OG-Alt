@@ -19,7 +19,6 @@
 
 package org.maxgamer.quickshop.database;
 
-
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,32 +30,44 @@ import java.sql.SQLException;
 public class DatabaseTask {
 
     private final static Task EMPTY_TASK = ps -> {
+
     };
     private final String statement;
     private final Task task;
 
     public DatabaseTask(String statement, Task task) {
+
         this.statement = statement;
         this.task = task;
+
     }
 
     public DatabaseTask(String statement) {
+
         this.statement = statement;
         this.task = EMPTY_TASK;
+
     }
 
-
     public void run(@NotNull Connection connection) {
-        try (PreparedStatement ps = connection.prepareStatement(statement)) { //TODO Use addBatch to improve performance
+
+        try (PreparedStatement ps = connection.prepareStatement(statement)) { // TODO Use addBatch to improve
+                                                                              // performance
+
             task.edit(ps);
             ps.execute();
             task.onSuccess();
+
         } catch (SQLException e) {
+
             task.onFailed(e);
+
         }
+
     }
 
     interface Task {
+
         /**
          * Edit action before commit the PreparedStatement
          *
@@ -69,6 +80,7 @@ public class DatabaseTask {
          * Calling when PreparedStatement finished without any errors
          */
         default void onSuccess() {
+
         }
 
         /**
@@ -77,7 +89,9 @@ public class DatabaseTask {
          * @param e The exception
          */
         default void onFailed(SQLException e) {
+
             e.printStackTrace();
+
         }
 
     }

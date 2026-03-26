@@ -36,24 +36,32 @@ public class ShopDeleteEvent extends AbstractQSEvent implements Cancellable {
     private boolean cancelled;
 
     /**
-     * Call the event when shop is deleting. The ShopUnloadEvent will call after ShopDeleteEvent
+     * Call the event when shop is deleting. The ShopUnloadEvent will call after
+     * ShopDeleteEvent
      *
      * @param shop       Target shop
-     * @param fromMemory Only delete from the memory? false = delete both in memory and database
+     * @param fromMemory Only delete from the memory? false = delete both in memory
+     *                   and database
      */
     public ShopDeleteEvent(@NotNull Shop shop, boolean fromMemory) {
+
         this.shop = shop;
         this.fromMemory = fromMemory;
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return this.cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean cancelled) {
+
         this.cancelled = cancelled;
+
     }
 
     /**
@@ -62,7 +70,9 @@ public class ShopDeleteEvent extends AbstractQSEvent implements Cancellable {
      * @return only from memory
      */
     public boolean isFromMemory() {
+
         return this.fromMemory;
+
     }
 
     /**
@@ -71,6 +81,9 @@ public class ShopDeleteEvent extends AbstractQSEvent implements Cancellable {
      * @return The shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
+
 }

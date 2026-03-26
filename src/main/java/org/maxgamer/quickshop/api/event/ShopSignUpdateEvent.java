@@ -41,8 +41,10 @@ public class ShopSignUpdateEvent extends AbstractQSEvent {
      * @param sign Updated sign
      */
     public ShopSignUpdateEvent(@NotNull Shop shop, @NotNull Sign sign) {
+
         this.shop = shop;
         this.sign = sign;
+
     }
 
     /**
@@ -51,7 +53,9 @@ public class ShopSignUpdateEvent extends AbstractQSEvent {
      * @return the shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
 
     /**
@@ -60,6 +64,9 @@ public class ShopSignUpdateEvent extends AbstractQSEvent {
      * @return the sign
      */
     public @NotNull Sign getSign() {
+
         return this.sign;
+
     }
+
 }

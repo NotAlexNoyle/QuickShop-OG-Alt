@@ -31,48 +31,32 @@ import org.jetbrains.annotations.NotNull;
 @AllArgsConstructor
 @Getter
 public enum GameVersion {
-    v1_5_R1(false, true, false, false, false, false),
-    v1_5_R2(false, true, false, false, false, false),
-    v1_5_R3(false, true, false, false, false, false),
-    v1_6_R1(false, true, false, false, false, false),
-    v1_6_R2(false, true, false, false, false, false),
-    v1_6_R3(false, true, false, false, false, false),
-    v1_7_R1(false, true, false, false, false, false),
-    v1_7_R2(false, true, false, false, false, false),
-    v1_7_R3(false, true, false, false, false, false),
-    v1_7_R4(false, true, false, false, false, false),
-    v1_8_R1(false, true, false, false, false, false),
-    v1_8_R2(false, true, false, false, false, false),
-    v1_8_R3(false, true, false, false, false, false),
-    v1_9_R1(false, true, false, false, false, false),
-    v1_9_R2(false, true, false, false, false, false),
-    v1_10_R1(false, true, false, false, false, false),
-    v1_11_R1(false, true, false, false, false, false),
-    v1_12_R1(false, true, false, false, false, false),
-    v1_12_R2(false, true, false, false, false, false),
-    v1_13_R1(false, true, true, false, false, false),
-    v1_13_R2(false, true, true, false, false, false),
-    v1_14_R1(false, true, true, false, false, false),
-    v1_14_R2(false, true, true, false, false, false),
-    v1_15_R1(true, false, true, false, false, false),
-    v1_15_R2(true, false, true, false, false, false),
-    v1_16_R1(true, false, true, false, false, false),
-    v1_16_R2(true, false, true, false, false, false),
-    v1_16_R3(true, false, true, false, false, false),
-    v1_16_R4(true, false, true, false, false, false),
-    v1_17_R1(true, false, true, true, true, true),
-    v1_18_R1(true, false, true, true, true, true),
-    v1_18_R2(true, false, true, true, true, true),
-    v1_19_R1(true, false, true, true, true, true),
-    v1_19_R2(true, false, true, true, true, true),
-    v1_19_R3(true, false, true, true, true, true),
-    v1_20_R1(true, false, true, true, true, true),
-    v1_20_R2(true, false, true, true, true, true),
-    v1_20_R3(true, false, true, true, true, true),
+
+    v1_5_R1(false, true, false, false, false, false), v1_5_R2(false, true, false, false, false, false),
+    v1_5_R3(false, true, false, false, false, false), v1_6_R1(false, true, false, false, false, false),
+    v1_6_R2(false, true, false, false, false, false), v1_6_R3(false, true, false, false, false, false),
+    v1_7_R1(false, true, false, false, false, false), v1_7_R2(false, true, false, false, false, false),
+    v1_7_R3(false, true, false, false, false, false), v1_7_R4(false, true, false, false, false, false),
+    v1_8_R1(false, true, false, false, false, false), v1_8_R2(false, true, false, false, false, false),
+    v1_8_R3(false, true, false, false, false, false), v1_9_R1(false, true, false, false, false, false),
+    v1_9_R2(false, true, false, false, false, false), v1_10_R1(false, true, false, false, false, false),
+    v1_11_R1(false, true, false, false, false, false), v1_12_R1(false, true, false, false, false, false),
+    v1_12_R2(false, true, false, false, false, false), v1_13_R1(false, true, true, false, false, false),
+    v1_13_R2(false, true, true, false, false, false), v1_14_R1(false, true, true, false, false, false),
+    v1_14_R2(false, true, true, false, false, false), v1_15_R1(true, false, true, false, false, false),
+    v1_15_R2(true, false, true, false, false, false), v1_16_R1(true, false, true, false, false, false),
+    v1_16_R2(true, false, true, false, false, false), v1_16_R3(true, false, true, false, false, false),
+    v1_16_R4(true, false, true, false, false, false), v1_17_R1(true, false, true, true, true, true),
+    v1_18_R1(true, false, true, true, true, true), v1_18_R2(true, false, true, true, true, true),
+    v1_19_R1(true, false, true, true, true, true), v1_19_R2(true, false, true, true, true, true),
+    v1_19_R3(true, false, true, true, true, true), v1_20_R1(true, false, true, true, true, true),
+    v1_20_R2(true, false, true, true, true, true), v1_20_R3(true, false, true, true, true, true),
 
     UNKNOWN(true, false, false, true, true, true);
+
     /**
-     * CoreSupports - Check does QuickShop most features supports this server version
+     * CoreSupports - Check does QuickShop most features supports this server
+     * version
      */
     private final boolean coreSupports;
 
@@ -82,7 +66,8 @@ public enum GameVersion {
     private final boolean endOfLife;
 
     /**
-     * VirtualDisplaySupports - Check does QuickShop VirtualDisplayItem feature this server version
+     * VirtualDisplaySupports - Check does QuickShop VirtualDisplayItem feature this
+     * server version
      */
     private final boolean virtualDisplaySupports;
 
@@ -101,7 +86,6 @@ public enum GameVersion {
      */
     private final boolean signTextDyeSupport;
 
-
     /**
      * Matches the version that QuickShop supports or not
      *
@@ -110,12 +94,19 @@ public enum GameVersion {
      */
     @NotNull
     public static GameVersion get(@NotNull String nmsVersion) {
+
         for (GameVersion version : GameVersion.values()) {
+
             if (version.name().equals(nmsVersion)) {
+
                 return version;
+
             }
+
         }
+
         return UNKNOWN;
+
     }
 
 }

@@ -20,14 +20,22 @@
 package org.maxgamer.quickshop.util.envcheck;
 
 public enum CheckResult {
-    SKIPPED("Skip"), PASSED("Pass"), WARNING("Warning"), STOP_WORKING("Error"), DISABLE_PLUGIN("Fatal"), KILL_SERVER("Kill");
+
+    SKIPPED("Skip"), PASSED("Pass"), WARNING("Warning"), STOP_WORKING("Error"), DISABLE_PLUGIN("Fatal"),
+    KILL_SERVER("Kill");
+
     private final String display;
 
     CheckResult(String display) {
+
         this.display = display;
+
     }
 
     public String getDisplay() {
+
         return display;
+
     }
+
 }

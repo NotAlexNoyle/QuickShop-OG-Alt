@@ -41,66 +41,99 @@ public class SubCommand_Paste implements CommandHandler<CommandSender> {
 
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         // do actions
         plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
+
             if (plugin.getServer().getPluginManager().getPlugin("ConsoleSpamFix") != null) {
+
                 if (cmdArg.length < 1) {
-                    sender.sendMessage("Warning: ConsoleSpamFix is installed! Please disable it before reporting any errors!");
+
+                    sender.sendMessage(
+                            "Warning: ConsoleSpamFix is installed! Please disable it before reporting any errors!");
                     return;
+
                 } else {
+
                     if (Arrays.stream(cmdArg).noneMatch(str -> str.contains("--force"))) {
-                        sender.sendMessage("Warning: ConsoleSpamFix is installed! Please disable it before reporting any errors!");
+
+                        sender.sendMessage(
+                                "Warning: ConsoleSpamFix is installed! Please disable it before reporting any errors!");
                         return;
+
                     }
+
                 }
+
             }
 
             if (Arrays.stream(cmdArg).anyMatch(str -> str.contains("file"))) {
+
                 pasteToLocalFile(sender);
                 return;
+
             }
+
             sender.sendMessage("§aPlease wait, QS is uploading the data to pastebin...");
             if (!pasteToPastebin(sender)) {
+
                 sender.sendMessage("The paste upload has failed! Saving the paste locally...");
                 pasteToLocalFile(sender);
+
             }
+
         });
+
     }
 
     private boolean pasteToPastebin(@NotNull CommandSender sender) {
+
         final Paste paste = new Paste(plugin);
         final String pasteText = paste.genNewPaste();
         String pasteResult = paste.paste(pasteText);
         if (pasteResult != null) {
+
             sender.sendMessage(pasteResult);
             return true;
+
         }
+
         return false;
+
     }
 
     private boolean pasteToLocalFile(@NotNull CommandSender sender) {
+
         File file = new File(plugin.getDataFolder(), "paste");
         file.mkdirs();
         file = new File(file, "paste-" + UUID.randomUUID().toString().replaceAll("-", "") + ".txt");
         final Paste paste = new Paste(plugin);
         final String pasteText = paste.genNewPaste();
         try {
+
             boolean createResult = file.createNewFile();
             Util.debugLog("Create paste file: " + file.getCanonicalPath() + " " + createResult);
             try (FileWriter fwriter = new FileWriter(file)) {
+
                 fwriter.write(pasteText);
                 fwriter.flush();
+
             }
+
             sender.sendMessage("The paste was saved to " + file.getAbsolutePath());
             return true;
+
         } catch (IOException e) {
+
             plugin.getSentryErrorReporter().ignoreThrow();
-            plugin.getLogger().log(Level.WARNING, "Failed to save paste locally! The content will be send to the console", e);
+            plugin.getLogger().log(Level.WARNING,
+                    "Failed to save paste locally! The content will be send to the console", e);
             sender.sendMessage("Paste save failed! Sending paste to the console...");
             plugin.getLogger().info(pasteText);
             return false;
-        }
-    }
 
+        }
+
+    }
 
 }

@@ -32,12 +32,16 @@ public class BukkitPermsProvider implements PermissionProvider {
 
     @Override
     public boolean hasPermission(@NotNull CommandSender sender, @NotNull String permission) {
+
         return sender.hasPermission(permission);
+
     }
 
     @Override
     public @NotNull String getName() {
+
         return "Bukkit";
+
     }
 
     /**
@@ -47,9 +51,12 @@ public class BukkitPermsProvider implements PermissionProvider {
      * @param permission The permission want to check
      * @return Debug Infos
      */
-    public @NotNull PermissionInformationContainer getDebugInfo(
-            @NotNull CommandSender sender, @NotNull String permission) {
+    public @NotNull PermissionInformationContainer getDebugInfo(@NotNull CommandSender sender,
+            @NotNull String permission)
+    {
+
         return new PermissionInformationContainer(sender, permission, null, null);
+
     }
 
 }

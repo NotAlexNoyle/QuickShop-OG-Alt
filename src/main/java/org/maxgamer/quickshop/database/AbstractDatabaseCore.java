@@ -32,33 +32,49 @@ import java.util.logging.Level;
  * @author sandtechnology
  */
 public abstract class AbstractDatabaseCore {
+
     private final ReentrantLock lock = new ReentrantLock(true);
     private final Condition conditionLock = lock.newCondition();
 
     void waitForConnection() {
+
         lock.lock();
         try {
+
             conditionLock.await();
+
         } catch (InterruptedException e) {
+
             getPlugin().getLogger().log(Level.SEVERE, "Exception when waiting new database connection", e);
             Thread.currentThread().interrupt();
+
         } finally {
+
             lock.unlock();
+
         }
+
     }
 
     void signalForNewConnection() {
+
         lock.lock();
         try {
+
             conditionLock.signal();
+
         } finally {
+
             lock.unlock();
+
         }
 
     }
 
     public String getTablePrefix() {
+
         return "";
+
     }
 
     /**
@@ -69,13 +85,16 @@ public abstract class AbstractDatabaseCore {
     /**
      * Gets the database connection for executing queries on.
      *
-     * @return The database connection, PLEASE MAKE SURE USING DatabaseConnection#release to CLOSE THE CONNECTION
+     * @return The database connection, PLEASE MAKE SURE USING
+     *         DatabaseConnection#release to CLOSE THE CONNECTION
      */
     @NotNull
     synchronized DatabaseConnection getConnection() {
+
         DatabaseConnection databaseConnection = getConnection0();
         databaseConnection.markUsing();
         return databaseConnection;
+
     }
 
     abstract DatabaseConnection getConnection0();

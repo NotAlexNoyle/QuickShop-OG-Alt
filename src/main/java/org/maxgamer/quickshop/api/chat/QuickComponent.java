@@ -25,12 +25,14 @@ import org.jetbrains.annotations.NotNull;
  * Pack the MineDown
  */
 public interface QuickComponent {
+
     /**
      * Gets QuickComponent object (BungeeChatComponent or AdventureChatComponent)
      *
      * @return The component
      */
-    @NotNull Object get();
+    @NotNull
+    Object get();
 
     /**
      * Sets QuickComponent object (BungeeChatComponent or AdventureChatComponent)
@@ -38,4 +40,5 @@ public interface QuickComponent {
      * @param component The component
      */
     void set(@NotNull Object component);
+
 }

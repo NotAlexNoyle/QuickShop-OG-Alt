@@ -27,12 +27,17 @@ import org.maxgamer.quickshop.shop.SimpleShopModerator;
 @AllArgsConstructor
 @Data
 public class ShopModeratorChangedLog implements ReadableLog {
+
     private static int v = 1;
     private ShopInfoStorage shop;
     private SimpleShopModerator moderator;
 
     @Override
     public String toReadableLog() {
-        return "Shop owner/staff at " + shop.getPosition() + " was changed, current moderator:" + moderator + ", shop raw data:" + shop.toJson();
+
+        return "Shop owner/staff at " + shop.getPosition() + " was changed, current moderator:" + moderator
+                + ", shop raw data:" + shop.toJson();
+
     }
+
 }

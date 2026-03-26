@@ -39,6 +39,7 @@ public class ShopInventoryEvent extends AbstractQSEvent {
      * @param shop The shop bought from
      */
     public ShopInventoryEvent(@NotNull Shop shop, @NotNull Inventory inventory) {
+
         this.shop = shop;
         this.inventory = inventory;
 
@@ -51,17 +52,20 @@ public class ShopInventoryEvent extends AbstractQSEvent {
      */
     @NotNull
     public Inventory getInventory() {
+
         return inventory;
+
     }
 
     /**
      * Sets the Inventory
      *
-     * @param inventory new inventory for shop for this time.
-     *                  It is not persis.
+     * @param inventory new inventory for shop for this time. It is not persis.
      */
     public void setInventory(@NotNull Inventory inventory) {
+
         this.inventory = inventory;
+
     }
 
     /**
@@ -70,6 +74,9 @@ public class ShopInventoryEvent extends AbstractQSEvent {
      * @return Clicked shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
+
 }

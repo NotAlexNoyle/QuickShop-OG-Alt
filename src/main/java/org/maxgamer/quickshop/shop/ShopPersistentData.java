@@ -24,6 +24,7 @@ import lombok.Getter;
 //TODO
 @Getter
 public class ShopPersistentData {
+
     @Expose
     private final String world;
     @Expose
@@ -35,10 +36,13 @@ public class ShopPersistentData {
     private final boolean setup;
 
     public ShopPersistentData(int x, int y, int z, String world, boolean setup) {
+
         this.x = x;
         this.y = y;
         this.z = z;
         this.world = world;
         this.setup = setup;
+
     }
+
 }

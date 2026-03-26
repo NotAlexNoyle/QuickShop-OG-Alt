@@ -48,18 +48,21 @@ import java.util.logging.Level;
 public class SubCommand_Debug implements CommandHandler<CommandSender> {
 
     private final QuickShop plugin;
-    private final List<String> tabCompleteList = Collections.unmodifiableList(
-            Arrays.asList("debug", "dev", "devmode", "handlerlist", "jvm", "signs")
-    );
+    private final List<String> tabCompleteList = Collections
+            .unmodifiableList(Arrays.asList("debug", "dev", "devmode", "handlerlist", "jvm", "signs"));
 
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         if (cmdArg.length < 1) {
+
             switchDebug(sender);
             return;
+
         }
 
         switch (cmdArg[0]) {
+
             case "debug":
             case "dev":
             case "devmode":
@@ -67,8 +70,10 @@ public class SubCommand_Debug implements CommandHandler<CommandSender> {
                 break;
             case "handlerlist":
                 if (cmdArg.length < 2) {
+
                     MsgUtil.sendDirectMessage(sender, "You must enter an event class");
                     break;
+
                 }
 
                 printHandlerList(sender, cmdArg[1]);
@@ -95,41 +100,56 @@ public class SubCommand_Debug implements CommandHandler<CommandSender> {
             case "signs":
                 final BlockIterator bIt = new BlockIterator((LivingEntity) sender, 10);
                 if (!bIt.hasNext()) {
+
                     plugin.text().of(sender, "not-looking-at-shop").send();
                     return;
+
                 }
                 while (bIt.hasNext()) {
+
                     final Block b = bIt.next();
                     final Shop shop = plugin.getShopManager().getShop(b.getLocation());
                     if (shop != null) {
-                        shop.getSigns().forEach(sign -> MsgUtil.sendDirectMessage(sender, ChatColor.GREEN + "Sign located at: " + sign.getLocation()));
+
+                        shop.getSigns().forEach(sign -> MsgUtil.sendDirectMessage(sender,
+                                ChatColor.GREEN + "Sign located at: " + sign.getLocation()));
                         break;
+
                     }
+
                 }
                 break;
             default:
                 MsgUtil.sendDirectMessage(sender, "Error! No correct arguments were entered!.");
                 break;
+
         }
+
     }
 
     @NotNull
     @Override
-    public List<String> onTabComplete(
-            @NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull String commandLabel,
+            @NotNull String[] cmdArg)
+    {
+
         return tabCompleteList;
+
     }
 
     public void switchDebug(@NotNull CommandSender sender) {
+
         final boolean debug = plugin.getConfig().getBoolean("dev-mode");
 
         if (debug) {
+
             plugin.reloadConfiguration();
             plugin.getConfig().set("dev-mode", false);
             plugin.saveConfiguration();
             plugin.getReloadManager().reload();
             plugin.text().of(sender, "command.now-nolonger-debuging").send();
             return;
+
         }
 
         plugin.reloadConfiguration();
@@ -137,28 +157,32 @@ public class SubCommand_Debug implements CommandHandler<CommandSender> {
         plugin.saveConfiguration();
         plugin.getReloadManager().reload();
         plugin.text().of(sender, "command.now-debuging").send();
+
     }
 
     public void printHandlerList(@NotNull CommandSender sender, String event) {
+
         try {
+
             final Class<?> clazz = Class.forName(event);
             final Method method = clazz.getMethod("getHandlerList");
             final Object[] obj = new Object[0];
             final HandlerList list = (HandlerList) method.invoke(null, obj);
 
             for (RegisteredListener listener1 : list.getRegisteredListeners()) {
-                MsgUtil.sendDirectMessage(sender,
-                        ChatColor.AQUA
-                                + listener1.getPlugin().getName()
-                                + ChatColor.YELLOW
-                                + " # "
-                                + ChatColor.GREEN
-                                + listener1.getListener().getClass().getCanonicalName());
+
+                MsgUtil.sendDirectMessage(sender, ChatColor.AQUA + listener1.getPlugin().getName() + ChatColor.YELLOW
+                        + " # " + ChatColor.GREEN + listener1.getListener().getClass().getCanonicalName());
+
             }
+
         } catch (Exception th) {
+
             MsgUtil.sendDirectMessage(sender, "ERR " + th.getMessage());
             plugin.getLogger().log(Level.WARNING, "An error has occurred while getting the HandlerList", th);
+
         }
+
     }
 
 }

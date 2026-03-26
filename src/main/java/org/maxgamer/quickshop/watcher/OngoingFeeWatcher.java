@@ -41,76 +41,103 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
- * Check the shops after server booted up, make sure shop can correct self-deleted when container
- * lost.
+ * Check the shops after server booted up, make sure shop can correct
+ * self-deleted when container lost.
  */
 public class OngoingFeeWatcher implements Consumer<ScheduledTask> {
+
     private final QuickShop plugin;
     private final WarningSender warningSender;
 
     public OngoingFeeWatcher(@NotNull QuickShop plugin) {
+
         this.plugin = plugin;
         this.warningSender = new WarningSender(plugin, 6000);
+
     }
 
     @Override
     public void accept(ScheduledTask task) {
+
         Util.debugLog("Run task for ongoing fee...");
         if (plugin.getEconomy() == null) {
+
             Util.debugLog("Economy hadn't get ready.");
             return;
+
         }
 
         boolean allowLoan = plugin.getConfig().getBoolean("shop.allow-economy-loan");
         boolean ignoreUnlimited = plugin.getConfig().getBoolean("shop.ongoing-fee.ignore-unlimited");
         double gobalCost = plugin.getConfig().getDouble("shop.ongoing-fee.cost-per-shop");
         for (Shop shop : plugin.getShopManager().getAllShops()) {
+
             if ((!shop.isUnlimited() || !ignoreUnlimited) && !shop.isDeleted()) {
+
                 UUID shopOwner = shop.getOwner();
                 Location location = shop.getLocation();
                 if (!location.isWorldLoaded()) {
-                    //ignore unloaded world
+
+                    // ignore unloaded world
                     continue;
+
                 }
+
                 double cost = gobalCost;
                 World world = location.getWorld();
-                //We must check balance manually to avoid shop missing hell when tax account broken
-                if (allowLoan || plugin.getEconomy().getBalance(shopOwner, Objects.requireNonNull(world), shop.getCurrency()) >= cost) {
+                // We must check balance manually to avoid shop missing hell when tax account
+                // broken
+                if (allowLoan || plugin.getEconomy().getBalance(shopOwner, Objects.requireNonNull(world),
+                        shop.getCurrency()) >= cost)
+                {
+
                     Trader taxAccount;
                     if (shop.getTaxAccount() != null) {
+
                         taxAccount = Trader.adapt(PlayerFinder.findOfflinePlayerByUUID(shop.getTaxAccount()));
+
                     } else {
+
                         taxAccount = ((SimpleShopManager) plugin.getShopManager()).getCacheTaxAccount();
+
                     }
 
                     ShopOngoingFeeEvent event = new ShopOngoingFeeEvent(shop, shopOwner, cost);
                     if (Util.fireCancellableEvent(event)) {
+
                         continue;
+
                     }
 
                     cost = event.getCost();
                     double finalCost = cost;
 
                     Util.runOnRegion(shop, () -> {
-                        EconomyTransaction transaction = EconomyTransaction.builder()
-                                .allowLoan(allowLoan)
-                                .currency(shop.getCurrency())
-                                .core(plugin.getEconomy())
-                                .world(world)
-                                .amount(finalCost)
-                                .to(taxAccount == null ? null : taxAccount.getUniqueId())
-                                .from(shopOwner).build();
+
+                        EconomyTransaction transaction = EconomyTransaction.builder().allowLoan(allowLoan)
+                                .currency(shop.getCurrency()).core(plugin.getEconomy()).world(world).amount(finalCost)
+                                .to(taxAccount == null ? null : taxAccount.getUniqueId()).from(shopOwner).build();
 
                         boolean success = transaction.failSafeCommit();
                         if (!success) {
-                            warningSender.sendWarn("Unable to deposit ongoing fee to tax account, the last error is " + transaction.getLastError());
+
+                            warningSender.sendWarn("Unable to deposit ongoing fee to tax account, the last error is "
+                                    + transaction.getLastError());
+
                         }
+
                     });
+
                 } else {
+
                     this.removeShop(shop);
+
                 }
+
             }
+
         }
+
     }
 
     /**
@@ -119,19 +146,17 @@ public class OngoingFeeWatcher implements Consumer<ScheduledTask> {
      * @param shop The shop was remove cause no enough ongoing fee
      */
     public void removeShop(@NotNull Shop shop) {
+
         Util.runOnRegion(shop, shop::delete);
 
-        MsgUtil.send(shop, shop.getOwner(), ShopTransactionMessageContainer.ofLocalizedMessageWithItem(
-                LocalizedMessagePair.of("shop-removed-cause-ongoing-fee", "World:"
-                        + Objects.requireNonNull(shop.getLocation().getWorld()).getName()
-                        + " X:"
-                        + shop.getLocation().getBlockX()
-                        + " Y:"
-                        + shop.getLocation().getBlockY()
-                        + " Z:"
-                        + shop.getLocation().getBlockZ()
-                )
-                , null, null));
+        MsgUtil.send(shop, shop.getOwner(),
+                ShopTransactionMessageContainer
+                        .ofLocalizedMessageWithItem(LocalizedMessagePair.of("shop-removed-cause-ongoing-fee",
+                                "World:" + Objects.requireNonNull(shop.getLocation().getWorld()).getName() + " X:"
+                                        + shop.getLocation().getBlockX() + " Y:" + shop.getLocation().getBlockY()
+                                        + " Z:" + shop.getLocation().getBlockZ()),
+                                null, null));
+
     }
 
 }

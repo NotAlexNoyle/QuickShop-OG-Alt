@@ -25,6 +25,7 @@ import org.maxgamer.quickshop.api.shop.Shop;
 import java.util.UUID;
 
 public class ShopOngoingFeeEvent extends AbstractQSEvent implements Cancellable {
+
     private final UUID player;
 
     private final Shop shop;
@@ -33,9 +34,11 @@ public class ShopOngoingFeeEvent extends AbstractQSEvent implements Cancellable 
     private boolean cancelled;
 
     public ShopOngoingFeeEvent(Shop shop, UUID player, double cost) {
+
         this.shop = shop;
         this.player = player;
         this.cost = cost;
+
     }
 
     /**
@@ -44,7 +47,9 @@ public class ShopOngoingFeeEvent extends AbstractQSEvent implements Cancellable 
      * @return The ongoing fee
      */
     public double getCost() {
+
         return cost;
+
     }
 
     /**
@@ -53,7 +58,9 @@ public class ShopOngoingFeeEvent extends AbstractQSEvent implements Cancellable 
      * @param cost The ongoing fee
      */
     public void setCost(double cost) {
+
         this.cost = cost;
+
     }
 
     /**
@@ -62,7 +69,9 @@ public class ShopOngoingFeeEvent extends AbstractQSEvent implements Cancellable 
      * @return The shop triggered ongoing fee event
      */
     public Shop getShop() {
+
         return shop;
+
     }
 
     /**
@@ -71,16 +80,23 @@ public class ShopOngoingFeeEvent extends AbstractQSEvent implements Cancellable 
      * @return The player triggered ongoing fee event
      */
     public UUID getPlayer() {
+
         return player;
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean b) {
+
         this.cancelled = b;
+
     }
+
 }

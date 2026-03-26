@@ -45,19 +45,23 @@ import java.util.Set;
 
 @IntegrationStage(loadStage = IntegrateStage.onEnableAfter)
 public class AdvancedShopRegionMarketIntegration extends AbstractQSIntegratedPlugin {
+
     public AdvancedShopRegionMarketIntegration(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     /**
-     * Return the integrated plugin name.
-     * For example, Residence
+     * Return the integrated plugin name. For example, Residence
      *
      * @return integrated plugin
      */
     @Override
     public @NotNull String getName() {
+
         return "AdvancedShopRegionMarket";
+
     }
 
     /**
@@ -69,7 +73,9 @@ public class AdvancedShopRegionMarketIntegration extends AbstractQSIntegratedPlu
      */
     @Override
     public boolean canCreateShopHere(@NotNull Player player, @NotNull Location location) {
+
         return true;
+
     }
 
     /**
@@ -81,68 +87,94 @@ public class AdvancedShopRegionMarketIntegration extends AbstractQSIntegratedPlu
      */
     @Override
     public boolean canTradeShopHere(@NotNull Player player, @NotNull Location location) {
+
         return true;
+
     }
 
     /**
-     * Loading logic
-     * Execute Stage defined by IntegrationStage
+     * Loading logic Execute Stage defined by IntegrationStage
      */
     @Override
     public void load() {
+
         registerListener();
+
     }
 
     /**
-     * Unloding logic
-     * Will execute when Quickshop unloading
+     * Unloding logic Will execute when Quickshop unloading
      */
     @Override
     public void unload() {
+
         unregisterListener();
+
     }
 
     private void handleDeletion(Region region) {
+
         Vector minPoint = region.getRegion().getMinPoint();
         Vector maxPoint = region.getRegion().getMaxPoint();
         World world = region.getRegionworld();
         Set<Chunk> chuckLocations = new HashSet<>();
 
         for (int x = minPoint.getBlockX(); x <= maxPoint.getBlockX() + 16; x += 16) {
-            for (int z = minPoint.getBlockZ(); z <= maxPoint.getBlockZ() + 16; z += 16) {
-                chuckLocations.add(world.getChunkAt(x >> 4, z >> 4));
-            }
-        }
 
+            for (int z = minPoint.getBlockZ(); z <= maxPoint.getBlockZ() + 16; z += 16) {
+
+                chuckLocations.add(world.getChunkAt(x >> 4, z >> 4));
+
+            }
+
+        }
 
         HashMap<Location, Shop> shopMap = new HashMap<>();
 
         for (Chunk chunk : chuckLocations) {
+
             Map<Location, Shop> shopsInChunk = plugin.getShopManager().getShops(chunk);
             if (shopsInChunk != null) {
+
                 shopMap.putAll(shopsInChunk);
+
             }
+
         }
+
         for (Map.Entry<Location, Shop> shopEntry : shopMap.entrySet()) {
+
             Location shopLocation = shopEntry.getKey();
-            if (region.getRegion().contains(shopLocation.getBlockX(), shopLocation.getBlockY(), shopLocation.getBlockZ())) {
+            if (region.getRegion().contains(shopLocation.getBlockX(), shopLocation.getBlockY(),
+                    shopLocation.getBlockZ()))
+            {
+
                 Shop shop = shopEntry.getValue();
                 if (shop != null) {
+
                     shop.onUnload();
                     shop.delete(false);
+
                 }
+
             }
+
         }
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onShopNeedDeletion(RestoreRegionEvent event) {
+
         handleDeletion(event.getRegion());
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onShopNeedDeletion(RemoveRegionEvent event) {
+
         handleDeletion(event.getRegion());
+
     }
 
     /**
@@ -152,6 +184,9 @@ public class AdvancedShopRegionMarketIntegration extends AbstractQSIntegratedPlu
      */
     @Override
     public ReloadResult reloadModule() {
+
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
+
 }

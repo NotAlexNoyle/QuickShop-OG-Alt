@@ -38,57 +38,86 @@ import java.util.function.Consumer;
 
 @AllArgsConstructor
 public class DisplayAutoDespawnWatcher implements Consumer<ScheduledTask>, Reloadable {
+
     private final QuickShop plugin;
     private int range;
 
     public DisplayAutoDespawnWatcher(@NotNull QuickShop plugin) {
+
         this.plugin = plugin;
         plugin.getReloadManager().register(this);
         init();
+
     }
 
     private void init() {
+
         this.range = plugin.getConfig().getInt("shop.display-despawn-range");
+
     }
 
     @Override
     public ReloadResult reloadModule() {
+
         init();
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
 
     @Override
     public void accept(ScheduledTask task) {
+
         for (Shop shop : plugin.getShopManager().getLoadedShops()) {
-            //Shop may be deleted or unloaded when iterating
+
+            // Shop may be deleted or unloaded when iterating
             if (shop.isDeleted() || !shop.isLoaded() || shop.isDisableDisplay()) {
+
                 continue;
+
             }
+
             plugin.getServer().getRegionScheduler().run(plugin, shop.getLocation(), t -> {
 
                 Location location = shop.getLocation();
-                World world = shop.getLocation().getWorld(); //Cache this, because it will took some time.
+                World world = shop.getLocation().getWorld(); // Cache this, because it will took some time.
                 AbstractDisplayItem displayItem = shop.getDisplay();
                 if (displayItem != null) {
+
                     // Check the range has player?
                     boolean anyPlayerInRegion = false;
                     for (Player player : Bukkit.getOnlinePlayers()) {
+
                         if ((player.getWorld() == world) && (player.getLocation().distance(location) <= range)) {
+
                             anyPlayerInRegion = true;
                             break;
+
                         }
+
                     }
+
                     if (anyPlayerInRegion) {
+
                         if (!displayItem.isSpawned()) {
-                            Util.debugLog("Respawning the shop " + shop + " the display, cause it was despawned and a player close to it");
+
+                            Util.debugLog("Respawning the shop " + shop
+                                    + " the display, cause it was despawned and a player close to it");
                             displayItem.spawn();
+
                         }
+
                     } else if (displayItem.isSpawned()) {
+
                         displayItem.remove();
+
                     }
+
                 }
+
             });
+
         }
+
     }
 
 }

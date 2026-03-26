@@ -33,6 +33,7 @@ import java.util.Map;
  * The unique entry point to allow you to access most features of QuickShop
  */
 public interface QuickShopAPI {
+
     /**
      * Getting Compatibility Manager (usually used for anti-cheat)
      *
@@ -62,8 +63,7 @@ public interface QuickShopAPI {
     boolean isDisplayEnabled();
 
     /**
-     * Getting shop limit system status
-     * false if limit system is disabled
+     * Getting shop limit system status false if limit system is disabled
      *
      * @return Limit enabled
      */
@@ -84,7 +84,8 @@ public interface QuickShopAPI {
     DatabaseHelper getDatabaseHelper();
 
     /**
-     * Getting text manager that allow addon to create a user language locale based message
+     * Getting text manager that allow addon to create a user language locale based
+     * message
      *
      * @return The text maanger
      */
@@ -105,7 +106,8 @@ public interface QuickShopAPI {
     boolean isPriceChangeRequiresFee();
 
     /**
-     * Getting command manager that allow addon direct access QuickShop sub-command system
+     * Getting command manager that allow addon direct access QuickShop sub-command
+     * system
      *
      * @return The command manager
      */

@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 @Builder
 @AllArgsConstructor
 public class ReloadResult {
+
     @NotNull
     private ReloadStatus status;
     @Nullable

@@ -1,6 +1,7 @@
 package org.maxgamer.quickshop.util.mojangapi;
 
 public interface MojangApiMirror {
+
     /**
      * https://launchermeta.mojang.com
      *
@@ -21,4 +22,5 @@ public interface MojangApiMirror {
      * @return The url root
      */
     String getLibrariesRoot();
+
 }

@@ -32,34 +32,46 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class TextSplitter {
+
     private final static String HEADER = "!-!-!=-=-=-=-=-=";
     private final static String FOOTER = "=-=-=-=-=-=!-!-!";
+
     @NotNull
     public static String bakeComponent(BaseComponent[] components) {
-        return HEADER +
-                Base64.getEncoder().encodeToString(ComponentSerializer.toString(components).getBytes(StandardCharsets.UTF_8)) +
-                FOOTER;
+
+        return HEADER + Base64.getEncoder()
+                .encodeToString(ComponentSerializer.toString(components).getBytes(StandardCharsets.UTF_8)) + FOOTER;
+
     }
 
     @SneakyThrows
     @Nullable
     public static SpilledString deBakeItem(String src) {
+
         if (!src.contains(HEADER)) {
-           // Util.debugLog(src + " seems not a baked message");
+
+            // Util.debugLog(src + " seems not a baked message");
             return null;
+
         }
+
         String base64 = StringUtils.substringBetween(src, HEADER, FOOTER);
-        BaseComponent[] components = ComponentSerializer.parse(new String(Base64.getDecoder().decode(base64), StandardCharsets.UTF_8));
+        BaseComponent[] components = ComponentSerializer
+                .parse(new String(Base64.getDecoder().decode(base64), StandardCharsets.UTF_8));
         String left = StringUtils.substringBefore(src, HEADER);
         String right = StringUtils.substringAfter(src, FOOTER);
         return new SpilledString(left, right, components);
+
     }
 
     @AllArgsConstructor
     @Data
     public static class SpilledString {
+
         private String left;
         private String right;
         private BaseComponent[] components;
+
     }
+
 }

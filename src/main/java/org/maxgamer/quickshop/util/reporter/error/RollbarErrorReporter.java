@@ -46,34 +46,30 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 public class RollbarErrorReporter implements IErrorReporter {
-    //private volatile static String bootPaste = null;
+
+    // private volatile static String bootPaste = null;
     private final Rollbar rollbar;
     private final List<String> reported = new ArrayList<>(5);
-    private final List<Class<?>> ignoredException = Lists.newArrayList(IOException.class
-            , OutOfMemoryError.class
-            , ProtocolException.class
-            , InvalidPluginException.class
-            , UnsupportedClassVersionError.class
-            , LinkageError.class);
+    private final List<Class<?>> ignoredException = Lists.newArrayList(IOException.class, OutOfMemoryError.class,
+            ProtocolException.class, InvalidPluginException.class, UnsupportedClassVersionError.class,
+            LinkageError.class);
     private final QuickShop plugin;
     private final QuickShopExceptionFilter quickShopExceptionFilter;
     private final GlobalExceptionFilter serverExceptionFilter;
     private boolean disable;
     private boolean tempDisable;
     private String lastPaste = null;
-    //private final GlobalExceptionFilter globalExceptionFilter;
+    // private final GlobalExceptionFilter globalExceptionFilter;
     @Getter
     private volatile boolean enabled;
 
-
     public RollbarErrorReporter(@NotNull QuickShop plugin) {
+
         this.plugin = plugin;
         Config config = ConfigBuilder.withAccessToken("c386df69d08440d9a3d982cf98b53ed6")
                 .environment(Util.isDevEdition() ? "development" : "production")
-                .platform(plugin.getServer().getVersion())
-                .codeVersion(QuickShop.getVersion())
-                .handleUncaughtErrors(false)
-                .build();
+                .platform(plugin.getServer().getVersion()).codeVersion(QuickShop.getVersion())
+                .handleUncaughtErrors(false).build();
         this.rollbar = Rollbar.init(config);
 
         quickShopExceptionFilter = new QuickShopExceptionFilter(plugin.getLogger().getFilter());
@@ -84,17 +80,21 @@ public class RollbarErrorReporter implements IErrorReporter {
 
         Util.debugLog("Rollbar error reporter success loaded.");
         enabled = true;
+
     }
 
     @Override
     public void unregister() {
+
         enabled = false;
         plugin.getLogger().setFilter(quickShopExceptionFilter.preFilter);
         plugin.getServer().getLogger().setFilter(serverExceptionFilter.preFilter);
-        //Logger.getGlobal().setFilter(globalExceptionFilter.preFilter);
+
+        // Logger.getGlobal().setFilter(globalExceptionFilter.preFilter);
     }
 
     private Map<String, Object> makeMapping() {
+
         Map<String, Object> dataMapping = new LinkedHashMap<>();
         dataMapping.put("paste", this.lastPaste);
         dataMapping.put("system_os", System.getProperty("os.name"));
@@ -103,58 +103,92 @@ public class RollbarErrorReporter implements IErrorReporter {
         dataMapping.put("system_cores", String.valueOf(Runtime.getRuntime().availableProcessors()));
         dataMapping.put("server_build", plugin.getServer().getVersion());
         dataMapping.put("server_java", String.valueOf(System.getProperty("java.version")));
-        dataMapping.put("server_players", plugin.getServer().getOnlinePlayers().size() + "/" + plugin.getServer().getMaxPlayers());
+        dataMapping.put("server_players",
+                plugin.getServer().getOnlinePlayers().size() + "/" + plugin.getServer().getMaxPlayers());
         dataMapping.put("server_onlinemode", String.valueOf(plugin.getServer().getOnlineMode()));
         dataMapping.put("server_bukkitversion", plugin.getServer().getVersion());
         dataMapping.put("user", QuickShop.getInstance().getServerUniqueID().toString());
         return dataMapping;
+
     }
 
     private void sendError0(@NotNull Throwable throwable, @NotNull String... context) {
+
         try {
+
             if (plugin.getBootError() != null) {
+
                 return; // Don't report any errors if boot failed.
+
             }
+
             if (tempDisable) {
+
                 this.tempDisable = false;
                 return;
+
             }
+
             if (disable) {
+
                 return;
+
             }
+
             if (!enabled) {
+
                 return;
+
             }
 
             if (!canReport(throwable)) {
+
                 return;
+
             }
+
             if (ignoredException.contains(throwable.getClass())) {
+
                 return;
+
             }
+
             if (throwable.getCause() != null) {
+
                 if (ignoredException.contains(throwable.getCause().getClass())) {
+
                     return;
+
                 }
+
             }
+
             if (lastPaste == null) {
+
                 String pasteURL;
                 try {
+
                     Paste paste = new Paste(plugin);
                     pasteURL = paste.paste(paste.genNewPaste(), Paste.PasteType.UBUNTU);
                     if (pasteURL != null && !pasteURL.isEmpty()) {
+
                         lastPaste = pasteURL;
+
                     } else {
+
                         lastPaste = paste.paste(paste.genNewPaste());
+
                     }
+
                 } catch (Exception ignored) {
+
                 }
+
             }
+
             this.rollbar.error(throwable, this.makeMapping(), throwable.getMessage());
-            plugin
-                    .getLogger()
-                    .warning(
-                            "A exception was thrown, QuickShop already caught this exception and reported it. This error will only shown once before next restart.");
+            plugin.getLogger().warning(
+                    "A exception was thrown, QuickShop already caught this exception and reported it. This error will only shown once before next restart.");
             plugin.getLogger().warning("====QuickShop Error Report BEGIN===");
             plugin.getLogger().warning("Description: " + throwable.getMessage());
             plugin.getLogger().warning("Server   ID: " + plugin.getServerUniqueID());
@@ -164,14 +198,23 @@ public class RollbarErrorReporter implements IErrorReporter {
             resetIgnores();
             plugin.getLogger().warning("====QuickShop Error Report E N D===");
             Util.debugLog(throwable.getMessage());
-            Arrays.stream(throwable.getStackTrace()).forEach(a -> Util.debugLog(a.getClassName() + "." + a.getMethodName() + ":" + a.getLineNumber()));
+            Arrays.stream(throwable.getStackTrace())
+                    .forEach(a -> Util.debugLog(a.getClassName() + "." + a.getMethodName() + ":" + a.getLineNumber()));
             if (Util.isDevMode()) {
+
                 throwable.printStackTrace();
+
             }
+
         } catch (Exception th) {
+
             ignoreThrow();
-            plugin.getLogger().log(Level.WARNING, "Something going wrong when automatic report errors, please submit this error on Issue Tracker", th);
+            plugin.getLogger().log(Level.WARNING,
+                    "Something going wrong when automatic report errors, please submit this error on Issue Tracker",
+                    th);
+
         }
+
     }
 
     /**
@@ -182,12 +225,18 @@ public class RollbarErrorReporter implements IErrorReporter {
      */
     @Override
     public void sendError(@NotNull Throwable throwable, @NotNull String... context) {
+
         if (Bukkit.isPrimaryThread()) {
+
             Bukkit.getAsyncScheduler().runNow(plugin, task -> sendError0(throwable, context));
-            //ignore async response
+
+            // ignore async response
         } else {
+
             sendError0(throwable, context);
+
         }
+
     }
 
     /**
@@ -198,55 +247,89 @@ public class RollbarErrorReporter implements IErrorReporter {
      */
     @Override
     public boolean canReport(@NotNull Throwable throwable) {
+
         if (!enabled) {
+
             return false;
-        }
-        if (plugin.getUpdateWatcher() == null) {
-            return false;
-        }
-        if (!plugin.getUpdateWatcher().getUpdater().isLatest()) { // We only receive latest reports.
-            return false;
-        }
-        if (!plugin.getBuildInfo().getBuildUrl().startsWith("https://ci.codemc.io/job/PotatoCraft-Studio/")) { // Ignored custom build or 3rd fork
-            return false;
+
         }
 
-        if (!GameVersion.get(ReflectFactory.getServerVersion()).isCoreSupports()) { // Ignore errors if user install quickshop on unsupported
+        if (plugin.getUpdateWatcher() == null) {
+
+            return false;
+
+        }
+
+        if (!plugin.getUpdateWatcher().getUpdater().isLatest()) { // We only receive latest reports.
+
+            return false;
+
+        }
+
+        if (!plugin.getBuildInfo().getBuildUrl().startsWith("https://ci.codemc.io/job/PotatoCraft-Studio/")) { // Ignored
+                                                                                                               // custom
+                                                                                                               // build
+                                                                                                               // or 3rd
+                                                                                                               // fork
+
+            return false;
+
+        }
+
+        if (!GameVersion.get(ReflectFactory.getServerVersion()).isCoreSupports()) { // Ignore errors if user install
+                                                                                    // quickshop on unsupported
+
             // version.
             return false;
+
         }
 
         PossiblyLevel possiblyLevel = checkWasCauseByQS(throwable);
         if (possiblyLevel != PossiblyLevel.CONFIRM) {
+
             return false;
+
         }
+
         if (throwable.getMessage().startsWith("#")) {
+
             return false;
+
         }
+
         StackTraceElement stackTraceElement;
         if (throwable.getStackTrace().length < 3) {
+
             stackTraceElement = throwable.getStackTrace()[1];
+
         } else {
+
             stackTraceElement = throwable.getStackTrace()[2];
+
         }
+
         if (stackTraceElement.getClassName().contains("org.maxgamer.quickshop.util.reporter.error")) {
+
             ignoreThrows();
             plugin.getLogger().log(Level.WARNING, "Uncaught exception in ErrorRollbar", throwable);
             resetIgnores();
             return false;
+
         }
-        String text =
-                stackTraceElement.getClassName()
-                        + "#"
-                        + stackTraceElement.getMethodName()
-                        + "#"
-                        + stackTraceElement.getLineNumber();
+
+        String text = stackTraceElement.getClassName() + "#" + stackTraceElement.getMethodName() + "#"
+                + stackTraceElement.getLineNumber();
         if (!reported.contains(text)) {
+
             reported.add(text);
             return true;
+
         } else {
+
             return false;
+
         }
+
     }
 
     /**
@@ -254,7 +337,9 @@ public class RollbarErrorReporter implements IErrorReporter {
      */
     @Override
     public void ignoreThrow() {
+
         tempDisable = true;
+
     }
 
     /**
@@ -262,7 +347,9 @@ public class RollbarErrorReporter implements IErrorReporter {
      */
     @Override
     public void ignoreThrows() {
+
         disable = true;
+
     }
 
     /**
@@ -270,8 +357,10 @@ public class RollbarErrorReporter implements IErrorReporter {
      */
     @Override
     public void resetIgnores() {
+
         tempDisable = false;
         disable = false;
+
     }
 
 //    private String getPluginInfo() {
@@ -288,9 +377,7 @@ public class RollbarErrorReporter implements IErrorReporter {
 //    }
 
     enum PossiblyLevel {
-        CONFIRM,
-        MAYBE,
-        IMPOSSIBLE
+        CONFIRM, MAYBE, IMPOSSIBLE
     }
 
     class GlobalExceptionFilter implements Filter {
@@ -300,11 +387,15 @@ public class RollbarErrorReporter implements IErrorReporter {
         private final Filter preFilter;
 
         GlobalExceptionFilter(@Nullable Filter preFilter) {
+
             this.preFilter = preFilter;
+
         }
 
         private boolean defaultValue(LogRecord rec) {
+
             return preFilter == null || preFilter.isLoggable(rec);
+
         }
 
         /**
@@ -315,46 +406,73 @@ public class RollbarErrorReporter implements IErrorReporter {
          */
         @Override
         public boolean isLoggable(@NotNull LogRecord rec) {
+
             if (!enabled) {
+
                 return defaultValue(rec);
+
             }
+
             Level level = rec.getLevel();
             if (level != Level.WARNING && level != Level.SEVERE) {
+
                 return defaultValue(rec);
+
             }
+
             if (rec.getThrown() == null) {
+
                 return defaultValue(rec);
+
             }
+
             if (Util.isDevMode()) {
+
                 sendError(rec.getThrown(), rec.getMessage());
                 return defaultValue(rec);
+
             } else {
+
                 sendError(rec.getThrown(), rec.getMessage());
                 PossiblyLevel possiblyLevel = checkWasCauseByQS(rec.getThrown());
                 if (possiblyLevel == PossiblyLevel.IMPOSSIBLE) {
+
                     return true;
+
                 }
+
                 if (possiblyLevel == PossiblyLevel.MAYBE) {
-                    plugin.getLogger().warning("This seems not a QuickShop error. If you have any question, you should ask QuickShop developer.");
+
+                    plugin.getLogger().warning(
+                            "This seems not a QuickShop error. If you have any question, you should ask QuickShop developer.");
                     return true;
+
                 }
+
                 return false;
+
             }
+
         }
 
     }
 
     class QuickShopExceptionFilter implements Filter {
+
         @Nullable
         @Getter
         private final Filter preFilter;
 
         QuickShopExceptionFilter(@Nullable Filter preFilter) {
+
             this.preFilter = preFilter;
+
         }
 
         private boolean defaultValue(LogRecord rec) {
+
             return preFilter == null || preFilter.isLoggable(rec);
+
         }
 
         /**
@@ -365,32 +483,55 @@ public class RollbarErrorReporter implements IErrorReporter {
          */
         @Override
         public boolean isLoggable(@NotNull LogRecord rec) {
+
             if (!enabled) {
+
                 return defaultValue(rec);
+
             }
+
             Level level = rec.getLevel();
             if (level != Level.WARNING && level != Level.SEVERE) {
+
                 return defaultValue(rec);
+
             }
+
             if (rec.getThrown() == null) {
+
                 return defaultValue(rec);
+
             }
+
             if (Util.isDevMode()) {
+
                 sendError(rec.getThrown(), rec.getMessage());
                 return defaultValue(rec);
+
             } else {
+
                 sendError(rec.getThrown(), rec.getMessage());
                 PossiblyLevel possiblyLevel = checkWasCauseByQS(rec.getThrown());
                 if (possiblyLevel == PossiblyLevel.IMPOSSIBLE) {
+
                     return true;
+
                 }
+
                 if (possiblyLevel == PossiblyLevel.MAYBE) {
-                    plugin.getLogger().warning("This seems not a QuickShop error. If you have any question, you may can ask QuickShop developer but don't except any solution.");
+
+                    plugin.getLogger().warning(
+                            "This seems not a QuickShop error. If you have any question, you may can ask QuickShop developer but don't except any solution.");
                     return true;
+
                 }
+
                 return false;
+
             }
+
         }
 
     }
+
 }

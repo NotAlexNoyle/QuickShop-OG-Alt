@@ -31,6 +31,7 @@ import java.util.logging.Level;
 
 @Getter
 public class PermissionManager {
+
     private final QuickShop plugin;
 
     private final PermissionProvider provider;
@@ -41,9 +42,11 @@ public class PermissionManager {
      * @param plugin Instance
      */
     public PermissionManager(QuickShop plugin) {
+
         this.plugin = plugin;
         provider = new BukkitPermsProvider();
         plugin.getLogger().info("Selected permission provider: " + provider.getName());
+
     }
 
     /**
@@ -54,23 +57,42 @@ public class PermissionManager {
      * @return The result of check
      */
     public boolean hasPermission(@NotNull CommandSender sender, @NotNull String permission) {
+
         try {
+
             boolean result = provider.hasPermission(sender, permission);
             if (Util.isDevMode()) {
+
                 try {
-                    //PermissionInformationContainer container = (PermissionInformationContainer) provider.getClass().getDeclaredMethod("getDebugInfo", CommandSender.class, String.class).invoke(provider,sender,permission);
-                    //       PermissionInformationContainer container = provider.getDebugInfo(sender, permission);
-                    Util.debugLog("Node: [" + permission + "]; Result: [" + result + "]; Sender: [" + sender.getName() + "]");
+
+                    // PermissionInformationContainer container = (PermissionInformationContainer)
+                    // provider.getClass().getDeclaredMethod("getDebugInfo", CommandSender.class,
+                    // String.class).invoke(provider,sender,permission);
+                    // PermissionInformationContainer container = provider.getDebugInfo(sender,
+                    // permission);
+                    Util.debugLog(
+                            "Node: [" + permission + "]; Result: [" + result + "]; Sender: [" + sender.getName() + "]");
+
                 } catch (Exception th) {
+
                     Util.debugLog("Exception threw when getting debug messages.");
                     MsgUtil.debugStackTrace(th.getStackTrace());
+
                 }
+
             }
+
             return result;
+
         } catch (Exception th) {
-            plugin.getLogger().log(Level.WARNING, "Failed to processing permission response, This might or not a bug, we not sure, but you can report to both permission provider plugin author or QuickShop devs about this error", th);
+
+            plugin.getLogger().log(Level.WARNING,
+                    "Failed to processing permission response, This might or not a bug, we not sure, but you can report to both permission provider plugin author or QuickShop devs about this error",
+                    th);
             return false;
+
         }
+
     }
 
 }

@@ -37,34 +37,46 @@ public class SubCommand_Empty implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         BlockIterator bIt = new BlockIterator(sender, 10);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
 
             if (shop == null) {
+
                 continue;
+
             }
 
             if (shop instanceof ContainerShop) {
+
                 final ContainerShop cs = (ContainerShop) shop;
                 final Inventory inventory = cs.getInventory();
 
                 if (inventory == null) {
+
                     return;
+
                 }
 
                 cs.getInventory().clear();
                 plugin.text().of(sender, "empty-success").send();
+
             } else {
+
                 plugin.text().of(sender, "not-looking-at-shop").send();
+
             }
 
             return;
-        }
-        plugin.text().of(sender, "not-looking-at-shop").send();
-    }
 
+        }
+
+        plugin.text().of(sender, "not-looking-at-shop").send();
+
+    }
 
 }

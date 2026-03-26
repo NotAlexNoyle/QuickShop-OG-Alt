@@ -36,31 +36,50 @@ public class SubCommand_Unlimited implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         BlockIterator bIt = new BlockIterator(sender, 10);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
             if (shop == null) {
+
                 continue;
+
             }
+
             shop.setUnlimited(!shop.isUnlimited());
             shop.update();
             if (shop.isUnlimited()) {
+
                 plugin.text().of(sender, "command.toggle-unlimited.unlimited").send();
                 if (plugin.getConfig().getBoolean("unlimited-shop-owner-change")) {
+
                     plugin.getShopManager().migrateOwnerToUnlimitedShopOwner(shop);
-                    plugin.text().of(sender, "unlimited-shop-owner-changed", ((SimpleShopManager) plugin.getShopManager()).getCacheUnlimitedShopAccount().getName()).send();
+                    plugin.text().of(sender, "unlimited-shop-owner-changed",
+                            ((SimpleShopManager) plugin.getShopManager()).getCacheUnlimitedShopAccount().getName())
+                            .send();
+
                 }
+
                 return;
+
             }
+
             plugin.text().of(sender, "command.toggle-unlimited.limited").send();
             if (plugin.getConfig().getBoolean("unlimited-shop-owner-change")) {
+
                 plugin.text().of(sender, "unlimited-shop-owner-keeped").send();
+
             }
+
             return;
+
         }
+
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
 }

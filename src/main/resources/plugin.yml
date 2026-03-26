@@ -1,6 +1,6 @@
-name: ${project.name}
-main: ${package}.${project.name}
-version: ${project.version}
+name: QuickShop-OG
+main: org.maxgamer.quickshop.QuickShop
+version: '${version}'
 authors:
   - PotatoCraft Studio
   - Netherfoam
@@ -71,7 +71,7 @@ softdepend:
   - FabledSkyblock
   - NBTAPI
 
-api-version: 1.15
+api-version: '${apiVersion}'
 folia-supported: true
 
 commands:

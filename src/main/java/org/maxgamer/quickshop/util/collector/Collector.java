@@ -33,36 +33,60 @@ import java.util.logging.Level;
 
 @Data
 public class Collector {
+
     private CollectorAdapter adapter = new CollectorAdapter();
     private Map<CollectType, Map<?, ?>> collectInformation = new LinkedHashMap<>();
 
     public Collector(@NotNull QuickShop plugin) {
+
         for (CollectType value : CollectType.values()) {
+
             collectInformation.put(value, bake(value, plugin));
+
         }
+
     }
 
     @NotNull
     private Map<?, ?> bake(@NotNull CollectType field, @NotNull QuickShop plugin) {
+
         for (Method declaredMethod : adapter.getClass().getDeclaredMethods()) {
+
             CollectResolver resolver = declaredMethod.getAnnotation(CollectResolver.class);
             if (resolver == null) {
+
                 continue;
+
             }
+
             if (!resolver.field().equals(field)) {
+
                 continue;
+
             }
+
             try {
+
                 Map<?, ?> map = (Map<?, ?>) declaredMethod.invoke(adapter, plugin);
                 if (map == null) {
+
                     map = new HashMap<>();
+
                 }
+
                 return map;
+
             } catch (IllegalAccessException | ClassCastException | InvocationTargetException e) {
-                plugin.getLogger().log(Level.WARNING, "Failed to resolve the field " + field + " when collecting data. Please report to author.", e);
+
+                plugin.getLogger().log(Level.WARNING,
+                        "Failed to resolve the field " + field + " when collecting data. Please report to author.", e);
+
             }
+
         }
+
         return new HashMap<>();
+
     }
 
 }

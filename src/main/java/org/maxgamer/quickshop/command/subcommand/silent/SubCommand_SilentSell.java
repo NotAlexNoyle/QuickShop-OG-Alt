@@ -29,21 +29,26 @@ import org.maxgamer.quickshop.util.MsgUtil;
 public class SubCommand_SilentSell extends SubCommand_SilentBase {
 
     public SubCommand_SilentSell(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @Override
     protected void doSilentCommand(Player sender, @NotNull Shop shop, @NotNull String[] cmdArg) {
+
         if (!shop.getModerator().isModerator(sender.getUniqueId())) {
+
             plugin.text().of(sender, "not-looking-at-shop").send();
             return;
+
         }
 
         shop.setShopType(ShopType.SELLING);
         shop.update();
         MsgUtil.sendControlPanelInfo(sender, shop);
-        plugin.text().of(sender,
-                "command.now-selling", MsgUtil.getTranslateText(shop.getItem())).send();
+        plugin.text().of(sender, "command.now-selling", MsgUtil.getTranslateText(shop.getItem())).send();
 
     }
+
 }

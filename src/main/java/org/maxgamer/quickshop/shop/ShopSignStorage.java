@@ -32,6 +32,7 @@ import java.util.Objects;
 @Data
 @Builder
 public class ShopSignStorage {
+
     private final static boolean shopSign = true;
     private String world;
     private int x;
@@ -39,6 +40,9 @@ public class ShopSignStorage {
     private int z;
 
     public boolean equals(String world, int x, int y, int z) {
+
         return Objects.equals(this.world, world) && this.x == x && this.y == y && this.z == z;
+
     }
+
 }

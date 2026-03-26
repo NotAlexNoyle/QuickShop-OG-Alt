@@ -25,8 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.maxgamer.quickshop.localization.LocalizedMessagePair;
 
-
 public interface ShopTransactionMessage {
+
     /**
      * Get the version of ShopTransactionMessage
      *
@@ -37,18 +37,23 @@ public interface ShopTransactionMessage {
     @AllArgsConstructor
     @Getter
     class V1 implements ShopTransactionMessage {
+
         @NotNull
         private final String message;
 
         @Override
         public int getVersion() {
+
             return 1;
+
         }
+
     }
 
     @AllArgsConstructor
     @Getter
     class V2 implements ShopTransactionMessage {
+
         @NotNull
         private final String message;
         @Nullable
@@ -58,13 +63,17 @@ public interface ShopTransactionMessage {
 
         @Override
         public int getVersion() {
+
             return 2;
+
         }
+
     }
 
     @AllArgsConstructor
     @Getter
     class V3 implements ShopTransactionMessage {
+
         @NotNull
         private final LocalizedMessagePair message;
         @Nullable
@@ -74,7 +83,11 @@ public interface ShopTransactionMessage {
 
         @Override
         public int getVersion() {
+
             return 3;
+
         }
+
     }
+
 }

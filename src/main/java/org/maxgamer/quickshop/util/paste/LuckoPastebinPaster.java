@@ -30,29 +30,32 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * Paste the paste through https://bytebin.lucko.me/post
- * Website Author: Lucko (https://github.com/lucko)
+ * Paste the paste through https://bytebin.lucko.me/post Website Author: Lucko
+ * (https://github.com/lucko)
  *
  * @author Ghost_chu
  */
 public class LuckoPastebinPaster implements PasteInterface {
+
     @Override
     @NotNull
     public String pasteTheText(@NotNull String text) throws IOException {
-        HttpRequest request = HttpRequest.post(new URL("https://bytebin.lucko.me/post"))
-                .body(text)
-                .header("User-Agent", "QuickShop-" + QuickShop.getFork() + "-" + QuickShop.getVersion())
-                .execute();
+
+        HttpRequest request = HttpRequest.post(new URL("https://bytebin.lucko.me/post")).body(text)
+                .header("User-Agent", "QuickShop-" + QuickShop.getFork() + "-" + QuickShop.getVersion()).execute();
         request.expectResponseCode(200, 201, 301, 302);
         String json = request.returnContent().asString("UTF-8");
         Response response = JsonUtil.getGson().fromJson(json, Response.class);
         return response.getKey();
+
     }
 
     @NoArgsConstructor
     @Data
     static class Response {
-        private String key;
-    }
-}
 
+        private String key;
+
+    }
+
+}

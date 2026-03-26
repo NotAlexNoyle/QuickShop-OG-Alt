@@ -20,5 +20,7 @@
 package org.maxgamer.quickshop.util.logging.container;
 
 public interface ReadableLog {
+
     String toReadableLog();
+
 }

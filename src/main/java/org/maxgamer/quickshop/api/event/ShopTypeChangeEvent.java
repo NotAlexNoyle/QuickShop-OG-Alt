@@ -28,6 +28,7 @@ import org.maxgamer.quickshop.api.shop.ShopType;
  * Calling when shop item was changed
  */
 public class ShopTypeChangeEvent extends AbstractQSEvent implements Cancellable {
+
     private final ShopType oldType;
 
     private final ShopType newType;
@@ -45,19 +46,25 @@ public class ShopTypeChangeEvent extends AbstractQSEvent implements Cancellable 
      * @param newType The new shop type
      */
     public ShopTypeChangeEvent(@NotNull Shop shop, ShopType oldType, ShopType newType) {
+
         this.shop = shop;
         this.oldType = oldType;
         this.newType = newType;
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return this.cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean cancelled) {
+
         this.cancelled = cancelled;
+
     }
 
     /**
@@ -66,7 +73,9 @@ public class ShopTypeChangeEvent extends AbstractQSEvent implements Cancellable 
      * @return old type
      */
     public ShopType getOldType() {
+
         return this.oldType;
+
     }
 
     /**
@@ -75,7 +84,9 @@ public class ShopTypeChangeEvent extends AbstractQSEvent implements Cancellable 
      * @return new type
      */
     public ShopType getNewType() {
+
         return this.newType;
+
     }
 
     /**
@@ -84,6 +95,9 @@ public class ShopTypeChangeEvent extends AbstractQSEvent implements Cancellable 
      * @return the shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
+
 }

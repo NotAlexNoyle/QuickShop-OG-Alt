@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.maxgamer.quickshop.QuickShop;
 
 public class LocalizedMessagePair {
+
     private static final QuickShop plugin = QuickShop.getInstance();
     @NotNull
     private final String key;
@@ -31,19 +32,30 @@ public class LocalizedMessagePair {
     private final String[] args;
 
     public LocalizedMessagePair(@NotNull String key, @NotNull String... args) {
+
         this.key = key;
         this.args = args;
+
     }
 
     public static LocalizedMessagePair of(@NotNull String key, @NotNull String... args) {
+
         return new LocalizedMessagePair(key, args);
+
     }
 
     public String getLocalizedMessage(@Nullable String locale) {
+
         if (locale == null) {
+
             return plugin.getTextManager().of(key, (Object[]) args).forLocale();
+
         } else {
+
             return plugin.getTextManager().of(key, (Object[]) args).forLocale(locale);
+
         }
+
     }
+
 }

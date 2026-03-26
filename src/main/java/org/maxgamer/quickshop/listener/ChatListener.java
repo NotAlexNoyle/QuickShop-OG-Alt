@@ -32,23 +32,43 @@ import org.maxgamer.quickshop.util.reload.ReloadStatus;
  */
 public class ChatListener extends AbstractQSListener {
 
+    private static final String LITEBANS_CANCELLED = "[event cancelled by LiteBans]";
+
     public ChatListener(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent e) {
+
         if (e.isCancelled() && plugin.getConfig().getBoolean("shop.ignore-cancel-chat-event")) {
-            Util.debugLog("Ignored a chat event (Cancelled by another plugin, you can force process by turn on ignore-cancel-chat-event)");
+
+            Util.debugLog(
+                    "Ignored a chat event (Cancelled by another plugin, you can force process by turn on ignore-cancel-chat-event)");
             return;
+
         }
 
         if (!plugin.getShopManager().getActions().containsKey(e.getPlayer().getUniqueId())) {
+
             return;
+
         }
-        // Fix stupid chat plugin will add a weird space before or after the number we want.
-        plugin.getShopManager().handleChat(e.getPlayer(), e.getMessage().trim());
+
+        String message = e.getMessage();
+        if (message.startsWith(LITEBANS_CANCELLED)) {
+
+            message = message.substring(LITEBANS_CANCELLED.length());
+
+        }
+
+        // Fix stupid chat plugin will add a weird space before or after the number we
+        // want.
+        plugin.getShopManager().handleChat(e.getPlayer(), message.trim());
         e.setCancelled(true);
+
     }
 
     /**
@@ -58,6 +78,9 @@ public class ChatListener extends AbstractQSListener {
      */
     @Override
     public ReloadResult reloadModule() {
+
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
+
 }

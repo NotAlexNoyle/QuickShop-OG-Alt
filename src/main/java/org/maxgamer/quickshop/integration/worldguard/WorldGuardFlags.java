@@ -27,28 +27,36 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum WorldGuardFlags {
-    FLAG,
-    BUILD,
-    CHEST_ACCESS,
-    INTERACT,
-    OWN;
+
+    FLAG, BUILD, CHEST_ACCESS, INTERACT, OWN;
 
     public static List<WorldGuardFlags> deserialize(List<String> list) {
+
         List<WorldGuardFlags> result = new ArrayList<>();
         List<String> flags = Arrays.stream(WorldGuardFlags.values()).map(Enum::name).collect(Collectors.toList());
         for (String v : list) {
+
             if (!flags.contains(v)) {
+
                 QuickShop.getInstance().getLogger().warning("Ignoring invalid flag " + v);
                 continue;
+
             }
+
             result.add(WorldGuardFlags.valueOf(v.toUpperCase()));
+
         }
+
         return result;
+
     }
 
     public static List<String> serialize(List<WorldGuardFlags> list) {
+
         List<String> result = new ArrayList<>();
         list.forEach(v -> result.add(v.name()));
         return result;
+
     }
+
 }

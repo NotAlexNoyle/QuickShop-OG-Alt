@@ -23,36 +23,41 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public enum CollectType {
-    QUICKSHOP("quickshop"),
-    SYSTEM("system"),
-    PLATFORM("platform"),
-    MODULES("replaceable_module"),
-    SERVICES("services"),
-    SHOPS_IN_WORLD("shops_in_world"),
-    PLUGINS("plugins"),
-    CONFIG("config"),
-    SERVER_CONFIG("server_config"),
-    LANGUAGE("i18n"),
-    LOGS("logs"),
-    SHOPS("shops");
+
+    QUICKSHOP("quickshop"), SYSTEM("system"), PLATFORM("platform"), MODULES("replaceable_module"), SERVICES("services"),
+    SHOPS_IN_WORLD("shops_in_world"), PLUGINS("plugins"), CONFIG("config"), SERVER_CONFIG("server_config"),
+    LANGUAGE("i18n"), LOGS("logs"), SHOPS("shops");
+
     private final String field;
 
     CollectType(String field) {
+
         this.field = field;
+
     }
 
     @NotNull
     public String getField() {
+
         return field;
+
     }
 
     @Nullable
     public CollectType fromField(@NotNull String field) {
+
         for (CollectType type : CollectType.values()) {
+
             if (type.field.equalsIgnoreCase(field)) {
+
                 return type;
+
             }
+
         }
+
         return null;
+
     }
+
 }

@@ -98,6 +98,7 @@ import static org.maxgamer.quickshop.chat.platform.minedown.BungeeQuickChat.toLe
  */
 @EqualsAndHashCode
 public class ContainerShop implements Shop {
+
     @EqualsAndHashCode.Exclude
     @Deprecated
     private static final String SHOP_SIGN_PREFIX = "§d§o §0";
@@ -140,9 +141,9 @@ public class ContainerShop implements Shop {
     private boolean disableDisplay;
     private UUID taxAccount;
 
-
     private ContainerShop(@NotNull ContainerShop s) {
-        //Util.ensureThread(s.getLocation(), false);
+
+        // Util.ensureThread(s.getLocation(), false);
         this.shopType = s.shopType;
         this.item = s.item.clone();
         this.location = s.location.clone();
@@ -160,53 +161,56 @@ public class ContainerShop implements Shop {
         this.disableDisplay = s.disableDisplay;
         this.taxAccount = s.taxAccount;
         initDisplayItem();
+
     }
 
     /**
-     * Adds a new shop. You need call ShopManager#loadShop if you create from outside of
-     * ShopLoader.
+     * Adds a new shop. You need call ShopManager#loadShop if you create from
+     * outside of ShopLoader.
      *
      * @param location  The location of the chest block
      * @param price     The cost per item
-     * @param item      The itemstack with the properties we want. This is .cloned, no need to worry
-     *                  about references
+     * @param item      The itemstack with the properties we want. This is .cloned,
+     *                  no need to worry about references
      * @param moderator The modertators
      * @param type      The shop type
      * @param unlimited The unlimited
      * @param plugin    The plugin instance
      * @param extra     The extra data saved by addon
      */
-    public ContainerShop(
-            @NotNull QuickShop plugin,
-            @NotNull Location location,
-            double price,
-            @NotNull ItemStack item,
-            @NotNull ShopModerator moderator,
-            boolean unlimited,
-            @NotNull ShopType type,
-            @Nullable YamlConfiguration extra,
-            @Nullable String currency,
-            boolean disableDisplay,
-            @Nullable UUID taxAccount) {
-        //Util.ensureThread(location, false);
+    public ContainerShop(@NotNull QuickShop plugin, @NotNull Location location, double price, @NotNull ItemStack item,
+            @NotNull ShopModerator moderator, boolean unlimited, @NotNull ShopType type,
+            @Nullable YamlConfiguration extra, @Nullable String currency, boolean disableDisplay,
+            @Nullable UUID taxAccount)
+    {
+
+        // Util.ensureThread(location, false);
         this.location = location;
         this.price = price;
         this.moderator = moderator;
         this.item = item.clone();
         this.plugin = plugin;
         if (!plugin.isAllowStack()) {
+
             this.item.setAmount(1);
+
         }
+
         if (item.hasItemMeta()) {
+
             ItemMeta meta = item.getItemMeta();
             if (meta.hasDisplayName() && meta.getDisplayName().matches("\\{.*}")) {
-                //https://hub.spigotmc.org/jira/browse/SPIGOT-5964
+
+                // https://hub.spigotmc.org/jira/browse/SPIGOT-5964
                 meta.setDisplayName(meta.getDisplayName());
-                //Correct both items
+                // Correct both items
                 item.setItemMeta(meta);
                 this.item.setItemMeta(meta);
+
             }
+
         }
+
         this.shopType = type;
         this.unlimited = unlimited;
         this.extra = null;
@@ -215,44 +219,62 @@ public class ContainerShop implements Shop {
         this.taxAccount = taxAccount;
         initDisplayItem();
         this.dirty = false;
-        updateShopData();
+        // updateShopData();
+
     }
 
     private void updateShopData() {
+
         ConfigurationSection section = getExtra(plugin);
         if (section.getString("currency") != null) {
+
             this.currency = section.getString("currency");
             section.set("currency", null);
             Util.debugLog("Shop " + this + " currency data upgrade successful.");
+
         }
+
         setDirty();
         this.update();
+
     }
 
     @Override
     public boolean isDisableDisplay() {
+
         return disableDisplay;
+
     }
 
     @Override
     public void setDisableDisplay(boolean disabled) {
+
         this.disableDisplay = disabled;
         setDirty();
         update();
         checkDisplay();
+
     }
 
     @Override
     @Nullable
     public UUID getTaxAccount() {
+
         UUID uuid = null;
         if (taxAccount != null) {
+
             uuid = taxAccount;
+
         } else {
+
             if (((SimpleShopManager) plugin.getShopManager()).getCacheTaxAccount() != null) {
+
                 uuid = ((SimpleShopManager) plugin.getShopManager()).getCacheTaxAccount().getUniqueId();
+
             }
+
         }
+
         ShopTaxAccountGettingEvent event = new ShopTaxAccountGettingEvent(this, uuid);
         event.callEvent();
         return event.getTaxAccount();
@@ -261,21 +283,28 @@ public class ContainerShop implements Shop {
 
     @Override
     public void setTaxAccount(@Nullable UUID taxAccount) {
+
         this.taxAccount = taxAccount;
         setDirty();
         update();
+
     }
 
     @Override
     @Nullable
     public UUID getTaxAccountActual() {
+
         return taxAccount;
+
     }
 
     private void initDisplayItem() {
-        //Util.ensureThread(this.getLocation(), false);
+
+        // Util.ensureThread(this.getLocation(), false);
         if (plugin.isDisplayEnabled() && !isDisableDisplay()) {
+
             switch (AbstractDisplayItem.getNowUsing()) {
+
                 case REALITEM:
                     this.displayItem = new RealDisplayItem(this);
                     break;
@@ -283,15 +312,22 @@ public class ContainerShop implements Shop {
                     this.displayItem = new VirtualDisplayItem(this);
                     break;
                 default:
-                    //Tips will be raised in AbstractDisplayItem#getNowUsing
+                    // Tips will be raised in AbstractDisplayItem#getNowUsing
                     if (AbstractDisplayItem.isNotSupportVirtualItem()) {
+
                         this.displayItem = new RealDisplayItem(this);
+
                     } else {
+
                         this.displayItem = new VirtualDisplayItem(this);
+
                     }
                     break;
+
             }
+
         }
+
     }
 
     /**
@@ -302,33 +338,46 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void add(@NotNull ItemStack item, int amount) {
+
         Util.ensureThread(this.getLocation(), false);
         if (this.unlimited) {
+
             return;
+
         }
+
         item = item.clone();
         int itemMaxStackSize = Util.getItemMaxStackSize(item.getType());
         Inventory inv = this.getInventory();
         int remains = amount;
         while (remains > 0) {
+
             int stackSize = Math.min(remains, itemMaxStackSize);
             item.setAmount(stackSize);
             Objects.requireNonNull(inv).addItem(item);
             remains -= stackSize;
+
         }
+
         this.setSignText();
+
     }
 
     @Override
     public boolean addStaff(@NotNull UUID player) {
+
         Util.ensureThread(this.getLocation(), false);
         setDirty();
         boolean result = this.moderator.addStaff(player);
         update();
         if (result) {
+
             plugin.getServer().getPluginManager().callEvent(new ShopModeratorChangedEvent(this, this.moderator));
+
         }
+
         return result;
+
     }
 
     /**
@@ -340,47 +389,58 @@ public class ContainerShop implements Shop {
      * @param amount         The amount to buy
      */
     @Override
-    public void buy(@NotNull UUID buyer, @NotNull Inventory buyerInventory,
-                    @NotNull Location loc2Drop, int amount) {
+    public void buy(@NotNull UUID buyer, @NotNull Inventory buyerInventory, @NotNull Location loc2Drop, int amount) {
+
         Util.ensureThread(this.getLocation(), false);
         amount = amount * item.getAmount();
         if (amount < 0) {
+
             this.sell(buyer, buyerInventory, loc2Drop, -amount);
             return;
+
         }
+
         ItemStack[] contents = buyerInventory.getContents();
         if (this.isUnlimited() && !isAlwaysCountingContainer()) {
+
             for (int i = 0; amount > 0 && i < contents.length; i++) {
+
                 ItemStack stack = contents[i];
                 if (stack == null || stack.getType() == Material.AIR) {
+
                     continue; // No item
+
                 }
+
                 if (matches(stack)) {
+
                     int stackSize = Math.min(amount, stack.getAmount());
                     stack.setAmount(stack.getAmount() - stackSize);
                     amount -= stackSize;
+
                 }
+
             }
+
             // Send the players new inventory to them
             buyerInventory.setContents(contents);
             this.setSignText();
             // This should not happen.
             if (amount > 0) {
-                plugin.getLogger().log(
-                        Level.WARNING,
-                        "Could not take all items from a players inventory on purchase! "
-                                + buyer
-                                + ", missing: "
-                                + amount
-                                + ", item: "
-                                + Util.getItemStackName(this.getItem())
-                                + "!");
+
+                plugin.getLogger().log(Level.WARNING, "Could not take all items from a players inventory on purchase! "
+                        + buyer + ", missing: " + amount + ", item: " + Util.getItemStackName(this.getItem()) + "!");
+
             }
+
         } else {
+
             Inventory chestInv = this.getInventory();
             for (int i = 0; amount > 0 && i < contents.length; i++) {
+
                 ItemStack item = contents[i];
                 if (item != null && this.matches(item)) {
+
                     // Copy it, we don't want to interfere
                     item = item.clone();
                     // Amount = total, item.getAmount() = how many items in the
@@ -395,86 +455,131 @@ public class ContainerShop implements Shop {
                     // Add the items to the players inventory
                     Objects.requireNonNull(chestInv).addItem(item);
                     amount -= stackSize;
+
                 }
+
             }
+
             // Now update the players inventory.
             buyerInventory.setContents(contents);
 
-            //Update sign
+            // Update sign
             this.setSignText();
             if (attachedShop != null) {
+
                 attachedShop.setSignText();
+
             }
+
         }
+
     }
 
     @Override
     public void checkDisplay() {
+
         Util.ensureThread(this.getLocation(), false);
-        if (!plugin.isDisplayEnabled() || this.disableDisplay || !this.isLoaded || this.isDeleted()) { // FIXME: Reinit scheduler on reloading config
+        if (!plugin.isDisplayEnabled() || this.disableDisplay || !this.isLoaded || this.isDeleted()) { // FIXME: Reinit
+                                                                                                       // scheduler on
+                                                                                                       // reloading
+                                                                                                       // config
+
             if (this.displayItem != null && this.displayItem.isSpawned()) {
+
                 this.displayItem.remove();
+
             }
+
             return;
+
         }
 
-        //FIXME: This may affect the performance
+        // FIXME: This may affect the performance
         updateAttachedShop();
 
         if (isLeftShop) {
+
             if (displayItem != null) {
+
                 displayItem.remove();
+
             }
+
             if (attachedShop != null) {
+
                 attachedShop.refresh();
+
             }
+
             return;
+
         }
 
         if (this.displayItem == null) {
+
             Util.debugLog("Warning: DisplayItem is null, this shouldn't happened...");
             StackTraceElement traceElements = Thread.currentThread().getStackTrace()[2];
-            Util.debugLog("Call from: " + traceElements.getClassName() + "#" + traceElements.getMethodName() + "%" + traceElements.getLineNumber());
+            Util.debugLog("Call from: " + traceElements.getClassName() + "#" + traceElements.getMethodName() + "%"
+                    + traceElements.getLineNumber());
             return;
+
         }
 
         if (!this.displayItem.isSpawned()) {
+
             /* Not spawned yet. */
             displayItem.spawn();
+
         } else {
+
             /* If not spawned, we didn't need check these, only check them when we need. */
             if (this.displayItem.checkDisplayNeedRegen()) {
+
                 this.displayItem.fixDisplayNeedRegen();
+
             } else {
+
                 /* If display was regened, we didn't need check it moved, performance! */
                 if (this.displayItem.checkDisplayIsMoved()) {
+
                     this.displayItem.fixDisplayMoved();
+
                 }
+
             }
+
         }
+
         /* Dupe is always need check, if enabled display */
         this.displayItem.removeDupe();
+
     }
 
     @Override
     public void clearStaffs() {
+
         setDirty();
         this.moderator.clearStaffs();
-        plugin.getServer().getPluginManager()
-                .callEvent(new ShopModeratorChangedEvent(this, this.moderator));
+        plugin.getServer().getPluginManager().callEvent(new ShopModeratorChangedEvent(this, this.moderator));
         update();
+
     }
 
     @Override
     public boolean delStaff(@NotNull UUID player) {
+
         Util.ensureThread(this.getLocation(), false);
         setDirty();
         boolean result = this.moderator.delStaff(player);
         update();
         if (result) {
+
             plugin.getServer().getPluginManager().callEvent(new ShopModeratorChangedEvent(this, this.moderator));
+
         }
+
         return result;
+
     }
 
     /**
@@ -482,8 +587,10 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void delete() {
+
         Util.ensureThread(this.getLocation(), false);
         delete(false);
+
     }
 
     /**
@@ -493,67 +600,106 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void delete(boolean memoryOnly) {
+
         Util.ensureThread(this.getLocation(), false);
         // Get a copy of the attached shop to save it from deletion
         ContainerShop neighbor = getAttachedShop();
         setDirty();
         ShopDeleteEvent shopDeleteEvent = new ShopDeleteEvent(this, memoryOnly);
         if (Util.fireCancellableEvent(shopDeleteEvent)) {
+
             Util.debugLog("Shop deletion was canceled because a plugin canceled it.");
             return;
+
         }
+
         isDeleted = true;
         // Unload the shop
         if (isLoaded) {
+
             this.onUnload();
+
         }
+
         if (memoryOnly) {
+
             // Delete it from memory
             plugin.getShopManager().removeShop(this);
+
         } else {
+
             // Delete the signs around it
             for (Sign s : this.getSigns()) {
+
                 s.getBlock().setType(Material.AIR);
+
             }
+
             // Delete it from the database
             // Refund if necessary
             if (plugin.getConfig().getBoolean("shop.refund")) {
+
                 final EconomyCore economyCore = plugin.getEconomy();
                 final double cost = plugin.getConfig().getDouble("shop.cost");
                 final World world = Objects.requireNonNull(getLocation().getWorld());
                 final String currency = getCurrency();
                 if (plugin.getConfig().getBoolean("shop.refund-from-tax-account-as-much-as-possible")) {
+
                     double balanceShouldTake;
                     if (taxAccount != null) {
-                        balanceShouldTake = Math.max(0, Math.min(cost, economyCore.getBalance(taxAccount, world, currency)));
+
+                        balanceShouldTake = Math.max(0,
+                                Math.min(cost, economyCore.getBalance(taxAccount, world, currency)));
                         if (balanceShouldTake != 0) {
+
                             economyCore.withdraw(taxAccount, balanceShouldTake, world, currency);
+
                         }
+
                     } else {
+
                         Trader taxDefaultTrader = ((SimpleShopManager) plugin.getShopManager()).getCacheTaxAccount();
                         if (taxDefaultTrader != null) {
-                            balanceShouldTake = Math.max(0, Math.min(cost, economyCore.getBalance(taxDefaultTrader, world, currency)));
+
+                            balanceShouldTake = Math.max(0,
+                                    Math.min(cost, economyCore.getBalance(taxDefaultTrader, world, currency)));
                             if (balanceShouldTake != 0) {
+
                                 economyCore.withdraw(taxDefaultTrader, balanceShouldTake, world, currency);
+
                             }
+
                         }
+
                     }
+
                 }
+
                 economyCore.deposit(this.getOwner(), cost, world, currency);
+
             }
+
             plugin.getShopManager().removeShop(this);
             plugin.getDatabaseHelper().removeShop(this);
+
         }
-        // Use that copy we saved earlier (which is now deleted) to refresh it's now alone neighbor
+
+        // Use that copy we saved earlier (which is now deleted) to refresh it's now
+        // alone neighbor
         if (neighbor != null) {
+
             neighbor.refresh();
+
         }
+
     }
 
     @Override
     public boolean isAttached(@NotNull Block b) {
+
         Util.ensureThread(this.getLocation(), false);
         return this.getLocation().getBlock().equals(Util.getAttached(b));
+
     }
 
     /**
@@ -564,28 +710,37 @@ public class ContainerShop implements Shop {
      */
     @Override
     public boolean matches(@Nullable ItemStack item) {
+
         if (item == null) {
+
             return false;
+
         }
+
         ItemStack givenItem = item.clone();
         givenItem.setAmount(1);
         ItemStack shopItem = this.item.clone();
         shopItem.setAmount(1);
         return plugin.getItemMatcher().matches(shopItem, givenItem);
+
     }
 
     @Override
     public void onClick() {
+
         Util.ensureThread(this.getLocation(), false);
         refresh();
         setSignText();
+
     }
 
     /**
      * @return The ItemStack type of this shop
      */
     public @NotNull Material getMaterial() {
+
         return this.item.getType();
+
     }
 
     /**
@@ -593,47 +748,70 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void onUnload() {
+
         Util.ensureThread(this.getLocation(), false);
         if (!this.isLoaded) {
+
             Util.debugLog("Dupe unload request, canceled.");
             return;
+
         }
+
         if (inventoryPreview != null) {
+
             inventoryPreview.close();
+
         }
+
         if (this.displayItem != null) {
+
             this.displayItem.remove();
+
         }
+
         update();
         this.isLoaded = false;
         plugin.getShopManager().getLoadedShops().remove(this);
         ShopUnloadEvent shopUnloadEvent = new ShopUnloadEvent(this);
         plugin.getServer().getPluginManager().callEvent(shopUnloadEvent);
+
     }
 
     @Override
     public @NotNull String ownerName(boolean forceUsername) {
+
         String name = PlayerFinder.findNameByUUID(this.getOwner());
         if (name == null || name.isEmpty()) {
+
             name = plugin.text().of("unknown-owner").forLocale();
+
         }
+
         if (!forceUsername && isUnlimited()) {
+
             name = plugin.text().of("admin-shop").forLocale();
+
         }
+
         ShopOwnerNameGettingEvent event = new ShopOwnerNameGettingEvent(this, getOwner(), name);
         event.callEvent();
         name = event.getName();
         return name;
+
     }
 
     @Override
     public boolean isFreeShop() {
+
         return this.price == 0.0d;
+
     }
 
     @Override
     public boolean isAlwaysCountingContainer() {
+
         return false;
+
     }
 
     public void setAlwaysCountingContainer(boolean value) {
@@ -642,7 +820,9 @@ public class ContainerShop implements Shop {
 
     @Override
     public @NotNull String ownerName() {
+
         return ownerName(false);
+
     }
 
     /**
@@ -653,21 +833,29 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void remove(@NotNull ItemStack item, int amount) {
+
         Util.ensureThread(this.getLocation(), false);
         if (this.unlimited) {
+
             return;
+
         }
+
         item = item.clone();
         int itemMaxStackSize = Util.getItemMaxStackSize(item.getType());
         Inventory inv = this.getInventory();
         int remains = amount;
         while (remains > 0) {
+
             int stackSize = Math.min(remains, itemMaxStackSize);
             item.setAmount(stackSize);
             Objects.requireNonNull(inv).removeItem(item);
             remains -= stackSize;
+
         }
+
         this.setSignText();
+
     }
 
     /**
@@ -679,31 +867,41 @@ public class ContainerShop implements Shop {
      * @param amount          The amount to sell
      */
     @Override
-    public void sell(@NotNull UUID seller, @NotNull Inventory sellerInventory,
-                     @NotNull Location loc2Drop, int amount) {
+    public void sell(@NotNull UUID seller, @NotNull Inventory sellerInventory, @NotNull Location loc2Drop, int amount) {
+
         Util.ensureThread(this.getLocation(), false);
         amount = item.getAmount() * amount;
         if (amount < 0) {
+
             this.buy(seller, sellerInventory, loc2Drop, -amount);
             return;
+
         }
+
         // Items to drop on floor
         ArrayList<ItemStack> floor = new ArrayList<>(5);
         int itemMaxStackSize = Util.getItemMaxStackSize(this.item.getType());
         if (this.isUnlimited() && !isAlwaysCountingContainer()) {
+
             ItemStack item = this.item.clone();
             while (amount > 0) {
+
                 int stackSize = Math.min(amount, itemMaxStackSize);
                 item.setAmount(stackSize);
                 sellerInventory.addItem(item);
                 amount -= stackSize;
+
             }
+
         } else {
+
             ItemStack[] chestContents = Objects.requireNonNull(this.getInventory()).getContents();
             for (int i = 0; amount > 0 && i < chestContents.length; i++) {
+
                 // Can't clone it here, it could be null
                 ItemStack item = chestContents[i];
                 if (item != null && item.getType() != Material.AIR && this.matches(item)) {
+
                     // Copy it, we don't want to interfere
                     item = item.clone();
                     // Amount = total, item.getAmount() = how many items in the
@@ -718,50 +916,77 @@ public class ContainerShop implements Shop {
                     // Add the items to the players inventory
                     floor.addAll(sellerInventory.addItem(item).values());
                     amount -= stackSize;
+
                 }
+
             }
+
             // We now have to update the chests inventory manually.
             this.getInventory().setContents(chestContents);
-            //Update sign
+            // Update sign
             this.setSignText();
             if (attachedShop != null) {
+
                 attachedShop.setSignText();
+
             }
+
         }
+
         if (loc2Drop != null) {
+
             for (ItemStack stack : floor) {
+
                 loc2Drop.getWorld().dropItem(loc2Drop, stack);
+
             }
+
         }
+
     }
 
     public boolean inventoryAvailable() {
+
         if (isUnlimited() && !isAlwaysCountingContainer()) {
+
             return true;
+
         }
+
         if (isSelling()) {
+
             return getRemainingStock() > 0;
+
         }
+
         if (isBuying()) {
+
             return getRemainingSpace() > 0;
+
         }
+
         return true;
+
     }
 
     @Override
     public List<ComponentPackage> getSignText(@NotNull String locale) {
+
         Util.ensureThread(this.getLocation(), false);
         List<ComponentPackage> lines = new ArrayList<>();
-        //Line 1
+        // Line 1
         String statusStringKey = inventoryAvailable() ? "signs.status-available" : "signs.status-unavailable";
-        lines.add(new ComponentPackage(fromLegacyText(plugin.text().of("signs.header", this.ownerName(false), plugin.text().of(statusStringKey).forLocale(locale)).forLocale(locale))));
+        lines.add(new ComponentPackage(fromLegacyText(plugin.text()
+                .of("signs.header", this.ownerName(false), plugin.text().of(statusStringKey).forLocale(locale))
+                .forLocale(locale))));
 
-        //Line 2
+        // Line 2
         String tradingStringKey;
         String noRemainingStringKey;
         int shopRemaining;
 
         switch (shopType) {
+
             case BUYING:
                 shopRemaining = getRemainingSpace();
                 tradingStringKey = isStackingShop() ? "signs.stack-buying" : "signs.buying";
@@ -776,60 +1001,83 @@ public class ContainerShop implements Shop {
                 shopRemaining = 0;
                 tradingStringKey = "MissingKey for shop type:" + shopType;
                 noRemainingStringKey = "MissingKey for shop type:" + shopType;
+
         }
+
         String line2;
         switch (shopRemaining) {
-            //Unlimited
+
+            // Unlimited
             case -1:
-                line2 = plugin.text().of(tradingStringKey, plugin.text().of("signs.unlimited").forLocale(locale)).forLocale(locale);
+                line2 = plugin.text().of(tradingStringKey, plugin.text().of("signs.unlimited").forLocale(locale))
+                        .forLocale(locale);
                 break;
-            //No remaining
+            // No remaining
             case 0:
                 line2 = plugin.text().of(noRemainingStringKey).forLocale(locale);
                 break;
-            //Has remaining
+            // Has remaining
             default:
                 line2 = plugin.text().of(tradingStringKey, Integer.toString(shopRemaining)).forLocale(locale);
+
         }
 
-        // TODO No-longer use SHOP_SIGN_PREFIX since we use modern storage method. Pending for deletion.
-        lines.add(new ComponentPackage(new BungeeQuickChat.BungeeComponentBuilder().appendLegacy(SHOP_SIGN_PREFIX, line2).create()));
+        // TODO No-longer use SHOP_SIGN_PREFIX since we use modern storage method.
+        // Pending for deletion.
+        lines.add(new ComponentPackage(
+                new BungeeQuickChat.BungeeComponentBuilder().appendLegacy(SHOP_SIGN_PREFIX, line2).create()));
 
-        //line 3
-        if (plugin.getConfig().getBoolean("shop.force-use-item-original-name") || !this.getItem().hasItemMeta() || !this.getItem().getItemMeta().hasDisplayName()) {
+        // line 3
+        if (plugin.getConfig().getBoolean("shop.force-use-item-original-name") || !this.getItem().hasItemMeta()
+                || !this.getItem().getItemMeta().hasDisplayName())
+        {
+
             String left = plugin.text().of("signs.item-left").forLocale();
             String right = plugin.text().of("signs.item-right").forLocale();
             if (plugin.getNbtapi() == null) {
+
                 // NBTAPI not installed
                 lines.add(new ComponentPackage(new BungeeQuickChat.BungeeComponentBuilder()
-                        .appendLegacy(left, Util.getItemStackName(getItem()), right)
-                        .create()));
+                        .appendLegacy(left, Util.getItemStackName(getItem()), right).create()));
+
             } else {
+
                 // NBTAPI installed
                 String itemName = Util.getItemCustomName(getItem());
-                BaseComponent[] itemComponents = itemName == null ? Util.getTranslateComponentForItem(getItem()) : fromLegacyText(itemName);
+                BaseComponent[] itemComponents = itemName == null ? Util.getTranslateComponentForItem(getItem())
+                        : fromLegacyText(itemName);
                 lines.add(new ComponentPackage(new BungeeQuickChat.BungeeComponentBuilder()
-                        .appendLegacyAndItem(left,
-                                itemComponents, right)
-                        .create()));
+                        .appendLegacyAndItem(left, itemComponents, right).create()));
+
             }
+
         } else {
-            lines.add(new ComponentPackage(new BungeeQuickChat.BungeeComponentBuilder().appendLegacy(plugin.text().of("signs.item-left").forLocale()
-                    , Util.getItemStackName(getItem()), plugin.text().of("signs.item-right").forLocale()).create()));
+
+            lines.add(
+                    new ComponentPackage(new BungeeQuickChat.BungeeComponentBuilder()
+                            .appendLegacy(plugin.text().of("signs.item-left").forLocale(),
+                                    Util.getItemStackName(getItem()), plugin.text().of("signs.item-right").forLocale())
+                            .create()));
+
         }
 
-        //line 4
+        // line 4
         String line4;
         if (this.isStackingShop()) {
-            line4 = plugin.text().of("signs.stack-price",
-                    plugin.getShopManager().format(this.getPrice(), this), Integer.toString(item.getAmount()),
-                    Util.getItemStackName(item)).forLocale();
+
+            line4 = plugin.text().of("signs.stack-price", plugin.getShopManager().format(this.getPrice(), this),
+                    Integer.toString(item.getAmount()), Util.getItemStackName(item)).forLocale();
+
         } else {
+
             line4 = plugin.text().of("signs.price", plugin.getShopManager().format(this.getPrice(), this)).forLocale();
+
         }
+
         lines.add(new ComponentPackage(new BungeeQuickChat.BungeeComponentBuilder().appendLegacy(line4).create()));
 
         return lines;
+
     }
 
     /**
@@ -839,64 +1087,108 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setSignText(@NotNull List<ComponentPackage> lines) {
+
         Util.ensureThread(this.getLocation(), false);
         List<Sign> signs = this.getSigns();
         for (Sign sign : signs) {
+
             if (this.plugin.getNbtapi() != null) {
+
                 NBTTileEntity tileSign = new NBTTileEntity(sign);
                 try {
+
                     if (plugin.getGameVersion().ordinal() >= GameVersion.v1_20_R1.ordinal()) {
+
                         NBTCompound frontNBTCompound = tileSign.getCompound("front_text");
                         if (frontNBTCompound == null) {
+
                             // It should never run into there, but just in case
                             sign.getSide(Side.FRONT).setLine(0, "[Fix]");
                             sign.update(true);
                             frontNBTCompound = tileSign.getCompound("front_text");
+
                         }
+
                         if (frontNBTCompound == null) {
-                            throw new IllegalStateException("Sign NBT structure seems changed/broken! original dump:" + tileSign);
+
+                            throw new IllegalStateException(
+                                    "Sign NBT structure seems changed/broken! original dump:" + tileSign);
+
                         }
+
                         NBTList<String> messageNBTList = frontNBTCompound.getStringList("messages");
                         if (messageNBTList == null) {
-                            throw new IllegalStateException("Sign NBT structure seems changed/broken! original dump:" + tileSign);
+
+                            throw new IllegalStateException(
+                                    "Sign NBT structure seems changed/broken! original dump:" + tileSign);
+
                         }
+
                         for (int i = 0; i < lines.size(); i++) {
+
                             messageNBTList.set(i, Util.componentsToJson(lines.get(i).getComponents()));
+
                         }
+
                     } else {
+
                         for (int i = 0; i < lines.size(); i++) {
+
                             tileSign.setString("Text" + (i + 1), Util.componentsToJson(lines.get(i).getComponents()));
+
                         }
+
                     }
-                    //Due to spigot internal changes, snapshot need to be updated for nbt changes
-                    //Such thing not happened to paper (we disable snapshot when getting state),
-                    //for performance improvement, we use paperlib to skip snapshot creating again
+
+                    // Due to spigot internal changes, snapshot need to be updated for nbt changes
+                    // Such thing not happened to paper (we disable snapshot when getting state),
+                    // for performance improvement, we use paperlib to skip snapshot creating again
                     sign = (Sign) PaperLib.getBlockState(sign.getBlock(), false).getState();
+
                 } catch (Exception e) {
-                    plugin.getLogger().log(Level.WARNING, "NBTAPI support is broken, disable and fallback... (You can safely ignore this)", e);
+
+                    plugin.getLogger().log(Level.WARNING,
+                            "NBTAPI support is broken, disable and fallback... (You can safely ignore this)", e);
                     plugin.disableNBTAPI();
-                    Util.debugLog("NBTAPI is broken, error: " + e.getMessage() + "\n stacktrace:  \n" + Arrays.toString(e.getStackTrace()));
-                    //Reset it since we disable nbt api, text need to change
+                    Util.debugLog("NBTAPI is broken, error: " + e.getMessage() + "\n stacktrace:  \n"
+                            + Arrays.toString(e.getStackTrace()));
+                    // Reset it since we disable nbt api, text need to change
                     setSignText();
                     return;
+
                 }
+
             } else {
+
                 for (int i = 0; i < lines.size(); i++) {
+
                     sign.setLine(i, toLegacyText(lines.get(i).getComponents()));
+
                 }
+
             }
+
             if (plugin.getGameVersion().isSignTextDyeSupport()) {
+
                 DyeColor dyeColor = Util.getDyeColor();
                 if (dyeColor != null) {
+
                     sign.setColor(dyeColor);
+
                 }
+
             }
+
             if (plugin.getGameVersion().isSignGlowingSupport()) {
+
                 boolean isGlowing = plugin.getConfig().getBoolean("shop.sign-glowing");
                 sign.setGlowingText(isGlowing);
+
             }
+
             sign.update(true);
             plugin.getServer().getPluginManager().callEvent(new ShopSignUpdateEvent(this, sign));
+
         }
 
     }
@@ -906,11 +1198,16 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setSignText() {
+
         Util.ensureThread(this.getLocation(), false);
         if (!Util.isLoaded(this.location)) {
+
             return;
+
         }
+
         this.setSignText(getSignText(MsgUtil.getDefaultGameLanguageCode()));
+
         // this.setSignText(getSignText("en_us"));
     }
 
@@ -919,16 +1216,23 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void update() {
-        //TODO: check isDirty()
-        //Util.ensureThread(this.getLocation(), false);
+
+        // TODO: check isDirty()
+        // Util.ensureThread(this.getLocation(), false);
         if (updating) {
+
             return;
+
         }
+
         ShopUpdateEvent shopUpdateEvent = new ShopUpdateEvent(this);
         if (Util.fireCancellableEvent(shopUpdateEvent)) {
+
             Util.debugLog("The Shop update action was canceled by a plugin.");
             return;
+
         }
+
         updating = true;
         int x = this.getLocation().getBlockX();
         int y = this.getLocation().getBlockY();
@@ -936,24 +1240,34 @@ public class ContainerShop implements Shop {
         String world = Objects.requireNonNull(this.getLocation().getWorld()).getName();
         int unlimited = this.isUnlimited() ? 1 : 0;
         try {
-            plugin.getDatabaseHelper()
-                    .updateShop(SimpleShopModerator.serialize(this.moderator), this.getItem(),
-                            unlimited, shopType.toID(), this.getPrice(), x, y, z, world,
-                            this.saveExtraToYaml(), this.currency, this.disableDisplay, this.taxAccount == null ? null : this.taxAccount.toString());
+
+            plugin.getDatabaseHelper().updateShop(SimpleShopModerator.serialize(this.moderator), this.getItem(),
+                    unlimited, shopType.toID(), this.getPrice(), x, y, z, world, this.saveExtraToYaml(), this.currency,
+                    this.disableDisplay, this.taxAccount == null ? null : this.taxAccount.toString());
             this.dirty = false;
+
         } catch (Exception e) {
+
             plugin.getLogger().log(Level.WARNING,
                     "Could not update a shop in the database! Changes will revert after a reboot!", e);
+
         } finally {
+
             updating = false;
+
         }
+
     }
 
     private void notifyDisplayItemChange() {
+
         isDisplayItemChanged = true;
         if (attachedShop != null && !attachedShop.isDisplayItemChanged) {
+
             attachedShop.notifyDisplayItemChange();
+
         }
+
     }
 
     /**
@@ -961,7 +1275,9 @@ public class ContainerShop implements Shop {
      */
     @Override
     public short getDurability() {
+
         return (short) ((Damageable) this.item.getItemMeta()).getDamage();
+
     }
 
     /**
@@ -969,55 +1285,83 @@ public class ContainerShop implements Shop {
      */
     @Override
     public @NotNull ItemStack getItem() {
+
         return item;
+
     }
 
     @Override
     public void setItem(@NotNull ItemStack item) {
+
         Util.ensureThread(this.getLocation(), false);
         ShopItemChangeEvent event = new ShopItemChangeEvent(this, this.item, item);
         if (Util.fireCancellableEvent(event)) {
+
             Util.debugLog("A plugin cancelled the item change event.");
             return;
+
         }
+
         this.item = item;
         notifyDisplayItemChange();
         update();
         refresh();
+
     }
 
     @Override
     public void refresh() {
+
         Util.ensureThread(this.getLocation(), false);
         if (inventoryPreview != null) {
+
             inventoryPreview.close();
             inventoryPreview = null;
+
         }
+
         if (displayItem != null) {
+
             displayItem.remove();
+
         }
 
         if (plugin.isDisplayEnabled() && !isDisableDisplay()) {
+
             if (displayItem != null) {
+
                 displayItem.remove();
+
             }
+
             // Update double shop status, is left status, and the attachedShop
             updateAttachedShop();
             // Update displayItem
             if (isDisplayItemChanged && !isDisableDisplay()) {
+
                 initDisplayItem();
                 isDisplayItemChanged = false;
+
             }
-            //Update attachedShop DisplayItem
+
+            // Update attachedShop DisplayItem
             if (attachedShop != null && attachedShop.isDisplayItemChanged) {
+
                 attachedShop.refresh();
+
             }
+
             // Don't make an item for this chest if it's a left shop.
             if (!isLeftShop && !isDisableDisplay() && displayItem != null) {
+
                 displayItem.spawn();
+
             }
+
         }
+
         setSignText();
+
     }
 
     /**
@@ -1025,36 +1369,53 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void onLoad() {
+
         Util.ensureThread(this.getLocation(), false);
         if (this.isLoaded) {
+
             Util.debugLog("Dupe load request, canceled.");
             return;
+
         }
-        Map<Location, Shop> shopsInChunk = plugin.getShopManager().getShops(location.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4); // Avoid loading chunks during shop loading
+
+        Map<Location, Shop> shopsInChunk = plugin.getShopManager().getShops(location.getWorld().getName(),
+                location.getBlockX() >> 4, location.getBlockZ() >> 4); // Avoid loading chunks during shop loading
 
         if (shopsInChunk == null || !shopsInChunk.containsValue(this)) {
+
             throw new IllegalStateException("Shop must register into ShopManager before loading.");
+
         }
 
         ShopLoadEvent shopLoadEvent = new ShopLoadEvent(this);
         if (Util.fireCancellableEvent(shopLoadEvent)) {
+
             return;
+
         }
+
         this.isLoaded = true;
-        //Shop manger done this already
-        //plugin.getShopManager().loadShop(this.getLocation().getWorld().getName(), this);
+        // Shop manger done this already
+        // plugin.getShopManager().loadShop(this.getLocation().getWorld().getName(),
+        // this);
         plugin.getShopManager().getLoadedShops().add(this);
-        //plugin.getShopContainerWatcher().scheduleCheck(this);
+        // plugin.getShopContainerWatcher().scheduleCheck(this);
 
         // check price restriction
         PriceLimiterCheckResult priceRestriction = plugin.getShopManager().getPriceLimiter().check(item, price);
         if (priceRestriction.getStatus() != PriceLimiterStatus.PASS) {
+
             if (price != priceRestriction.getPriceShouldBe()) {
+
                 price = priceRestriction.getPriceShouldBe();
                 update();
+
             }
+
         }
+
         checkDisplay();
+
     }
 
     /**
@@ -1062,21 +1423,27 @@ public class ContainerShop implements Shop {
      */
     @Override
     public @NotNull Location getLocation() {
+
         return this.location;
+
     }
 
     @Override
     public @NotNull ShopModerator getModerator() {
+
         return this.moderator;
+
     }
 
     @Override
     public void setModerator(@NotNull ShopModerator shopModerator) {
+
         Util.ensureThread(this.getLocation(), false);
         setDirty();
         this.moderator = shopModerator;
         update();
         plugin.getServer().getPluginManager().callEvent(new ShopModeratorChangedEvent(this, this.moderator));
+
     }
 
     /**
@@ -1084,7 +1451,9 @@ public class ContainerShop implements Shop {
      */
     @Override
     public @NotNull UUID getOwner() {
+
         return this.moderator.getOwner();
+
     }
 
     /**
@@ -1094,11 +1463,13 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setOwner(@NotNull UUID owner) {
+
         Util.ensureThread(this.getLocation(), false);
         this.moderator.setOwner(owner);
         setSignText();
         update();
         plugin.getServer().getPluginManager().callEvent(new ShopModeratorChangedEvent(this, this.moderator));
+
     }
 
     /**
@@ -1106,7 +1477,9 @@ public class ContainerShop implements Shop {
      */
     @Override
     public double getPrice() {
+
         return this.price;
+
     }
 
     /**
@@ -1116,16 +1489,21 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setPrice(double price) {
+
         Util.ensureThread(this.getLocation(), false);
         ShopPriceChangeEvent event = new ShopPriceChangeEvent(this, this.price, price);
         if (Util.fireCancellableEvent(event)) {
+
             Util.debugLog("A plugin cancelled the price change event.");
             return;
+
         }
+
         setDirty();
         this.price = price;
         setSignText();
         update();
+
     }
 
     /**
@@ -1135,13 +1513,18 @@ public class ContainerShop implements Shop {
      */
     @Override
     public int getRemainingSpace() {
+
         Util.ensureThread(this.getLocation(), false);
         if (this.unlimited && !isAlwaysCountingContainer()) {
+
             return -1;
+
         }
+
         int space = Util.countSpace(this.getInventory(), this);
         new ShopInventoryCalculateEvent(this, space, -1).callEvent();
         return space;
+
     }
 
     /**
@@ -1151,18 +1534,25 @@ public class ContainerShop implements Shop {
      */
     @Override
     public int getRemainingStock() {
+
         Util.ensureThread(this.getLocation(), false);
         if (this.unlimited && !isAlwaysCountingContainer()) {
+
             return -1;
+
         }
+
         int stock = Util.countItems(this.getInventory(), this);
         new ShopInventoryCalculateEvent(this, -1, stock).callEvent();
         return stock;
+
     }
 
     @Override
     public @NotNull ShopType getShopType() {
+
         return this.shopType;
+
     }
 
     /**
@@ -1172,63 +1562,93 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setShopType(@NotNull ShopType newShopType) {
+
         Util.ensureThread(this.getLocation(), false);
         if (this.shopType == newShopType) {
-            return; //Ignore if there actually no changes
+
+            return; // Ignore if there actually no changes
+
         }
+
         setDirty();
         if (Util.fireCancellableEvent(new ShopTypeChangeEvent(this, this.shopType, newShopType))) {
-            Util.debugLog(
-                    "Some addon cancelled shop type changes, target shop: " + this);
+
+            Util.debugLog("Some addon cancelled shop type changes, target shop: " + this);
             return;
+
         }
+
         this.shopType = newShopType;
         this.setSignText();
         update();
+
     }
 
     /**
-     * Returns a list of signs that are attached to this shop (QuickShop and blank signs only)
+     * Returns a list of signs that are attached to this shop (QuickShop and blank
+     * signs only)
      *
-     * @return a list of signs that are attached to this shop (QuickShop and blank signs only)
+     * @return a list of signs that are attached to this shop (QuickShop and blank
+     *         signs only)
      */
     @Override
     public @NotNull List<Sign> getSigns() {
+
         Util.ensureThread(this.getLocation(), false);
         List<Sign> signs = new ArrayList<>(4);
         if (this.getLocation().getWorld() == null) {
+
             return Collections.emptyList();
+
         }
+
         Block[] blocks = new Block[4];
         blocks[0] = location.getBlock().getRelative(BlockFace.EAST);
         blocks[1] = location.getBlock().getRelative(BlockFace.NORTH);
         blocks[2] = location.getBlock().getRelative(BlockFace.SOUTH);
         blocks[3] = location.getBlock().getRelative(BlockFace.WEST);
         for (Block b : blocks) {
+
             if (b == null) {
+
                 continue;
+
             }
+
             BlockState state = PaperLib.getBlockState(b, false).getState();
             if (!(state instanceof Sign)) {
+
                 continue;
+
             }
+
             Sign sign = (Sign) state;
             if (isShopSign(sign)) {
+
                 claimShopSign(sign);
                 signs.add(sign);
+
             }
+
         }
 
         return signs;
+
     }
 
     private ShopSignStorage saveToShopSignStorage() {
-        return new ShopSignStorage(getLocation().getWorld().getName(), getLocation().getBlockX(), getLocation().getBlockY(), getLocation().getBlockZ());
+
+        return new ShopSignStorage(getLocation().getWorld().getName(), getLocation().getBlockX(),
+                getLocation().getBlockY(), getLocation().getBlockZ());
+
     }
 
     @Override
     public void claimShopSign(@NotNull Sign sign) {
-        sign.getPersistentDataContainer().set(SHOP_NAMESPACED_KEY, ShopSignPersistentDataType.INSTANCE, saveToShopSignStorage());
+
+        sign.getPersistentDataContainer().set(SHOP_NAMESPACED_KEY, ShopSignPersistentDataType.INSTANCE,
+                saveToShopSignStorage());
+
     }
 
     /**
@@ -1237,35 +1657,48 @@ public class ContainerShop implements Shop {
     @NotNull
     @Override
     public List<UUID> getStaffs() {
-        return new ArrayList<>(this.moderator.getStaffs()); //Clone only, so make sure external calling will use addStaff
+
+        return new ArrayList<>(this.moderator.getStaffs()); // Clone only, so make sure external calling will use
+                                                            // addStaff
+
     }
 
     @Override
     public boolean isBuying() {
+
         return this.shopType == ShopType.BUYING;
+
     }
 
     @Override
     public boolean isLoaded() {
+
         return this.isLoaded;
+
     }
 
     @Override
     public boolean isSelling() {
+
         return this.shopType == ShopType.SELLING;
+
     }
 
     @Override
     public boolean isUnlimited() {
+
         return this.unlimited;
+
     }
 
     @Override
     public void setUnlimited(boolean unlimited) {
+
         Util.ensureThread(this.getLocation(), false);
         this.unlimited = unlimited;
         this.setSignText();
         update();
+
     }
 
     /**
@@ -1275,65 +1708,77 @@ public class ContainerShop implements Shop {
      */
     @Override
     public boolean isValid() {
+
         Util.ensureThread(this.getLocation(), false);
         if (this.isDeleted) {
+
             return false;
+
         }
+
         return Util.canBeShop(this.getLocation().getBlock());
+
     }
 
     @Override
     public boolean isDeleted() {
+
         return this.isDeleted;
+
     }
 
     @Override
     public @Nullable AbstractDisplayItem getDisplay() {
+
         return this.displayItem;
+
     }
 
     @Override
     public void setDirty() {
+
         this.dirty = true;
+
     }
 
     @Override
     public boolean isDirty() {
+
         return this.dirty;
+
     }
 
     @Override
     public void setDirty(boolean isDirty) {
+
         this.dirty = isDirty;
+
     }
 
     /**
-     * Returns a clone of this shop. References to the same display item, itemstack, location and
-     * owner as this shop does. Do not modify them or you will modify this shop.
+     * Returns a clone of this shop. References to the same display item, itemstack,
+     * location and owner as this shop does. Do not modify them or you will modify
+     * this shop.
      *
-     * <p>**NOT A DEEP CLONE**
+     * <p>
+     * **NOT A DEEP CLONE**
      */
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public @NotNull ContainerShop clone() {
+
         return new ContainerShop(this);
+
     }
 
     @Override
     public String toString() {
 
-        return "Shop " +
-                (location.getWorld() == null ? "unloaded world" : location.getWorld().getName()) +
-                "(" +
-                location.getBlockX() +
-                ", " +
-                location.getBlockY() +
-                ", " +
-                location.getBlockZ() +
-                ")" +
-                " Owner: " + this.ownerName(false) + " - " + getOwner() +
-                ", Unlimited: " + isUnlimited() +
-                " Price: " + getPrice();
+        return "Shop " + (location.getWorld() == null ? "unloaded world" : location.getWorld().getName()) + "("
+                + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + " Owner: "
+                + this.ownerName(false) + " - " + getOwner() + ", Unlimited: " + isUnlimited() + " Price: "
+                + getPrice();
+
     }
 
     /**
@@ -1343,132 +1788,189 @@ public class ContainerShop implements Shop {
      */
     @Nullable
     public AbstractDisplayItem getDisplayItem() {
+
         return this.displayItem;
+
     }
 
     /**
      * @return The enchantments the shop has on its items.
      */
     public @NotNull Map<Enchantment, Integer> getEnchants() {
+
         if (this.item.hasItemMeta() && this.item.getItemMeta().hasEnchants()) {
+
             return Objects.requireNonNull(this.item.getItemMeta()).getEnchants();
+
         }
+
         return Collections.emptyMap();
+
     }
 
     /**
      * @return The chest this shop is based on.
      */
     public @Nullable Inventory getInventory() {
+
         Util.ensureThread(this.getLocation(), false);
         BlockState state = PaperLib.getBlockState(location.getBlock(), false).getState();
         Inventory inv = null;
         if (state.getType() == Material.ENDER_CHEST && plugin.getOpenInvPlugin() != null) {
-            try {//FIXME: Need better impl
+
+            try {// FIXME: Need better impl
+
                 OfflinePlayer offlinePlayer = PlayerFinder.findOfflinePlayerByUUID(this.getOwner());
                 IOpenInv openInv = ((IOpenInv) plugin.getOpenInvPlugin());
                 Player player = openInv.loadPlayer(offlinePlayer);
                 if (player != null) {
+
                     inv = openInv.getSpecialEnderChest(player, offlinePlayer.isOnline()).getBukkitInventory();
+
                 }
+
             } catch (Exception e) {
+
                 Util.debugLog(e.getMessage());
                 return null;
+
             }
+
         }
+
         if (inv == null) {
+
             InventoryHolder container;
             try {
+
                 container = (InventoryHolder) state;
                 inv = container.getInventory();
+
             } catch (Exception e) {
+
                 if (!createBackup) {
+
                     createBackup = Util.backupDatabase();
                     if (createBackup) {
+
                         this.delete(false);
+
                     }
+
                 } else {
+
                     this.delete(true);
+
                 }
-                plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(), "Inventory Invalid", this.saveToInfoStorage()));
-                Util.debugLog(
-                        "Inventory doesn't exist anymore: " + this + " shop was removed.");
+
+                plugin.logEvent(
+                        new ShopRemoveLog(Util.getNilUniqueId(), "Inventory Invalid", this.saveToInfoStorage()));
+                Util.debugLog("Inventory doesn't exist anymore: " + this + " shop was removed.");
                 return null;
+
             }
+
         }
+
         ShopInventoryEvent event = new ShopInventoryEvent(this, inv);
         event.callEvent();
         return event.getInventory();
+
     }
 
     /**
-     * Returns true if this shop is a double chest, and the other half is selling/buying the same as
-     * this is buying/selling.
+     * Returns true if this shop is a double chest, and the other half is
+     * selling/buying the same as this is buying/selling.
      *
-     * @return true if this shop is a double chest, and the other half is selling/buying the same as
-     * this is buying/selling.
+     * @return true if this shop is a double chest, and the other half is
+     *         selling/buying the same as this is buying/selling.
      */
     public boolean isDoubleShop() {
+
         Util.ensureThread(this.getLocation(), false);
         if (attachedShop == null) {
+
             return false;
+
         }
+
         if (attachedShop.matches(this.getItem())) {
+
             // They're both trading the same item
             // They're both buying or both selling => Not a double shop,
             // just two shops.
             // One is buying, one is selling.
             return this.getShopType() != attachedShop.getShopType();
+
         } else {
+
             return false;
+
         }
+
     }
 
     /**
-     * Updates the attachedShop variable to reflect the currently attached shop, if any.
-     * Also updates the left shop status.
+     * Updates the attachedShop variable to reflect the currently attached shop, if
+     * any. Also updates the left shop status.
      */
     @Override
     public void updateAttachedShop() {
-        //TODO: Rewrite centering item feature, currently implement is buggy and mess
+
+        // TODO: Rewrite centering item feature, currently implement is buggy and mess
         Util.ensureThread(this.getLocation(), false);
-        Block attachedChest = Util
-                .getSecondHalf(this.getLocation().getBlock());
+        Block attachedChest = Util.getSecondHalf(this.getLocation().getBlock());
 
         Shop preValue = attachedShop;
 
-        //Prevent chain chunk loading
+        // Prevent chain chunk loading
         if (attachedChest == null || !Util.isLoaded(attachedChest.getLocation())) {
+
             attachedShop = null;
+
         } else {
+
             attachedShop = (ContainerShop) plugin.getShopManager().getShop(attachedChest.getLocation());
+
         }
 
         if (attachedShop != null && attachedShop.matches(this.getItem())) {
+
             updateLeftShop();
+
         } else {
+
             isLeftShop = false;
+
         }
 
         if (!Objects.equals(attachedShop, preValue)) {
+
             notifyDisplayItemChange();
+
         }
+
     }
 
     /**
      * This function calculates which block of a double chest is the left block,
-     * relative to the direction the chest is facing. Left shops don't spawn items since
-     * they merge items with the right shop.
-     * It also updates the isLeftShop status of this class to reflect the changes.
+     * relative to the direction the chest is facing. Left shops don't spawn items
+     * since they merge items with the right shop. It also updates the isLeftShop
+     * status of this class to reflect the changes.
      */
     private void updateLeftShop() {
-        //TODO: Rewrite centering item feature, currently implement is buggy and mess
+
+        // TODO: Rewrite centering item feature, currently implement is buggy and mess
         if (attachedShop == null) {
+
             return;
+
         }
+
         boolean previousValue = isLeftShop;
 
         switch (((Chest) getLocation().getBlock().getBlockData()).getFacing()) {
+
             case WEST:
                 // left block has a smaller z value
                 isLeftShop = getLocation().getZ() < attachedShop.getLocation().getZ();
@@ -1487,92 +1989,122 @@ public class ContainerShop implements Shop {
                 break;
             default:
                 isLeftShop = false;
+
         }
+
         if (isLeftShop != previousValue) {
+
             notifyDisplayItemChange();
+
         }
+
     }
 
     /**
      * Checks to see if it is a real double without updating anything.
      *
-     * @return If the chest is a real double chest, as in it is a double and it has the same item.
+     * @return If the chest is a real double chest, as in it is a double and it has
+     *         the same item.
      */
     @Override
     public boolean isRealDouble() {
+
         Util.ensureThread(this.getLocation(), false);
         if (attachedShop == null) {
+
             return false;
+
         }
+
         return attachedShop.matches(this.getItem());
+
     }
 
     @Override
     public boolean isLeftShop() {
+
         return isLeftShop;
+
     }
 
     @Override
     public ContainerShop getAttachedShop() {
+
         return attachedShop;
+
     }
 
     /**
-     * Different with isDoubleShop, this method only check the shop is created on the double chest.
+     * Different with isDoubleShop, this method only check the shop is created on
+     * the double chest.
      *
      * @return true if create on double chest.
      */
     public boolean isDoubleChestShop() {
+
         Util.ensureThread(this.getLocation(), false);
         return Util.isDoubleChest(this.getLocation().getBlock().getBlockData());
+
     }
 
     /**
      * Check the container still there and we can keep use it.
      */
     public boolean checkContainer() {
+
         Util.ensureThread(this.getLocation(), false);
         if (!this.isLoaded || !Util.isLoaded(this.getLocation())) {
+
             return true;
+
         }
 
         if (!Util.canBeShop(this.getLocation().getBlock())) {
+
             Util.debugLog("Shop at " + this.getLocation() + "@" + this.getLocation().getBlock()
                     + " container was missing, deleting...");
             plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(), "Container invalid", saveToInfoStorage()));
             this.onUnload();
             this.delete(false);
             return false;
+
         }
 
         return true;
+
     }
 
     @Override
     public @NotNull String saveExtraToYaml() {
+
         return "";
+
     }
 
     /**
-     * Gets the plugin's k-v map to storage the data. It is spilt by plugin name, different name
-     * have different map, the data won't conflict. But if you plugin name is too common, add a
-     * prefix will be a good idea.
+     * Gets the plugin's k-v map to storage the data. It is spilt by plugin name,
+     * different name have different map, the data won't conflict. But if you plugin
+     * name is too common, add a prefix will be a good idea.
      *
      * @param plugin Plugin instance
      * @return The data table
      */
     @Override
     public @NotNull ConfigurationSection getExtra(@NotNull Plugin plugin) {
+
         if (extra == null)
             extra = new YamlConfiguration();
 
         ConfigurationSection section = extra.getConfigurationSection(plugin.getName());
         if (section == null) {
-            section = extra.createSection(plugin.getName());
-        }
-        return section;
-    }
 
+            section = extra.createSection(plugin.getName());
+
+        }
+
+        return section;
+
+    }
 
     /**
      * Save the extra data to the shop.
@@ -1582,12 +2114,14 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setExtra(@NotNull Plugin plugin, @NotNull ConfigurationSection data) {
+
         if (extra == null)
             extra = new YamlConfiguration();
 
         extra.set(plugin.getName(), data);
         setDirty();
         update();
+
     }
 
     /**
@@ -1597,21 +2131,27 @@ public class ContainerShop implements Shop {
      */
     @Override
     public boolean isStackingShop() {
-        //Since isAllowStack will change in the runtime and shop does not handle this change
-        //We just care about the snapshot result (it was already checked when init shop)
-        //return plugin.isAllowStack() && this.item.getAmount() > 1;
+
+        // Since isAllowStack will change in the runtime and shop does not handle this
+        // change
+        // We just care about the snapshot result (it was already checked when init
+        // shop)
+        // return plugin.isAllowStack() && this.item.getAmount() > 1;
         return this.item.getAmount() > 1;
+
     }
 
     /**
-     * WARNING: This UUID will changed after plugin reload, shop reload or server restart DO NOT USE
-     * IT TO STORE DATA!
+     * WARNING: This UUID will changed after plugin reload, shop reload or server
+     * restart DO NOT USE IT TO STORE DATA!
      *
      * @return Random UUID
      */
     @Override
     public @NotNull UUID getRuntimeRandomUniqueId() {
+
         return this.runtimeRandomUniqueId;
+
     }
 
     /**
@@ -1621,7 +2161,9 @@ public class ContainerShop implements Shop {
      */
     @Override
     public @Nullable String getCurrency() {
+
         return this.currency;
+
     }
 
     /**
@@ -1631,23 +2173,35 @@ public class ContainerShop implements Shop {
      */
     @Override
     public void setCurrency(@Nullable String currency) {
+
         this.currency = currency;
         setDirty();
         this.update();
+
     }
 
     @Override
     public void openPreview(@NotNull Player player) {
+
         Util.ensureThread(player, false);
         if (inventoryPreview == null) {
+
             inventoryPreview = new InventoryPreview(plugin, getItem().clone(), player.getLocale());
+
         }
+
         inventoryPreview.show(player);
 
     }
 
     @Override
     public ShopInfoStorage saveToInfoStorage() {
-        return new ShopInfoStorage(getLocation().getWorld().getName(), BlockPosition.of(getLocation()), SimpleShopModerator.serialize(getModerator()), getPrice(), Util.serialize(getItem()), isUnlimited() ? 1 : 0, getShopType().toID(), saveExtraToYaml(), getCurrency(), isDisableDisplay(), getTaxAccount());
+
+        return new ShopInfoStorage(getLocation().getWorld().getName(), BlockPosition.of(getLocation()),
+                SimpleShopModerator.serialize(getModerator()), getPrice(), Util.serialize(getItem()),
+                isUnlimited() ? 1 : 0, getShopType().toID(), saveExtraToYaml(), getCurrency(), isDisableDisplay(),
+                getTaxAccount());
+
     }
+
 }

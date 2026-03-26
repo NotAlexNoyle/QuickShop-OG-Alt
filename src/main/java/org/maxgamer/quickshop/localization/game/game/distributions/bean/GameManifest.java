@@ -42,6 +42,7 @@ public class GameManifest {
     @NoArgsConstructor
     @Data
     public static class ArgumentsDTO {
+
         @JsonProperty("game")
         private List<String> game;
         @JsonProperty("jvm")
@@ -50,6 +51,7 @@ public class GameManifest {
         @NoArgsConstructor
         @Data
         public static class JvmDTO {
+
             @JsonProperty("rules")
             private List<RulesDTO> rules;
             @JsonProperty("value")
@@ -58,6 +60,7 @@ public class GameManifest {
             @NoArgsConstructor
             @Data
             public static class RulesDTO {
+
                 @JsonProperty("action")
                 private String action;
                 @JsonProperty("os")
@@ -66,16 +69,22 @@ public class GameManifest {
                 @NoArgsConstructor
                 @Data
                 public static class OsDTO {
+
                     @JsonProperty("name")
                     private String name;
+
                 }
+
             }
+
         }
+
     }
 
     @NoArgsConstructor
     @Data
     public static class AssetIndexDTO {
+
         @JsonProperty("id")
         private String id;
         @JsonProperty("sha1")
@@ -86,11 +95,13 @@ public class GameManifest {
         private Integer totalSize;
         @JsonProperty("url")
         private String url;
+
     }
 
     @NoArgsConstructor
     @Data
     public static class DownloadsDTO {
+
         @JsonProperty("client")
         private ClientDTO client;
         @JsonProperty("client_mappings")
@@ -103,66 +114,79 @@ public class GameManifest {
         @NoArgsConstructor
         @Data
         public static class ClientDTO {
+
             @JsonProperty("sha1")
             private String sha1;
             @JsonProperty("size")
             private Integer size;
             @JsonProperty("url")
             private String url;
+
         }
 
         @NoArgsConstructor
         @Data
         public static class ClientMappingsDTO {
+
             @JsonProperty("sha1")
             private String sha1;
             @JsonProperty("size")
             private Integer size;
             @JsonProperty("url")
             private String url;
+
         }
 
         @NoArgsConstructor
         @Data
         public static class ServerDTO {
+
             @JsonProperty("sha1")
             private String sha1;
             @JsonProperty("size")
             private Integer size;
             @JsonProperty("url")
             private String url;
+
         }
 
         @NoArgsConstructor
         @Data
         public static class ServerMappingsDTO {
+
             @JsonProperty("sha1")
             private String sha1;
             @JsonProperty("size")
             private Integer size;
             @JsonProperty("url")
             private String url;
+
         }
+
     }
 
     @NoArgsConstructor
     @Data
     public static class JavaVersionDTO {
+
         @JsonProperty("component")
         private String component;
         @JsonProperty("majorVersion")
         private Integer majorVersion;
+
     }
 
     @NoArgsConstructor
     @Data
     public static class LoggingDTO {
+
         @JsonProperty("client")
         private ClientDTO client;
 
         @NoArgsConstructor
         @Data
         public static class ClientDTO {
+
             @JsonProperty("argument")
             private String argument;
             @JsonProperty("file")
@@ -173,6 +197,7 @@ public class GameManifest {
             @NoArgsConstructor
             @Data
             public static class FileDTO {
+
                 @JsonProperty("id")
                 private String id;
                 @JsonProperty("sha1")
@@ -181,13 +206,17 @@ public class GameManifest {
                 private Integer size;
                 @JsonProperty("url")
                 private String url;
+
             }
+
         }
+
     }
 
     @NoArgsConstructor
     @Data
     public static class LibrariesDTO {
+
         @JsonProperty("downloads")
         private DownloadsDTO downloads;
         @JsonProperty("name")
@@ -202,12 +231,14 @@ public class GameManifest {
         @NoArgsConstructor
         @Data
         public static class DownloadsDTO {
+
             @JsonProperty("artifact")
             private ArtifactDTO artifact;
 
             @NoArgsConstructor
             @Data
             public static class ArtifactDTO {
+
                 @JsonProperty("path")
                 private String path;
                 @JsonProperty("sha1")
@@ -216,26 +247,33 @@ public class GameManifest {
                 private Integer size;
                 @JsonProperty("url")
                 private String url;
+
             }
+
         }
 
         @NoArgsConstructor
         @Data
         public static class NativesDTO {
+
             @JsonProperty("osx")
             private String osx;
+
         }
 
         @NoArgsConstructor
         @Data
         public static class ExtractDTO {
+
             @JsonProperty("exclude")
             private List<String> exclude;
+
         }
 
         @NoArgsConstructor
         @Data
         public static class RulesDTO {
+
             @JsonProperty("action")
             private String action;
             @JsonProperty("os")
@@ -244,9 +282,14 @@ public class GameManifest {
             @NoArgsConstructor
             @Data
             public static class OsDTO {
+
                 @JsonProperty("name")
                 private String name;
+
             }
+
         }
+
     }
+
 }

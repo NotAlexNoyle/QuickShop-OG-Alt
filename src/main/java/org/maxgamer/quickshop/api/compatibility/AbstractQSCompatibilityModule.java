@@ -25,12 +25,18 @@ import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.util.holder.QuickShopInstanceHolder;
 
 public abstract class AbstractQSCompatibilityModule extends QuickShopInstanceHolder implements CompatibilityModule {
+
     public AbstractQSCompatibilityModule(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @Override
     public @NotNull Plugin getPlugin() {
+
         return plugin;
+
     }
+
 }

@@ -31,27 +31,28 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Cache is a utilities to quick access shops on large network with Caffeine Cache Library
+ * Cache is a utilities to quick access shops on large network with Caffeine
+ * Cache Library
  *
  * @author Ghost_chu
  */
 public class Cache {
+
     private final QuickShop plugin;
-    private final com.google.common.cache.Cache<Location, BoxedShop> accessCaching = CacheBuilder
-            .newBuilder()
-            .initialCapacity(5000)
-            .expireAfterAccess(120, TimeUnit.MINUTES)
-            .recordStats()
-            .build();
+    private final com.google.common.cache.Cache<Location, BoxedShop> accessCaching = CacheBuilder.newBuilder()
+            .initialCapacity(5000).expireAfterAccess(120, TimeUnit.MINUTES).recordStats().build();
 
     public Cache(QuickShop plugin) {
+
         this.plugin = plugin;
+
     }
 
     public @NotNull CacheStats getStats() {
-        return accessCaching.stats();
-    }
 
+        return accessCaching.stats();
+
+    }
 
     /**
      * Gets shop from plugin caching
@@ -62,21 +63,32 @@ public class Cache {
      */
     @Nullable
     public Shop find(@NotNull Location location, boolean attached) {
+
         BoxedShop boxedShop = accessCaching.getIfPresent(location);
-        //Cache is invalid, generated a new one
+        // Cache is invalid, generated a new one
         if (boxedShop == null || !boxedShop.isValid()) {
+
             Shop shop;
             if (attached) {
+
                 shop = ((SimpleShopManager) plugin.getShopManager()).findShopIncludeAttached(location, false);
+
             } else {
+
                 shop = plugin.getShopManager().getShop(location);
+
             }
+
             setCache(location, shop);
             return shop;
+
         } else {
-            //Cache is valid
+
+            // Cache is valid
             return boxedShop.getShop();
+
         }
+
     }
 
     /**
@@ -86,39 +98,60 @@ public class Cache {
      * @param shop     null for invalidate and Shop object for update
      */
     public void setCache(@NotNull Location location, @Nullable Shop shop) {
+
         accessCaching.put(location, new BoxedShop(shop));
+
     }
 
     public void invalidate(@NotNull Location location) {
+
         accessCaching.invalidate(location);
+
     }
 
-
     private static class BoxedShop {
+
         @Nullable
         private final WeakReference<Shop> shopWeakRef;
 
         public BoxedShop(Shop shop) {
+
             if (shop != null) {
+
                 this.shopWeakRef = new WeakReference<>(shop);
+
             } else {
+
                 shopWeakRef = null;
+
             }
+
         }
 
         @Nullable
         public Shop getShop() {
+
             return shopWeakRef == null ? null : shopWeakRef.get();
+
         }
 
         public boolean isValid() {
+
             if (shopWeakRef != null) {
+
                 Shop shop = shopWeakRef.get();
                 if (shop != null) {
+
                     return shop.isValid();
+
                 }
+
             }
+
             return false;
+
         }
+
     }
+
 }

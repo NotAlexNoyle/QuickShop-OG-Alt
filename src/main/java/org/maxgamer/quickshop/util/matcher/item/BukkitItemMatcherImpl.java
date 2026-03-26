@@ -40,6 +40,7 @@ import java.util.logging.Level;
  */
 @AllArgsConstructor
 public class BukkitItemMatcherImpl implements ItemMatcher {
+
     private final QuickShop plugin;
 
     /**
@@ -49,7 +50,9 @@ public class BukkitItemMatcherImpl implements ItemMatcher {
      */
     @Override
     public @NotNull String getName() {
+
         return plugin.getName();
+
     }
 
     /**
@@ -59,12 +62,14 @@ public class BukkitItemMatcherImpl implements ItemMatcher {
      */
     @Override
     public @NotNull Plugin getPlugin() {
+
         return plugin;
+
     }
 
     /**
-     * Tests ItemStacks is matches
-     * BEWARE: Different order of itemstacks you might will got different results
+     * Tests ItemStacks is matches BEWARE: Different order of itemstacks you might
+     * will got different results
      *
      * @param original The original ItemStack
      * @param tester   The ItemStack will test matches with original itemstack.
@@ -72,13 +77,19 @@ public class BukkitItemMatcherImpl implements ItemMatcher {
      */
     @Override
     public boolean matches(@Nullable ItemStack original, @Nullable ItemStack tester) {
+
         if (original == null && tester == null) {
+
             return true;
+
         }
+
         boolean originalNull = original == null;
         boolean testerNull = tester == null;
         if (originalNull || testerNull) {
+
             return false;
+
         }
 
         original = original.clone();
@@ -87,20 +98,35 @@ public class BukkitItemMatcherImpl implements ItemMatcher {
         tester.setAmount(1);
 
         if (plugin.getNbtapi() != null) {
+
             NBTItem nbtItemOriginal = new NBTItem(original);
             NBTItem nbtItemTester = new NBTItem(tester);
             try {
+
                 String tagOriginal = nbtItemOriginal.getString("shopItemId");
                 String tagTester = nbtItemTester.getString("shopItemId");
-                if (StringUtils.isNotEmpty(tagOriginal) && StringUtils.isNotEmpty(tagTester) && tagOriginal.equals(tagTester)) {
+                if (StringUtils.isNotEmpty(tagOriginal) && StringUtils.isNotEmpty(tagTester)
+                        && tagOriginal.equals(tagTester))
+                {
+
                     return true;
+
                 }
+
             } catch (Exception e) {
+
                 plugin.disableNBTAPI();
-                plugin.getLogger().log(Level.WARNING, "NBTAPI support is broken, dsiable and fallback... (You can safely ignore this)", e);
-                Util.debugLog("NBTAPI is broken, error: " + e.getMessage() + "\n stacktrace:  \n" + Arrays.toString(e.getStackTrace()));
+                plugin.getLogger().log(Level.WARNING,
+                        "NBTAPI support is broken, dsiable and fallback... (You can safely ignore this)", e);
+                Util.debugLog("NBTAPI is broken, error: " + e.getMessage() + "\n stacktrace:  \n"
+                        + Arrays.toString(e.getStackTrace()));
+
             }
+
         }
+
         return tester.isSimilar(original);
+
     }
+
 }

@@ -27,6 +27,7 @@ import org.maxgamer.quickshop.api.shop.PriceLimiterStatus;
 @AllArgsConstructor
 @Data
 public class SimplePriceLimiterCheckResult implements PriceLimiterCheckResult {
+
     PriceLimiterStatus status;
     double min;
     double max;
@@ -34,22 +35,31 @@ public class SimplePriceLimiterCheckResult implements PriceLimiterCheckResult {
     int maxDigit;
 
     public SimplePriceLimiterCheckResult min(double min) {
+
         this.min = min;
         return this;
+
     }
 
     public SimplePriceLimiterCheckResult max(double max) {
+
         this.max = max;
         return this;
+
     }
 
     public SimplePriceLimiterCheckResult priceShouldBe(double priceShouldBe) {
+
         this.priceShouldBe = priceShouldBe;
         return this;
+
     }
 
     public SimplePriceLimiterCheckResult status(PriceLimiterStatus status) {
+
         this.status = status;
         return this;
+
     }
+
 }

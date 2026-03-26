@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface PostProcessor {
+
     /**
      * Process the string
      *
@@ -34,4 +35,5 @@ public interface PostProcessor {
      */
     @NotNull
     String process(@NotNull String text, @Nullable CommandSender sender, Object... args);
+
 }

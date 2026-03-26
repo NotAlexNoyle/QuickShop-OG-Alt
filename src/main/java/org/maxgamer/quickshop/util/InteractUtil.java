@@ -31,19 +31,25 @@ import java.util.EnumMap;
  * @since 4.0.5.0
  */
 public class InteractUtil {
+
     private final static EnumMap<Action, Boolean> SNEAKING_ACTION_MAPPING = new EnumMap<>(Action.class);
     private static Mode mode;
     private static boolean init;
 
     public static void init(ConfigurationSection configuration) {
+
         if (configuration == null) {
+
             configuration = new MemoryConfiguration();
+
         }
+
         mode = Mode.getMode(configuration.getInt("interact-mode", 0));
         SNEAKING_ACTION_MAPPING.put(Action.CREATE, configuration.getBoolean("sneak-to-create"));
         SNEAKING_ACTION_MAPPING.put(Action.TRADE, configuration.getBoolean("sneak-to-trade"));
         SNEAKING_ACTION_MAPPING.put(Action.CONTROL, configuration.getBoolean("sneak-to-control"));
         init = true;
+
     }
 
     /**
@@ -54,12 +60,17 @@ public class InteractUtil {
      * @return if can interact with shop
      */
     public static boolean check(Action action, boolean isSneaking) {
+
         if (!init) {
+
             init(QuickShop.getInstance().getConfig().getConfigurationSection("shop.interact"));
+
         }
-        //Hopefully some coders can read this
+
+        // Hopefully some coders can read this
         boolean sneakAllowed = SNEAKING_ACTION_MAPPING.get(action);
         switch (mode) {
+
             case ONLY:
                 return sneakAllowed == isSneaking;
             case BOTH:
@@ -68,10 +79,13 @@ public class InteractUtil {
                 return !isSneaking || !sneakAllowed;
             default:
                 return true;
+
         }
+
     }
 
     public enum Mode {
+
         ONLY, BOTH, REVERSED;
 
         /**
@@ -81,8 +95,11 @@ public class InteractUtil {
          * @return the mode by int value, return ONLY when out of bounds
          */
         public static Mode getMode(int mode) {
+
             return Mode.values().length > mode ? Mode.values()[mode] : ONLY;
+
         }
+
     }
 
     public enum Action {

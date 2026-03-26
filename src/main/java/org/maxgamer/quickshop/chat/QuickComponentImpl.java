@@ -29,15 +29,21 @@ import org.maxgamer.quickshop.api.chat.QuickComponent;
 @Builder
 @Data
 public class QuickComponentImpl implements QuickComponent {
+
     private Object component;
 
     @Override
     public @NotNull Object get() {
+
         return this.component;
+
     }
 
     @Override
     public void set(@NotNull Object component) {
+
         this.component = component;
+
     }
+
 }

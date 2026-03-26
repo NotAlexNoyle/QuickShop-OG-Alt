@@ -22,10 +22,11 @@ package org.maxgamer.quickshop.api.eventmanager;
 import org.bukkit.event.Event;
 
 /**
- * QuickEventManager allow user switch between bukkit and quickshop.
- * QuickShop's EventManager can filter the Plugin listeners and skip it when calling events
+ * QuickEventManager allow user switch between bukkit and quickshop. QuickShop's
+ * EventManager can filter the Plugin listeners and skip it when calling events
  */
 public interface QuickEventManager {
+
     /**
      * Calling an event use QuickShopEventManager
      *
@@ -33,4 +34,5 @@ public interface QuickEventManager {
      * @throws IllegalStateException Just like bukkit
      */
     void callEvent(Event event) throws IllegalStateException;
+
 }

@@ -46,18 +46,13 @@ public class MySQLCore extends AbstractDatabaseCore {
     @NotNull
     private final QuickShop plugin;
 
-
     private final String tablePrefix;
 
-    public MySQLCore(
-            @NotNull QuickShop plugin,
-            @NotNull String host,
-            @NotNull String user,
-            @NotNull String pass,
-            @NotNull String database,
-            @NotNull String port,
-            @NotNull String tablePrefix,
-            boolean useSSL, Map<String, String> options) {
+    public MySQLCore(@NotNull QuickShop plugin, @NotNull String host, @NotNull String user, @NotNull String pass,
+            @NotNull String database, @NotNull String port, @NotNull String tablePrefix, boolean useSSL,
+            Map<String, String> options)
+    {
+
         this.plugin = plugin;
         this.tablePrefix = tablePrefix;
         info = new Properties();
@@ -67,86 +62,135 @@ public class MySQLCore extends AbstractDatabaseCore {
         info.setProperty("useUnicode", "true");
         info.setProperty("characterEncoding", "utf8");
         for (Map.Entry<String, String> entry : options.entrySet()) {
+
             info.setProperty(entry.getKey(), entry.getValue());
+
         }
-        //info.setProperty("maxReconnects", "65535");
+
+        // info.setProperty("maxReconnects", "65535");
         // info.setProperty("failOverReadOnly", "false");
         info.setProperty("useSSL", String.valueOf(useSSL));
-        if (false) { //TODO Option for addBatch to improve performance
+        if (false) { // TODO Option for addBatch to improve performance
+
             info.setProperty("rewriteBatchedStatements", "true");
+
         }
+
         this.url = "jdbc:mysql://" + host + ":" + port + "/" + database;
         for (int i = 0; i < MAX_CONNECTIONS; i++) {
+
             POOL.add(null);
+
         }
+
     }
 
     @Override
     public String getTablePrefix() {
+
         return tablePrefix;
+
     }
 
     @Override
     synchronized void close() {
+
         for (DatabaseConnection databaseConnection : POOL) {
+
             if (databaseConnection == null || !databaseConnection.isValid()) {
+
                 continue;
+
             }
+
             if (!databaseConnection.isUsing()) {
+
                 databaseConnection.close();
+
             } else {
-                //Wait until the connection is finished
+
+                // Wait until the connection is finished
                 try {
+
                     Thread.sleep(2000);
+
                 } catch (InterruptedException ignored) {
+
                 } finally {
+
                     close();
+
                 }
+
             }
+
         }
+
     }
 
     @Override
     synchronized protected DatabaseConnection getConnection0() {
+
         for (int i = 0; i < MAX_CONNECTIONS; i++) {
+
             DatabaseConnection connection = POOL.get(i);
             // If we have a current connection, fetch it
             if (connection == null) {
+
                 return genConnection(i);
+
             } else if (!connection.isUsing()) {
+
                 if (connection.isValid()) {
+
                     return connection;
+
                 } else {
+
                     // Else, it is invalid, return another connection.
                     connection.close();
                     return genConnection(i);
+
                 }
+
             }
 
         }
-        //If all connection is unusable, wait a moment
+
+        // If all connection is unusable, wait a moment
         waitForConnection();
         return getConnection0();
+
     }
 
     synchronized private DatabaseConnection genConnection(int index) {
+
         try {
+
             DatabaseConnection connection = new DatabaseConnection(this, DriverManager.getConnection(this.url, info));
             POOL.set(index, connection);
             return connection;
+
         } catch (SQLException e) {
+
             throw new RuntimeException("Unable to create a new connection", e);
+
         }
+
     }
 
     @Override
     public @NotNull String getName() {
+
         return "BuiltIn-MySQL";
+
     }
 
     @Override
     public @NotNull Plugin getPlugin() {
+
         return plugin;
+
     }
 
 }

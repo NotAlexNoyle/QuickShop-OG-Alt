@@ -29,27 +29,42 @@ import org.maxgamer.quickshop.util.MsgUtil;
 public class SubCommand_SilentUnlimited extends SubCommand_SilentBase {
 
     public SubCommand_SilentUnlimited(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @Override
     protected void doSilentCommand(Player sender, @NotNull Shop shop, @NotNull String[] cmdArg) {
+
         shop.setUnlimited(!shop.isUnlimited());
         shop.update();
         MsgUtil.sendControlPanelInfo(sender, shop);
 
         if (shop.isUnlimited()) {
+
             plugin.text().of(sender, "command.toggle-unlimited.unlimited").send();
             if (plugin.getConfig().getBoolean("unlimited-shop-owner-change")) {
+
                 plugin.getShopManager().migrateOwnerToUnlimitedShopOwner(shop);
-                plugin.text().of(sender, "unlimited-shop-owner-changed", ((SimpleShopManager) plugin.getShopManager()).getCacheUnlimitedShopAccount().getName()).send();
+                plugin.text()
+                        .of(sender, "unlimited-shop-owner-changed",
+                                ((SimpleShopManager) plugin.getShopManager()).getCacheUnlimitedShopAccount().getName())
+                        .send();
+
             }
+
             return;
+
         }
+
         plugin.text().of(sender, "command.toggle-unlimited.limited").send();
         if (plugin.getConfig().getBoolean("unlimited-shop-owner-change")) {
+
             plugin.text().of(sender, "unlimited-shop-owner-keeped").send();
+
         }
+
     }
 
 }

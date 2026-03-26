@@ -40,39 +40,52 @@ public class SubCommand_Clean implements CommandHandler<CommandSender> {
 
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         plugin.text().of(sender, "command.cleaning").send();
 
         final List<Shop> pendingRemoval = new ArrayList<>();
         int i = 0;
 
         for (Shop shop : plugin.getShopManager().getAllShops()) {
+
             try {
-                if (Util.isLoaded(shop.getLocation())
-                        && shop.isSelling()
-                        && shop.getRemainingStock() == 0
-                        && shop instanceof ContainerShop) {
+
+                if (Util.isLoaded(shop.getLocation()) && shop.isSelling() && shop.getRemainingStock() == 0
+                        && shop instanceof ContainerShop)
+                {
+
                     ContainerShop cs = (ContainerShop) shop;
                     if (cs.isDoubleShop()) {
+
                         continue;
+
                     }
-                    pendingRemoval.add(
-                            shop); // Is selling, but has no stock, and is a chest shop, but is not a double shop.
+
+                    pendingRemoval.add(shop); // Is selling, but has no stock, and is a chest shop, but is not a double
+                                              // shop.
                     // Can be deleted safely.
                     i++;
+
                 }
+
             } catch (IllegalStateException e) {
+
                 pendingRemoval.add(shop); // The shop is not there anymore, remove it
+
             }
+
         }
 
         for (Shop shop : pendingRemoval) {
+
             plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "/qs clean", shop.saveToInfoStorage()));
             shop.delete();
+
         }
 
         MsgUtil.clean();
         plugin.text().of(sender, "command.cleaned", Integer.toString(i)).send();
-    }
 
+    }
 
 }

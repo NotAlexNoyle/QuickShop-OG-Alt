@@ -30,6 +30,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public interface DatabaseHelper {
+
     /**
      * Creates a column with specific name and data type
      *
@@ -48,7 +49,8 @@ public interface DatabaseHelper {
     void cleanMessage(long weekAgo);
 
     /**
-     * Purge and clean all saved transaction message in data that should send to specific player
+     * Purge and clean all saved transaction message in data that should send to
+     * specific player
      *
      * @param player The player
      */
@@ -113,7 +115,6 @@ public interface DatabaseHelper {
      */
     void saveOfflineTransactionMessage(@NotNull UUID player, @NotNull String message, long time);
 
-
     /**
      * Upgrade legacy name based data record to uniqueId based record
      *
@@ -126,8 +127,7 @@ public interface DatabaseHelper {
     void updateOwner2UUID(@NotNull String ownerUUID, int x, int y, int z, @NotNull String worldName);
 
     /**
-     * Update external cache data
-     * (Used for Web UI or other something like that)
+     * Update external cache data (Used for Web UI or other something like that)
      *
      * @param shop  The shop
      * @param space The shop remaining space
@@ -152,9 +152,9 @@ public interface DatabaseHelper {
      * @param disableDisplay Shop display disabled status
      * @param taxAccount     Shop specific tax account
      */
-    void updateShop(@NotNull String owner, @NotNull ItemStack item, int unlimited, int shopType,
-                    double price, int x, int y, int z, @NotNull String world, @NotNull String extra,
-                    @Nullable String currency, boolean disableDisplay, @Nullable String taxAccount);
+    void updateShop(@NotNull String owner, @NotNull ItemStack item, int unlimited, int shopType, double price, int x,
+            int y, int z, @NotNull String world, @NotNull String extra, @Nullable String currency,
+            boolean disableDisplay, @Nullable String taxAccount);
 
     /**
      * Insert a history record into logs table

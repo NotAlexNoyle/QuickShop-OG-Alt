@@ -45,53 +45,95 @@ public class SubCommand_RemoveAll implements CommandHandler<CommandSender> {
 
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         if (cmdArg.length == 1) {
-            //copy it first
+
+            // copy it first
             List<Shop> tempList = new ArrayList<>(plugin.getShopManager().getAllShops());
-            PlayerFinder.PlayerProfile shopOwner = PlayerFinder.findPlayerProfileByName(cmdArg[0], false, plugin.isIncludeOfflinePlayer());
+            PlayerFinder.PlayerProfile shopOwner = PlayerFinder.findPlayerProfileByName(cmdArg[0], false,
+                    plugin.isIncludeOfflinePlayer());
             if (shopOwner == null) {
+
                 plugin.text().of(sender, "unknown-player").send();
                 return;
+
             }
 
             int i = 0;
-            if (sender instanceof OfflinePlayer && !shopOwner.getUuid().equals(((OfflinePlayer) sender).getUniqueId())) { //Non-self shop
+            if (sender instanceof OfflinePlayer
+                    && !shopOwner.getUuid().equals(((OfflinePlayer) sender).getUniqueId()))
+            { // Non-self shop
+
                 if (!sender.hasPermission("quickshop.removeall.other")) {
+
                     plugin.text().of(sender, "no-permission").send();
                     return;
+
                 }
+
                 for (Shop shop : tempList) {
+
                     if (shop.getOwner().equals(shopOwner.getUuid())) {
-                        plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "Deleting shop " + shop + " as requested by the /qs removeall command.", shop.saveToInfoStorage()));
+
+                        plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender),
+                                "Deleting shop " + shop + " as requested by the /qs removeall command.",
+                                shop.saveToInfoStorage()));
                         shop.delete();
                         i++;
+
                     }
+
                 }
-            } else { //Self shop
+
+            } else { // Self shop
+
                 if (!sender.hasPermission("quickshop.removeall.self")) {
+
                     plugin.text().of(sender, "no-permission").send();
                     return;
+
                 }
+
                 if (!(sender instanceof OfflinePlayer)) {
+
                     sender.sendMessage(ChatColor.RED + "This command can't be run by the console!");
                     return;
+
                 }
+
                 for (Shop shop : tempList) {
+
                     if (shop.getOwner().equals(((OfflinePlayer) sender).getUniqueId())) {
-                        plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "Deleting shop " + shop + " as requested by the /qs removeall command.", shop.saveToInfoStorage()));
+
+                        plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender),
+                                "Deleting shop " + shop + " as requested by the /qs removeall command.",
+                                shop.saveToInfoStorage()));
                         shop.delete();
                         i++;
+
                     }
+
                 }
+
             }
+
             plugin.text().of(sender, "command.some-shops-removed", Integer.toString(i)).send();
+
         } else {
+
             plugin.text().of(sender, "command.no-owner-given").send();
+
         }
+
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull String commandLabel,
+            @NotNull String[] cmdArg)
+    {
+
         return cmdArg.length <= 1 ? getPlayerList() : Collections.emptyList();
+
     }
+
 }

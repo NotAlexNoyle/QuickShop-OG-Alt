@@ -28,6 +28,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 public class ShopRemoveLog implements ReadableLog {
+
     private static int v = 1;
     private UUID player;
     private String reason;
@@ -35,6 +36,10 @@ public class ShopRemoveLog implements ReadableLog {
 
     @Override
     public String toReadableLog() {
-        return "Shop at " + shop.getPosition() + " was removed by " + player + ", reason:" + reason + ", shop data:" + shop.toJson();
+
+        return "Shop at " + shop.getPosition() + " was removed by " + player + ", reason:" + reason + ", shop data:"
+                + shop.toJson();
+
     }
+
 }

@@ -45,19 +45,25 @@ public class ShopPriceChangeEvent extends AbstractQSEvent implements Cancellable
      * @param newPrice The new shop price
      */
     public ShopPriceChangeEvent(@NotNull Shop shop, double oldPrice, double newPrice) {
+
         this.shop = shop;
         this.oldPrice = oldPrice;
         this.newPrice = newPrice;
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return this.cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean cancelled) {
+
         this.cancelled = cancelled;
+
     }
 
     /**
@@ -66,7 +72,9 @@ public class ShopPriceChangeEvent extends AbstractQSEvent implements Cancellable
      * @return new price
      */
     public double getNewPrice() {
+
         return this.newPrice;
+
     }
 
     /**
@@ -75,7 +83,9 @@ public class ShopPriceChangeEvent extends AbstractQSEvent implements Cancellable
      * @return old price
      */
     public double getOldPrice() {
+
         return this.oldPrice;
+
     }
 
     /**
@@ -84,6 +94,9 @@ public class ShopPriceChangeEvent extends AbstractQSEvent implements Cancellable
      * @return the shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
+
 }

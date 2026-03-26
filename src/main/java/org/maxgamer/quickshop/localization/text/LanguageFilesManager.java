@@ -30,17 +30,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 //TODO: Refactor to a localeCode->localeContentBean class mapping
 public class LanguageFilesManager {
-    //distributionPath->[localeCode->OTA files]
+
+    // distributionPath->[localeCode->OTA files]
     private final Map<String, Map<String, JsonConfiguration>> locale2ContentMapping = new ConcurrentHashMap<>();
-    //distributionPath->bundled files
+    // distributionPath->bundled files
     private final Map<String, JsonConfiguration> bundledFile2ContentMapping = new ConcurrentHashMap<>();
 
     /**
      * Reset TextMapper
      */
     public void reset() {
+
         this.locale2ContentMapping.clear();
         this.bundledFile2ContentMapping.clear();
+
     }
 
     /**
@@ -51,10 +54,14 @@ public class LanguageFilesManager {
      * @param distribution     The values from Distribution platform
      * @param bundled          The values from bundled file
      */
-    public void deploy(@NotNull String distributionPath, @NotNull String locale, @NotNull JsonConfiguration distribution, @NotNull JsonConfiguration bundled) {
+    public void deploy(@NotNull String distributionPath, @NotNull String locale,
+            @NotNull JsonConfiguration distribution, @NotNull JsonConfiguration bundled)
+    {
+
         this.bundledFile2ContentMapping.put(distributionPath, bundled);
         this.locale2ContentMapping.computeIfAbsent(distributionPath, e -> new HashMap<>());
         this.locale2ContentMapping.get(distributionPath).put(locale, distribution);
+
     }
 
     /**
@@ -64,7 +71,9 @@ public class LanguageFilesManager {
      * @param bundled          The values from bundled file
      */
     public void deployBundled(@NotNull String distributionPath, @NotNull JsonConfiguration bundled) {
+
         this.bundledFile2ContentMapping.put(distributionPath, bundled);
+
     }
 
     /**
@@ -73,8 +82,10 @@ public class LanguageFilesManager {
      * @param distributionPath The distribution path
      */
     public void remove(@NotNull String distributionPath) {
+
         this.bundledFile2ContentMapping.remove(distributionPath);
         this.locale2ContentMapping.remove(distributionPath);
+
     }
 
     /**
@@ -84,9 +95,13 @@ public class LanguageFilesManager {
      * @param locale           The locale
      */
     public void remove(@NotNull String distributionPath, @NotNull String locale) {
+
         if (this.locale2ContentMapping.containsKey(distributionPath)) {
+
             this.locale2ContentMapping.get(distributionPath).remove(locale);
+
         }
+
     }
 
     /**
@@ -95,7 +110,9 @@ public class LanguageFilesManager {
      * @param distributionPath The distribution path
      */
     public void removeBundled(@NotNull String distributionPath) {
+
         this.bundledFile2ContentMapping.remove(distributionPath);
+
     }
 
     /**
@@ -105,6 +122,7 @@ public class LanguageFilesManager {
      * @return The bundled data, null if never deployed
      */
     public @Nullable JsonConfiguration getBundled(@NotNull String distributionPath) {
+
         return this.bundledFile2ContentMapping.get(distributionPath);
 
     }
@@ -116,7 +134,9 @@ public class LanguageFilesManager {
      * @return The locales data, empty if never deployed
      */
     public @NotNull Map<String, JsonConfiguration> getDistribution(@NotNull String distributionPath) {
+
         return this.locale2ContentMapping.getOrDefault(distributionPath, Collections.emptyMap());
+
     }
 
     /**
@@ -127,7 +147,9 @@ public class LanguageFilesManager {
      * @return The locale data, null if never deployed
      */
     public @Nullable JsonConfiguration getDistribution(@NotNull String distributionPath, @NotNull String locale) {
+
         return this.getDistribution(distributionPath).get(locale);
+
     }
 
 }

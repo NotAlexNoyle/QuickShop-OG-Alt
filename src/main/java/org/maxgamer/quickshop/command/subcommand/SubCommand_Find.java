@@ -44,20 +44,24 @@ public class SubCommand_Find implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         if (cmdArg.length == 0) {
+
             plugin.text().of(sender, "command.no-type-given").send();
             return;
+
         }
 
         final Location loc = sender.getLocation().clone();
         final Vector playerVector = loc.toVector();
 
-        //Combing command args
+        // Combing command args
         final StringBuilder sb = new StringBuilder(cmdArg[0]);
         for (int i = 1; i < cmdArg.length; i++) {
-            sb.append("_").append(cmdArg[i]);
-        }
 
+            sb.append("_").append(cmdArg[i]);
+
+        }
 
         final String lookFor = sb.toString().toLowerCase();
         final double maxDistance = plugin.getConfig().getInt("shop.finding.distance");
@@ -66,77 +70,120 @@ public class SubCommand_Find implements CommandHandler<Player> {
         final boolean allShops = plugin.getConfig().getBoolean("shop.finding.all");
         final boolean excludeOutOfStock = plugin.getConfig().getBoolean("shop.finding.exclude-out-of-stock");
 
-        //Rewrite by Ghost_chu - Use vector to replace old chunks finding.
+        // Rewrite by Ghost_chu - Use vector to replace old chunks finding.
 
         Map<Shop, Double> aroundShops = new HashMap<>();
 
-        //Choose finding source
+        // Choose finding source
         Collection<Shop> scanPool;
         if (allShops) {
+
             scanPool = plugin.getShopManager().getAllShops();
+
         } else {
+
             scanPool = plugin.getShopManager().getLoadedShops();
+
         }
-        //Calc distance between player and shop
+
+        // Calc distance between player and shop
         for (Shop shop : scanPool) {
+
             if (!Objects.equals(shop.getLocation().getWorld(), loc.getWorld())) {
+
                 continue;
+
             }
+
             if (aroundShops.size() == shopLimit) {
+
                 break;
+
             }
+
             Vector shopVector = shop.getLocation().toVector();
             double distance = shopVector.distance(playerVector);
-            //Check distance
+            // Check distance
             if (distance <= maxDistance) {
+
                 // Collect valid shop that trading items we want
                 if (!Util.getItemStackName(shop.getItem()).toLowerCase().contains(lookFor)
                         && !shop.getItem().getType().name().toLowerCase().contains(lookFor)
-                        && !Util.isBookEnchantmentsMatched(shop.getItem(), lookFor)) {
+                        && !Util.isBookEnchantmentsMatched(shop.getItem(), lookFor))
+                {
+
                     continue;
+
                 }
+
                 if (excludeOutOfStock) {
-                    if ((shop.isSelling() && shop.getRemainingStock() == 0) || (shop.isBuying() && shop.getRemainingSpace() == 0)) {
+
+                    if ((shop.isSelling() && shop.getRemainingStock() == 0)
+                            || (shop.isBuying() && shop.getRemainingSpace() == 0))
+                    {
+
                         continue;
+
                     }
+
                 }
+
                 aroundShops.put(shop, distance);
+
             }
+
         }
-        //Check if no shops found
+
+        // Check if no shops found
         if (aroundShops.isEmpty()) {
+
             plugin.text().of(sender, "no-nearby-shop", lookFor).send();
             return;
+
         }
 
-        //Okay now all shops is our wanted shop in Map
+        // Okay now all shops is our wanted shop in Map
 
-        List<Map.Entry<Shop, Double>> sortedShops = aroundShops.entrySet().stream().sorted(Map.Entry.<Shop, Double>comparingByValue(Double::compare).reversed())
+        List<Map.Entry<Shop, Double>> sortedShops = aroundShops.entrySet().stream()
+                .sorted(Map.Entry.<Shop, Double>comparingByValue(Double::compare).reversed())
                 .collect(Collectors.toList());
 
-        //Function
+        // Function
         if (usingOldLogic) {
+
             Map.Entry<Shop, Double> closest = sortedShops.get(0);
             Location lookAt = closest.getKey().getLocation().clone().add(0.5, 0.5, 0.5);
             PaperLib.teleportAsync(sender, Util.lookAt(sender.getEyeLocation(), lookAt).add(0, -1.62, 0),
                     PlayerTeleportEvent.TeleportCause.UNKNOWN);
             plugin.text().of(sender, "nearby-shop-this-way", String.valueOf(closest.getValue().intValue())).send();
+
         } else {
-            StringBuilder stringBuilder = new StringBuilder(plugin.text().of(sender, "nearby-shop-header", lookFor).forLocale()).append("\n");
+
+            StringBuilder stringBuilder = new StringBuilder(
+                    plugin.text().of(sender, "nearby-shop-header", lookFor).forLocale()).append("\n");
             for (Map.Entry<Shop, Double> shopDoubleEntry : sortedShops) {
+
                 Shop shop = shopDoubleEntry.getKey();
                 Location location = shop.getLocation();
-                //  "nearby-shop-entry": "&a- Info:{0} &aPrice:&b{1} &ax:&b{2} &ay:&b{3} &az:&b{4} &adistance: &b{5} &ablock(s)"
-                stringBuilder.append(plugin.text().of(sender, "nearby-shop-entry",
-                        toLegacyText(shop.getSignText(sender.getLocale()).get(1).getComponents()),
-                        toLegacyText(shop.getSignText(sender.getLocale()).get(3).getComponents()),
-                        String.valueOf(location.getBlockX()),
-                        String.valueOf(location.getBlockY()),
-                        String.valueOf(location.getBlockZ()),
-                        String.valueOf(shopDoubleEntry.getValue().intValue())
-                ).forLocale()).append("\n");
+                // "nearby-shop-entry": "&a- Info:{0} &aPrice:&b{1} &ax:&b{2} &ay:&b{3}
+                // &az:&b{4} &adistance: &b{5} &ablock(s)"
+                stringBuilder
+                        .append(plugin.text()
+                                .of(sender, "nearby-shop-entry",
+                                        toLegacyText(shop.getSignText(sender.getLocale()).get(1).getComponents()),
+                                        toLegacyText(shop.getSignText(sender.getLocale()).get(3).getComponents()),
+                                        String.valueOf(location.getBlockX()), String.valueOf(location.getBlockY()),
+                                        String.valueOf(location.getBlockZ()),
+                                        String.valueOf(shopDoubleEntry.getValue().intValue()))
+                                .forLocale())
+                        .append("\n");
+
             }
+
             MsgUtil.sendDirectMessage(sender, stringBuilder.toString());
+
         }
+
     }
+
 }

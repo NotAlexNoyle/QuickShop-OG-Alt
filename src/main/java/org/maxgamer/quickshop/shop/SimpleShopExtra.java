@@ -31,6 +31,8 @@ import java.util.Map;
 @AllArgsConstructor
 @Data
 public class SimpleShopExtra {
+
     private @NotNull String namespace;
     private @NotNull Map<String, Object> data;
+
 }

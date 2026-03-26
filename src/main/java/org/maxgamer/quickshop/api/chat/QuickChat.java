@@ -32,6 +32,7 @@ import java.util.Map;
  * QuickChat is a system to allow us to process complex messages
  */
 public interface QuickChat {
+
     /**
      * Send plain text to specified receiver
      *
@@ -55,10 +56,7 @@ public interface QuickChat {
      * @param text      The text will sent
      * @param itemStack The ItemStack will append to text in message
      */
-    void sendItemHologramChat(
-            @NotNull Player player,
-            @NotNull String text,
-            @NotNull ItemStack itemStack);
+    void sendItemHologramChat(@NotNull Player player, @NotNull String text, @NotNull ItemStack itemStack);
 
     /**
      * Generate the chat component with preview item hover event
@@ -69,7 +67,9 @@ public interface QuickChat {
      * @param message   The message with hover event
      * @return The component
      */
-    @NotNull QuickComponent getItemHologramChat(@NotNull Shop shop, @NotNull ItemStack itemStack, @NotNull Player player, @NotNull String message);
+    @NotNull
+    QuickComponent getItemHologramChat(@NotNull Shop shop, @NotNull ItemStack itemStack, @NotNull Player player,
+            @NotNull String message);
 
     /**
      * Create chat with hover-item to specified receiver
@@ -79,16 +79,19 @@ public interface QuickChat {
      * @param itemStack The ItemStack will append to text in message
      * @return The QuickComponent created by this method
      */
-    @NotNull QuickComponent getItemTextComponent(@NotNull Player player, @NotNull ItemStack itemStack, @NotNull String text);
+    @NotNull
+    QuickComponent getItemTextComponent(@NotNull Player player, @NotNull ItemStack itemStack, @NotNull String text);
 
     /**
      * Send click-run-command chat to specified receiver
      *
      * @param receiver             The PLAYER will receive this message
      * @param message              The text will sent
-     * @param textToCommandMapping The hover text associated with command, will be applied to placeholder (like {0} {1} {2}...)
+     * @param textToCommandMapping The hover text associated with command, will be
+     *                             applied to placeholder (like {0} {1} {2}...)
      */
-    void sendExecutableChat(@NotNull CommandSender receiver, @NotNull String message, Map.Entry<String, String>... textToCommandMapping);
+    void sendExecutableChat(@NotNull CommandSender receiver, @NotNull String message,
+            Map.Entry<String, String>... textToCommandMapping);
 
     /**
      * Send click-run-command chat to specified receiver
@@ -98,7 +101,8 @@ public interface QuickChat {
      * @param hoverText The hover text will show when hover on chat
      * @param command   The command when click to be run
      */
-    void sendExecutableChat(@NotNull CommandSender receiver, @NotNull String message, @NotNull String hoverText, @NotNull String command);
+    void sendExecutableChat(@NotNull CommandSender receiver, @NotNull String message, @NotNull String hoverText,
+            @NotNull String command);
 
     /**
      * Send click-suggest-command chat to specified receiver
@@ -108,6 +112,7 @@ public interface QuickChat {
      * @param command   The command when click to be suggested
      * @param hoverText The text while player hover on the text
      */
-    void sendSuggestedChat(@NotNull CommandSender receiver, @NotNull String message, @NotNull String hoverText, @NotNull String command);
+    void sendSuggestedChat(@NotNull CommandSender receiver, @NotNull String message, @NotNull String hoverText,
+            @NotNull String command);
 
 }

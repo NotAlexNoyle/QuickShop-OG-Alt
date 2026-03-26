@@ -84,9 +84,8 @@ import java.time.LocalDateTime;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -107,11 +106,13 @@ import static org.maxgamer.quickshop.chat.platform.minedown.BungeeQuickChat.from
 import static org.maxgamer.quickshop.chat.platform.minedown.BungeeQuickChat.toLegacyText;
 
 public class Util {
-    private static final EnumSet<Material> BLACKLIST = EnumSet.noneOf(Material.class);
-    private static final EnumMap<Material, Entry<Double, Double>> RESTRICTED_PRICES = new EnumMap<>(Material.class);
-    private static final EnumMap<Material, Integer> CUSTOM_STACKSIZE = new EnumMap<>(Material.class);
-    private static final EnumSet<Material> SHOPABLES = EnumSet.noneOf(Material.class);
-    private static final List<BlockFace> VERTICAL_FACING = Collections.unmodifiableList(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
+
+    private static final Set<Material> BLACKLIST = new HashSet<>();
+    private static final Map<Material, Entry<Double, Double>> RESTRICTED_PRICES = new HashMap<>();
+    private static final Map<Material, Integer> CUSTOM_STACKSIZE = new HashMap<>();
+    private static final Set<Material> SHOPABLES = new HashSet<>();
+    private static final List<BlockFace> VERTICAL_FACING = List.of(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH,
+            BlockFace.WEST);
     @SuppressWarnings("UnstableApiUsage")
     private static final EvictingQueue<String> DEBUG_LOGS = EvictingQueue.create(500);
     private static final ReentrantReadWriteLock LOCK = new ReentrantReadWriteLock();
@@ -136,11 +137,16 @@ public class Util {
      */
     @NotNull
     public static String array2String(@NotNull String[] strArray) {
+
         StringJoiner joiner = new StringJoiner(", ");
         for (String str : strArray) {
+
             joiner.add(str);
+
         }
+
         return joiner.toString();
+
     }
 
     /**
@@ -151,11 +157,17 @@ public class Util {
      */
     @NotNull
     public static String boolean2Status(boolean bool) {
+
         if (bool) {
+
             return "Enabled";
+
         } else {
+
             return "Disabled";
+
         }
+
     }
 
     /**
@@ -165,24 +177,37 @@ public class Util {
      */
     // TODO: MySQL support
     public static boolean backupDatabase() {
+
         if (plugin.getDatabaseManager().getDatabase() instanceof MySQLCore) {
+
             return true; // Backup and logs by MySQL
+
         }
+
         File dataFolder = plugin.getDataFolder();
         File sqlfile = new File(dataFolder, "shops.db");
         if (!sqlfile.exists()) {
+
             plugin.getLogger().warning("Failed to backup! (File not found)");
             return false;
+
         }
+
         String uuid = UUID.randomUUID().toString().replaceAll("_", "");
         File bksqlfile = new File(dataFolder, "/shops_backup_" + uuid + ".db");
         try {
+
             Files.copy(sqlfile.toPath(), bksqlfile.toPath());
+
         } catch (Exception e1) {
+
             plugin.getLogger().log(Level.WARNING, "Failed to backup the database", e1);
             return false;
+
         }
+
         return true;
+
     }
 
     /**
@@ -192,18 +217,29 @@ public class Util {
      * @return True if it can be made into a shop, otherwise false.
      */
     public static boolean canBeShop(@NotNull Block b) {
+
         if (isBlacklistWorld(b.getWorld())) {
+
             return false;
+
         }
+
         // Specified types by configuration
         if (!isShoppables(b.getType())) {
+
             return false;
+
         }
+
         final BlockState bs = PaperLib.getBlockState(b, false).getState();
         if (bs instanceof EnderChest) { // BlockState for Mod supporting
+
             return plugin.getOpenInvPlugin() != null;
+
         }
+
         return bs instanceof InventoryHolder;
+
     }
 
     /**
@@ -213,35 +249,55 @@ public class Util {
      * @return Can or not
      */
     public static boolean isShoppables(@NotNull Material material) {
+
         return SHOPABLES.contains(material);
+
     }
 
-    private static final Cache<String, Pattern> regexPatternCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
+    private static final Cache<String, Pattern> regexPatternCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(5, TimeUnit.MINUTES).build();
+
     public static boolean isBlacklistWorld(@NotNull World world) {
+
         String worldNameCurrent = world.getName().toLowerCase();
         for (String worldName : plugin.getConfig().getStringList("shop.blacklist-world")) {
+
             worldName = worldName.toLowerCase();
             if (!worldName.startsWith("$")) {
+
                 if (worldNameCurrent.equals(worldName)) {
+
                     return true;
+
                 }
+
             } else if (worldName.length() >= 2) {
+
                 Pattern cachePattern = regexPatternCache.getIfPresent(worldName);
                 if (cachePattern == null) {
+
                     cachePattern = Pattern.compile(worldName.substring(1));
                     regexPatternCache.put(worldName, cachePattern);
+
                 }
+
                 if (cachePattern.matcher(worldNameCurrent).matches()) {
+
                     return true;
+
                 }
+
             }
+
         }
+
         return false;
+
     }
 
     /**
-     * Counts the number of items in the given inventory where Util.matches(inventory item, item) is
-     * true.
+     * Counts the number of items in the given inventory where
+     * Util.matches(inventory item, item) is true.
      *
      * @param inv  The inventory to search
      * @param item The ItemStack to search for
@@ -250,96 +306,146 @@ public class Util {
      */
     @Deprecated
     public static int countItems(@Nullable Inventory inv, @NotNull ItemStack item) {
+
         if (inv == null) {
+
             return 0;
+
         }
+
         int items = 0;
         for (final ItemStack iStack : inv.getStorageContents()) {
+
             if (iStack == null || iStack.getType() == Material.AIR) {
+
                 continue;
+
             }
+
             if (plugin.getItemMatcher().matches(item, iStack)) {
+
                 items += iStack.getAmount();
+
             }
+
         }
+
         return items / item.getAmount();
+
     }
 
     /**
-     * Counts the number of shop items in the given inventory where Util.matches(inventory item, item) is
-     * true.
+     * Counts the number of shop items in the given inventory where
+     * Util.matches(inventory item, item) is true.
      *
      * @param inv  The inventory to search
      * @param shop The Shop for matching
      * @return The number of shop items that match in this inventory.
      */
     public static int countItems(@Nullable Inventory inv, @NotNull Shop shop) {
+
         if (inv == null) {
+
             return 0;
+
         }
+
         int items = 0;
         for (final ItemStack iStack : inv.getStorageContents()) {
+
             if (iStack == null || iStack.getType() == Material.AIR) {
+
                 continue;
+
             }
+
             if (shop.matches(iStack)) {
+
                 items += iStack.getAmount();
+
             }
+
         }
+
         return items / shop.getItem().getAmount();
+
     }
 
     /**
      * Returns the number of shop items that can be given to the inventory safely.
      *
      * @param inv  The inventory to count
-     * @param shop The shop containing item prototype. Material, durabiltiy and enchants must match for 'stackability'
-     *             to occur.
+     * @param shop The shop containing item prototype. Material, durabiltiy and
+     *             enchants must match for 'stackability' to occur.
      * @return The number of shop items that can be given to the inventory safely.
      */
     public static int countSpace(@Nullable Inventory inv, @NotNull Shop shop) {
+
         if (inv == null) {
+
             return 0;
+
         }
+
         ItemStack item = shop.getItem();
         int space = 0;
         int itemMaxStackSize = getItemMaxStackSize(item.getType());
         ItemStack[] contents = inv.getStorageContents();
         for (ItemStack iStack : contents) {
+
             if (iStack == null || iStack.getType() == Material.AIR) {
+
                 space += itemMaxStackSize;
+
             } else if (shop.matches(iStack)) {
+
                 space += iStack.getAmount() >= itemMaxStackSize ? 0 : itemMaxStackSize - iStack.getAmount();
+
             }
+
         }
+
         return space / item.getAmount();
+
     }
 
     /**
      * Returns the number of items that can be given to the inventory safely.
      *
      * @param inv  The inventory to count
-     * @param item The item prototype. Material, durabiltiy and enchants must match for 'stackability'
-     *             to occur.
+     * @param item The item prototype. Material, durabiltiy and enchants must match
+     *             for 'stackability' to occur.
      * @return The number of items that can be given to the inventory safely.
      * @Deprecated Deprecated for different order will result different result
      */
     @Deprecated
     public static int countSpace(@Nullable Inventory inv, @NotNull ItemStack item) {
+
         if (inv == null) {
+
             return 0;
+
         }
+
         int space = 0;
         int itemMaxStackSize = getItemMaxStackSize(item.getType());
         ItemStack[] contents = inv.getStorageContents();
         for (ItemStack iStack : contents) {
+
             if (iStack == null || iStack.getType() == Material.AIR) {
+
                 space += itemMaxStackSize;
+
             } else if (plugin.getItemMatcher().matches(item, iStack)) {
+
                 space += iStack.getAmount() >= itemMaxStackSize ? 0 : itemMaxStackSize - iStack.getAmount();
+
             }
+
         }
+
         return space / item.getAmount();
+
     }
 
     /**
@@ -349,7 +455,10 @@ public class Util {
      * @return Game StackSize or Custom
      */
     public static int getItemMaxStackSize(@NotNull Material material) {
-        return CUSTOM_STACKSIZE.getOrDefault(material, BYPASSED_CUSTOM_STACKSIZE == -1 ? material.getMaxStackSize() : BYPASSED_CUSTOM_STACKSIZE);
+
+        return CUSTOM_STACKSIZE.getOrDefault(material,
+                BYPASSED_CUSTOM_STACKSIZE == -1 ? material.getMaxStackSize() : BYPASSED_CUSTOM_STACKSIZE);
+
     }
 
     /**
@@ -361,63 +470,80 @@ public class Util {
      */
     @Nullable
     public static ItemStack deserialize(@NotNull String config) throws InvalidConfigurationException {
+
         if (yaml == null) {
+
             DumperOptions yamlOptions = new DumperOptions();
             yamlOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
             yamlOptions.setIndent(2);
-            yaml = new Yaml(yamlOptions); //Caching it!
+            yaml = new Yaml(yamlOptions); // Caching it!
+
         }
+
         YamlConfiguration yamlConfiguration = new YamlConfiguration();
         Map<Object, Object> root = yaml.load(config);
-        //noinspection unchecked
+        // noinspection unchecked
         Map<String, Object> item = (Map<String, Object>) root.get("item");
         int itemDataVersion = Integer.parseInt(String.valueOf(item.getOrDefault("v", "0")));
         try {
+
             // Try load the itemDataVersion to do some checks.
-            //noinspection deprecation
+            // noinspection deprecation
             if (itemDataVersion > Bukkit.getUnsafe().getDataVersion()) {
+
                 Util.debugLog("WARNING: DataVersion not matched with ItemStack: " + config);
                 // okay we need some things to do
                 if (plugin.getConfig().getBoolean("shop.force-load-downgrade-items.enable")) {
+
                     // okay it enabled
                     Util.debugLog("QuickShop is trying force loading " + config);
                     if (plugin.getConfig().getInt("shop.force-load-downgrade-items.method") == 0) { // Mode 0
-                        //noinspection deprecation
+
+                        // noinspection deprecation
                         item.put("v", Bukkit.getUnsafe().getDataVersion() - 1);
+
                     } else { // Mode other
-                        //noinspection deprecation
+
+                        // noinspection deprecation
                         item.put("v", Bukkit.getUnsafe().getDataVersion());
+
                     }
+
                     // Okay we have hacked the dataVersion, now put it back
                     root.put("item", item);
                     config = yaml.dump(root);
                     Util.debugLog("Updated, we will try load as hacked ItemStack: " + config);
+
                 } else {
-                    plugin
-                            .getLogger()
-                            .warning(
-                                    "Cannot load ItemStack "
-                                            + config
-                                            + " because it saved from higher Minecraft server version, the action will fail and you will receive a exception, PLELASE DON'T REPORT TO QUICKSHOP!");
-                    plugin
-                            .getLogger()
-                            .warning(
-                                    "You can try force load this ItemStack by our hacked ItemStack read util(shop.force-load-downgrade-items), but beware, the data may corrupt if you load on this lower Minecraft server version, Please backup your world and database before enable!");
+
+                    plugin.getLogger().warning("Cannot load ItemStack " + config
+                            + " because it saved from higher Minecraft server version, the action will fail and you will receive a exception, PLELASE DON'T REPORT TO QUICKSHOP!");
+                    plugin.getLogger().warning(
+                            "You can try force load this ItemStack by our hacked ItemStack read util(shop.force-load-downgrade-items), but beware, the data may corrupt if you load on this lower Minecraft server version, Please backup your world and database before enable!");
+
                 }
+
             }
+
             yamlConfiguration.loadFromString(config);
             return yamlConfiguration.getItemStack("item");
+
         } catch (Exception e) {
+
             throw new InvalidConfigurationException("Exception in deserialize item", e);
+
         }
+
     }
 
     @NotNull
     public static List<String> getDebugLogs() {
+
         LOCK.readLock().lock();
         List<String> strings = new ArrayList<>(DEBUG_LOGS);
         LOCK.readLock().unlock();
         return strings;
+
     }
 
     /**
@@ -426,28 +552,42 @@ public class Util {
      * @param logs logs
      */
     public static void debugLog(@NotNull String... logs) {
+
         if (disableDebugLogger) {
+
             return;
+
         }
+
         LOCK.writeLock().lock();
         if (!isDevMode()) {
+
             for (String log : logs) {
+
                 DEBUG_LOGS.add("[DEBUG] " + log);
+
             }
+
             LOCK.writeLock().unlock();
             return;
+
         }
+
         final StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
         final String className = stackTraceElement.getClassName();
         final String methodName = stackTraceElement.getMethodName();
         final int codeLine = stackTraceElement.getLineNumber();
         for (String log : logs) {
-            DEBUG_LOGS.add("[DEBUG] [" + className + "] [" + methodName + "] (" + codeLine + ") " + log);
-            QuickShop.getInstance().getLogger().info("[DEBUG] [" + className + "] [" + methodName + "] (" + codeLine + ") " + log);
-        }
-        LOCK.writeLock().unlock();
-    }
 
+            DEBUG_LOGS.add("[DEBUG] [" + className + "] [" + methodName + "] (" + codeLine + ") " + log);
+            QuickShop.getInstance().getLogger()
+                    .info("[DEBUG] [" + className + "] [" + methodName + "] (" + codeLine + ") " + log);
+
+        }
+
+        LOCK.writeLock().unlock();
+
+    }
 
     /**
      * return the right side for given blockFace
@@ -457,7 +597,9 @@ public class Util {
      */
     @NotNull
     public static BlockFace getRightSide(@NotNull BlockFace blockFace) {
+
         switch (blockFace) {
+
             case EAST:
                 return BlockFace.SOUTH;
             case NORTH:
@@ -468,7 +610,9 @@ public class Util {
                 return BlockFace.NORTH;
             default:
                 return blockFace;
+
         }
+
     }
 
     /**
@@ -478,7 +622,9 @@ public class Util {
      */
     @NotNull
     public static List<BlockFace> getVerticalFacing() {
+
         return VERTICAL_FACING;
+
     }
 
     /**
@@ -489,13 +635,19 @@ public class Util {
      */
     @Nullable
     public static Block getAttached(@NotNull Block b) {
+
         final BlockData blockData = b.getBlockData();
         if (blockData instanceof Directional) {
+
             final Directional directional = (Directional) blockData;
             return b.getRelative(directional.getFacing().getOppositeFace());
+
         } else {
+
             return null;
+
         }
+
     }
 
     /**
@@ -506,75 +658,119 @@ public class Util {
      */
     @NotNull
     public static String getClassPrefix(@NotNull Class<?> c) {
+
         String callClassName = Thread.currentThread().getStackTrace()[2].getClassName();
         String customClassName = c.getSimpleName();
         return "[" + callClassName + "-" + customClassName + "] ";
+
     }
 
     public static boolean useEnchantmentForEnchantedBook() {
+
         return plugin.getConfig().getBoolean("shop.use-enchantment-for-enchanted-book");
+
     }
 
     @NotNull
     public static BaseComponent[] getTranslateComponentForItem(ItemStack stack) {
+
         String result = ReflectFactory.getMaterialMinecraftNamespacedKey(stack.getType());
-        return result == null ? fromLegacyText(getItemStackName(stack)) : new BaseComponent[]{new TranslatableComponent(result)};
+        return result == null ? fromLegacyText(getItemStackName(stack))
+                : new BaseComponent[]
+                { new TranslatableComponent(result) };
+
     }
 
     @NotNull
     public static BaseComponent[] getTranslateComponentForMaterial(Material material) {
+
         String result = ReflectFactory.getMaterialMinecraftNamespacedKey(material);
-        return result == null ? fromLegacyText(MsgUtil.getItemi18n(material.name())) : new BaseComponent[]{new TranslatableComponent(result)};
+        return result == null ? fromLegacyText(MsgUtil.getItemi18n(material.name()))
+                : new BaseComponent[]
+                { new TranslatableComponent(result) };
+
     }
 
     @Nullable
     public static String getItemCustomName(@NotNull ItemStack itemStack) {
+
         if (useEnchantmentForEnchantedBook() && itemStack.getType() == Material.ENCHANTED_BOOK) {
+
             ItemMeta meta = itemStack.getItemMeta();
             if (meta instanceof EnchantmentStorageMeta && ((EnchantmentStorageMeta) meta).hasStoredEnchants()) {
+
                 return getFirstEnchantmentName((EnchantmentStorageMeta) meta);
+
             }
+
         }
-        if (plugin.getConfig().getBoolean("shop.use-effect-for-potion-item") && itemStack.getType().name().endsWith("POTION")) {
+
+        if (plugin.getConfig().getBoolean("shop.use-effect-for-potion-item")
+                && itemStack.getType().name().endsWith("POTION"))
+        {
+
             ItemMeta meta = itemStack.getItemMeta();
             if (meta instanceof PotionMeta) {
+
                 PotionMeta potionMeta = (PotionMeta) meta;
                 PotionData potionData = potionMeta.getBasePotionData();
                 PotionEffectType potionEffectType = potionData.getType().getEffectType();
                 if (potionEffectType != null) {
-                    //Because the bukkit API limit, we can't get the actual effect level
+
+                    // Because the bukkit API limit, we can't get the actual effect level
                     return MsgUtil.getPotioni18n(potionEffectType);
+
                 } else if (potionMeta.hasCustomEffects()) {
+
                     PotionEffect potionEffect = potionMeta.getCustomEffects().get(0);
                     if (potionEffect != null) {
+
                         // https://hub.spigotmc.org/jira/browse/SPIGOT-1697
-                        // Internal api notes: amplifier starts from zero, so plus one to get the correct result
+                        // Internal api notes: amplifier starts from zero, so plus one to get the
+                        // correct result
                         int level = potionEffect.getAmplifier() + 1;
-                        return MsgUtil.getPotioni18n(potionEffect.getType()) + " " + (level <= 10 ? RomanNumber.toRoman(potionEffect.getAmplifier()) : level);
+                        return MsgUtil.getPotioni18n(potionEffect.getType()) + " "
+                                + (level <= 10 ? RomanNumber.toRoman(potionEffect.getAmplifier()) : level);
+
                     }
+
                 }
+
             }
+
         }
-        if (itemStack.hasItemMeta()
-                && Objects.requireNonNull(itemStack.getItemMeta()).hasDisplayName()
-                && !QuickShop.getInstance().getConfig().getBoolean("shop.force-use-item-original-name")) {
+
+        if (itemStack.hasItemMeta() && Objects.requireNonNull(itemStack.getItemMeta()).hasDisplayName()
+                && !QuickShop.getInstance().getConfig().getBoolean("shop.force-use-item-original-name"))
+        {
+
             String displayName = itemStack.getItemMeta().getDisplayName();
             if (displayName == null || displayName.isEmpty()) {
+
                 return null;
+
             } else {
-                //Some item name using escape character, causing rgb color could not decode correctly
-                //So fix it there
+
+                // Some item name using escape character, causing rgb color could not decode
+                // correctly
+                // So fix it there
                 displayName = displayName.replace("&&x", "&x").replace("§§x", "§x");
                 return displayName;
+
             }
+
         }
+
         return null;
+
     }
 
     @NotNull
     public static String getItemStackName(@NotNull ItemStack itemStack) {
+
         String result = getItemCustomName(itemStack);
         return result == null ? MsgUtil.getItemi18n(itemStack.getType().name()) : result;
+
     }
 
     /**
@@ -587,36 +783,57 @@ public class Util {
      */
     @NotNull
     public static boolean isBookEnchantmentsMatched(@NotNull ItemStack itemStack, @NotNull String nameToMatch) {
+
         if (itemStack.getType() == Material.ENCHANTED_BOOK) {
+
             ItemMeta itemMeta = itemStack.getItemMeta();
             if (!(itemMeta instanceof EnchantmentStorageMeta))
                 return false;
             EnchantmentStorageMeta enchantmentStorageMeta = (EnchantmentStorageMeta) itemStack.getItemMeta();
             if (enchantmentStorageMeta.hasStoredEnchants()) {
+
                 for (Enchantment enchantment : enchantmentStorageMeta.getStoredEnchants().keySet()) {
+
                     nameToMatch = nameToMatch.toUpperCase(Locale.ROOT);
                     if (enchantment.getKey().getKey().toUpperCase(Locale.ROOT).contains(nameToMatch)
-                            || MsgUtil.getEnchi18n(enchantment).toUpperCase(Locale.ROOT).contains(nameToMatch)) {
+                            || MsgUtil.getEnchi18n(enchantment).toUpperCase(Locale.ROOT).contains(nameToMatch))
+                    {
+
                         return true;
+
                     }
+
                 }
+
             }
+
         }
+
         return false;
+
     }
 
     @NotNull
     public static String getFirstEnchantmentName(@NotNull EnchantmentStorageMeta meta) {
+
         if (!meta.hasStoredEnchants()) {
+
             throw new IllegalArgumentException("Item does not have an enchantment!");
+
         }
+
         Map.Entry<Enchantment, Integer> entry = meta.getStoredEnchants().entrySet().iterator().next();
         String name = MsgUtil.getEnchi18n(entry.getKey());
         if (entry.getValue() == 1 && entry.getKey().getMaxLevel() == 1) {
+
             return name;
+
         } else {
+
             return name + " " + RomanNumber.toRoman(entry.getValue());
+
         }
+
     }
 
     /**
@@ -627,33 +844,49 @@ public class Util {
      */
     @Nullable
     public static String getLocalizedName(@NotNull ItemStack itemStack) {
+
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) {
+
             return null;
+
         }
+
         if (!itemMeta.hasLocalizedName()) {
+
             return null;
+
         }
+
         return itemMeta.getLocalizedName();
+
     }
 
     /**
-     * Return an entry with min and max prices, but null if there isn't a price restriction
+     * Return an entry with min and max prices, but null if there isn't a price
+     * restriction
      *
      * @param material mat
      * @return min, max
      */
     @Nullable
     public static Entry<Double, Double> getPriceRestriction(@NotNull Material material) {
+
         return RESTRICTED_PRICES.get(material);
+
     }
 
     public static boolean isDoubleChest(@Nullable BlockData blockData) {
+
         if (!(blockData instanceof org.bukkit.block.data.type.Chest)) {
+
             return false;
+
         }
+
         org.bukkit.block.data.type.Chest chestBlockData = (org.bukkit.block.data.type.Chest) blockData;
         return chestBlockData.getType() != org.bukkit.block.data.type.Chest.Type.SINGLE;
+
     }
 
 //    /**
@@ -684,15 +917,22 @@ public class Util {
      * @return The shops.
      */
     public static int getShopsInWorld(@NotNull String worldName) {
+
         int cost = 0;
         Iterator<Shop> iterator = plugin.getShopManager().getShopIterator();
         while (iterator.hasNext()) {
+
             Shop shop = iterator.next();
             if (Objects.requireNonNull(shop.getLocation().getWorld()).getName().equals(worldName)) {
+
                 cost++;
+
             }
+
         }
+
         return cost;
+
     }
 
     /**
@@ -703,26 +943,37 @@ public class Util {
      */
     @NotNull
     public static String getToolPercentage(@NotNull ItemStack item) {
+
         if (!(item.getItemMeta() instanceof Damageable)) {
+
             Util.debugLog(item.getType().name() + " not Damageable.");
             return "Error: NaN";
+
         }
+
         double dura = ((Damageable) item.getItemMeta()).getDamage();
         double max = item.getType().getMaxDurability();
         DecimalFormat formatter = new DecimalFormat("0");
         return formatter.format((1 - dura / max) * 100.0);
+
     }
 
     /**
      * Initialize the Util tools.
      */
     public static void initialize() {
+
         plugin = QuickShop.getInstance();
         try {
+
             plugin.getReloadManager().register(Util.class.getDeclaredMethod("initialize"));
+
         } catch (NoSuchMethodException e) {
+
             e.printStackTrace();
+
         }
+
         BLACKLIST.clear();
         SHOPABLES.clear();
         RESTRICTED_PRICES.clear();
@@ -730,71 +981,132 @@ public class Util {
         devMode = plugin.getConfig().getBoolean("dev-mode");
 
         for (String s : plugin.getConfig().getStringList("shop-blocks")) {
+
             Material mat = Material.matchMaterial(s.toUpperCase());
             if (mat == null) {
+
                 mat = Material.matchMaterial(s);
+
             }
+
             if (mat == null) {
+
                 plugin.getLogger().warning("Invalid shop-block: " + s);
+
             } else {
+
                 if (!plugin.getConfig().getBoolean("shop.enchance-shop-protect") && mat.name().contains("SHULKER")) {
+
                     plugin.getConfig().set("shop.enchance-shop-protect", true);
-                    plugin.getLogger().log(java.util.logging.Level.SEVERE, "enchance-shop-protect settings was forced enabled to prevent the piston bug, see: https://github.com/PotatoCraft-Studio/QuickShop-Reremake/issues/248");
+                    plugin.getLogger().log(java.util.logging.Level.SEVERE,
+                            "enchance-shop-protect settings was forced enabled to prevent the piston bug, see: https://github.com/PotatoCraft-Studio/QuickShop-Reremake/issues/248");
+
                 }
+
                 SHOPABLES.add(mat);
+
             }
+
         }
+
         List<String> configBlacklist = plugin.getConfig().getStringList("blacklist");
         for (String s : configBlacklist) {
+
             Material mat = Material.getMaterial(s.toUpperCase());
             if (mat == null) {
+
                 mat = Material.matchMaterial(s);
+
+                if (mat == null) {
+
+                    final NamespacedKey key = NamespacedKey.fromString(s.toLowerCase(Locale.ROOT));
+                    if (key != null) {
+
+                        mat = Registry.MATERIAL.get(key);
+
+                    }
+
+                }
+
             }
+
             if (mat == null) {
+
                 plugin.getLogger().warning(s + " is not a valid material.  Check your spelling or ID");
                 continue;
+
             }
+
             BLACKLIST.add(mat);
+
         }
 
         for (String s : plugin.getConfig().getStringList("shop.price-restriction")) {
+
             String[] sp = s.split(";");
             if (sp.length == 3) {
+
                 try {
+
                     Material mat = Material.matchMaterial(sp[0]);
                     if (mat == null) {
-                        plugin.getLogger().warning("Material " + sp[0] + " in config.yml can't match with a valid Materials, check your config.yml!");
+
+                        plugin.getLogger().warning("Material " + sp[0]
+                                + " in config.yml can't match with a valid Materials, check your config.yml!");
                         continue;
+
                     }
+
                     RESTRICTED_PRICES.put(mat, new SimpleEntry<>(Double.valueOf(sp[1]), Double.valueOf(sp[2])));
+
                 } catch (Exception e) {
+
                     plugin.getLogger().warning("Invalid price restricted material: " + s);
+
                 }
+
             }
+
         }
+
         for (String material : plugin.getConfig().getStringList("custom-item-stacksize")) {
+
             String[] data = material.split(":");
             if (data.length != 2) {
+
                 continue;
+
             }
 
             if ("*".equalsIgnoreCase(data[0])) {
+
                 BYPASSED_CUSTOM_STACKSIZE = Integer.parseInt(data[1]);
+
             }
+
             Material mat = Material.matchMaterial(data[0]);
             if (mat == null || mat == Material.AIR) {
+
                 plugin.getLogger().warning(material + " not a valid material type in custom-item-stacksize section.");
                 continue;
+
             }
+
             CUSTOM_STACKSIZE.put(mat, Integer.parseInt(data[1]));
+
         }
+
         disableDebugLogger = plugin.getConfig().getBoolean("debug.disable-debuglogger", false);
         try {
+
             dyeColor = DyeColor.valueOf(plugin.getConfig().getString("shop.sign-dye-color"));
+
         } catch (Exception ignored) {
+
         }
 
         InteractUtil.init(plugin.getConfig().getConfigurationSection("shop.interact"));
+
     }
 
     /**
@@ -804,21 +1116,32 @@ public class Util {
      * @return Byte array
      */
     public static byte[] inputStream2ByteArray(@NotNull String filePath) {
+
         try (InputStream in = new FileInputStream(filePath)) {
+
             return toByteArray(in);
+
         } catch (IOException e) {
+
             return null;
+
         }
+
     }
 
     private static byte[] toByteArray(@NotNull InputStream in) throws IOException {
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024 * 4];
         int n;
         while ((n = in.read(buffer)) != -1) {
+
             out.write(buffer, 0, n);
+
         }
+
         return out.toByteArray();
+
     }
 
     /**
@@ -828,13 +1151,19 @@ public class Util {
      * @return Byte array
      */
     public static byte[] inputStream2ByteArray(@NotNull InputStream inputStream) {
+
         try {
+
             byte[] data = toByteArray(inputStream);
             inputStream.close();
             return data;
+
         } catch (IOException e) {
+
             return null;
+
         }
+
     }
 
     /**
@@ -843,32 +1172,54 @@ public class Util {
      * @param inv inv
      */
     public static void inventoryCheck(@Nullable Inventory inv) {
+
         if (inv == null) {
+
             return;
+
         }
+
         if (inv.getHolder() == null) {
+
             Util.debugLog("Skipped plugin gui inventory check.");
             return;
+
         }
+
         try {
+
             for (int i = 0; i < inv.getSize(); i++) {
+
                 ItemStack itemStack = inv.getItem(i);
                 if (itemStack == null) {
+
                     continue;
+
                 }
+
                 if (AbstractDisplayItem.checkIsGuardItemStack(itemStack)) {
+
                     // Found Item and remove it.
                     Location location = inv.getLocation();
                     if (location == null) {
+
                         return; // Virtual GUI
+
                     }
+
                     inv.setItem(i, new ItemStack(Material.AIR));
                     Util.debugLog("Found shop display item in an inventory, Removing...");
-                    MsgUtil.sendGlobalAlert("[InventoryCheck] Found displayItem in inventory at " + location + ", Item is " + itemStack.getType().name());
+                    MsgUtil.sendGlobalAlert("[InventoryCheck] Found displayItem in inventory at " + location
+                            + ", Item is " + itemStack.getType().name());
+
                 }
+
             }
+
         } catch (Exception ignored) {
+
         }
+
     }
 
     /**
@@ -876,24 +1227,42 @@ public class Util {
      * @return true if the ItemStack is black listed. False if not.
      */
     public static boolean isBlacklisted(@NotNull ItemStack stack) {
+
         if (BLACKLIST.contains(stack.getType())) {
+
             return true;
+
         }
+
         if (!stack.hasItemMeta()) {
+
             return false;
+
         }
+
         if (!Objects.requireNonNull(stack.getItemMeta()).hasLore()) {
+
             return false;
+
         }
+
         for (String lore : Objects.requireNonNull(stack.getItemMeta().getLore())) {
+
             List<String> blacklistLores = plugin.getConfig().getStringList("shop.blacklist-lores");
             for (String blacklistLore : blacklistLores) {
+
                 if (lore.contains(blacklistLore)) {
+
                     return true;
+
                 }
+
             }
+
         }
+
         return false;
+
     }
 
     /**
@@ -903,12 +1272,18 @@ public class Util {
      * @return boolean Available
      */
     public static boolean isClassAvailable(@NotNull String qualifiedName) {
+
         try {
+
             Class.forName(qualifiedName);
             return true;
+
         } catch (ClassNotFoundException e) {
+
             return false;
+
         }
+
     }
 
     /**
@@ -920,17 +1295,28 @@ public class Util {
      * @return boolean Available
      */
     public static boolean isMethodAvailable(@NotNull String className, String method, Class<?>... args) {// nosemgrep
+
         try {
+
             Class<?> clazz = Class.forName(className);
             try {
+
                 clazz.getDeclaredMethod(method, args);
+
             } catch (NoSuchMethodException e) {
+
                 clazz.getMethod(method, args);
+
             }
+
             return true;
+
         } catch (Exception e) {
+
             return false;
+
         }
+
     }
 
     /**
@@ -939,33 +1325,51 @@ public class Util {
      * @param obj the class obj
      */
     public static boolean verifyClassLoader(@NotNull Object obj) {
+
         String name = obj.getClass().getName();
 
         try {
+
             ClassLoader inThereClassLoader = obj.getClass().getClassLoader().loadClass(name).getClassLoader();
             ClassLoader fromHereLoader = plugin.getClass().getClassLoader().loadClass(name).getClassLoader();
             if (!inThereClassLoader.equals(fromHereLoader)) {
-                plugin.getLogger().log(Level.SEVERE, "Found class conflict for " + name + "! Load from different classloader: \nClassLoader1:" + inThereClassLoader + " \nClassLoader2:" + fromHereLoader + "\nThis will cause ClassCastError, to avoid this error, the loading of this 3rd plugin support will be skipped!");
-                plugin.getLogger().log(Level.SEVERE, "It usually caused by plugin developer not relocating or shading the plugin jar depended WRONGLY, To fix it, please contact the plugin author of this loader: \n" + fromHereLoader);
+
+                plugin.getLogger().log(Level.SEVERE, "Found class conflict for " + name
+                        + "! Load from different classloader: \nClassLoader1:" + inThereClassLoader + " \nClassLoader2:"
+                        + fromHereLoader
+                        + "\nThis will cause ClassCastError, to avoid this error, the loading of this 3rd plugin support will be skipped!");
+                plugin.getLogger().log(Level.SEVERE,
+                        "It usually caused by plugin developer not relocating or shading the plugin jar depended WRONGLY, To fix it, please contact the plugin author of this loader: \n"
+                                + fromHereLoader);
                 return false;
+
             } else {
+
                 return true;
+
             }
+
         } catch (ClassNotFoundException e) {
-            //It means no more conflicts here
+
+            // It means no more conflicts here
             return true;
+
         }
+
     }
 
     /**
-     * Let classloader load this class and check name (For solving class conflict issue)
+     * Let classloader load this class and check name (For solving class conflict
+     * issue)
      *
      * @param obj  the class obj
      * @param name the full name for check
      * @return if this name matched
      */
     public static boolean loadClassAndCheckName(@NotNull Object obj, String name) {
+
         return obj.getClass().getName().equals(name);
+
     }
 
     /**
@@ -977,20 +1381,33 @@ public class Util {
      * @return boolean Available
      */
     public static boolean isMethodAvailable(@NotNull Class<?> clazz, String method, Class<?>... args) {// nosemgrep
+
         try {
+
             try {
+
                 clazz.getDeclaredMethod(method, args);
+
             } catch (NoSuchMethodException e) {
+
                 clazz.getMethod(method, args);
+
             }
+
             return true;
+
         } catch (Exception e) {
+
             return false;
+
         }
+
     }
 
     public static boolean isDisplayAllowBlock(@NotNull Material mat) {
+
         return mat.isTransparent() || isWallSign(mat);
+
     }
 
     /**
@@ -1000,10 +1417,15 @@ public class Util {
      * @return is or not a wall_sign
      */
     public static boolean isWallSign(@Nullable Material material) {
+
         if (material == null) {
+
             return false;
+
         }
+
         return Tag.WALL_SIGNS.isTagged(material);
+
     }
 
     /**
@@ -1013,53 +1435,77 @@ public class Util {
      * @return true if the given location is loaded or not.
      */
     public static boolean isLoaded(@NotNull Location loc) {
+
         if (!loc.isWorldLoaded()) {
+
             return false;
+
         }
+
         // Calculate the chunks coordinates. These are 1,2,3 for each chunk, NOT
         // location rounded to the nearest 16.
         int x = loc.getBlockX() >> 4;
         int z = loc.getBlockZ() >> 4;
         return (loc.getWorld().isChunkLoaded(x, z));
+
     }
 
     /**
-     * Checks whether someone else's shop is within reach of a hopper being placed by a player.
+     * Checks whether someone else's shop is within reach of a hopper being placed
+     * by a player.
      *
      * @param b The block being placed.
      * @param p The player performing the action.
      * @return true if a nearby shop was found, false otherwise.
      */
     public static boolean isOtherShopWithinHopperReach(@NotNull Block b, @NotNull Player p) {
+
         Block bshop = Util.getAttached(b);
         if (bshop == null) {
+
             return false;
+
         }
+
         Shop shop = plugin.getShopManager().getShopIncludeAttached(bshop.getLocation());
         if (shop == null) {
+
             shop = plugin.getShopManager().getShopIncludeAttached(bshop.getLocation().clone().add(0, 1, 0));
+
         }
+
         return shop != null && !shop.getModerator().isModerator(p.getUniqueId());
+
     }
 
     /**
-     * Returns the chest attached to the given chest. The given block must be a chest.
+     * Returns the chest attached to the given chest. The given block must be a
+     * chest.
      *
      * @param block The chest block
      * @return the block which is also a chest and connected to b.
      */
     public static Block getSecondHalf(@NotNull Block block) {
+
         BlockData blockData = block.getBlockData();
         if (!(blockData instanceof org.bukkit.block.data.type.Chest)) {
+
             return null;
+
         }
+
         org.bukkit.block.data.type.Chest chest = (org.bukkit.block.data.type.Chest) blockData;
         if (!isDoubleChest(chest)) {
+
             return null;
+
         }
+
         BlockFace towardsLeft = getRightSide(chest.getFacing());
-        BlockFace actuallyBlockFace = chest.getType() == org.bukkit.block.data.type.Chest.Type.LEFT ? towardsLeft : towardsLeft.getOppositeFace();
+        BlockFace actuallyBlockFace = chest.getType() == org.bukkit.block.data.type.Chest.Type.LEFT ? towardsLeft
+                : towardsLeft.getOppositeFace();
         return block.getRelative(actuallyBlockFace);
+
     }
 
     /**
@@ -1070,17 +1516,21 @@ public class Util {
      * @return Equals or not.
      */
     private static boolean equalsBlockStateLocation(@NotNull Location b1, @NotNull Location b2) {
-        return (b1.getBlockX() == b2.getBlockX())
-                && (b1.getBlockY() == b2.getBlockY())
+
+        return (b1.getBlockX() == b2.getBlockX()) && (b1.getBlockY() == b2.getBlockY())
                 && (b1.getBlockZ() == b2.getBlockZ());
+
     }
 
     /**
      * @param mat The material to check
-     * @return Returns true if the item is a tool (Has durability) or false if it doesn't.
+     * @return Returns true if the item is a tool (Has durability) or false if it
+     *         doesn't.
      */
     public static boolean isTool(@NotNull Material mat) {
+
         return mat.getMaxDurability() != 0;
+
     }
 
     /**
@@ -1090,12 +1540,17 @@ public class Util {
      * @return is UUID
      */
     public static boolean isUUID(@NotNull String string) {
+
         final int length = string.length();
         if (length != 36 && length != 32) {
+
             return false;
+
         }
+
         final String[] components = string.split("-");
         return components.length == 5;
+
     }
 
     /**
@@ -1106,9 +1561,11 @@ public class Util {
      */
     @NotNull
     public static String list2String(@NotNull List<String> strList) {
+
         StringJoiner joiner = new StringJoiner(", ", "", "");
         strList.forEach(joiner::add);
         return joiner.toString();
+
     }
 
     /**
@@ -1116,10 +1573,11 @@ public class Util {
      *
      * @param loc    The location a players head is
      * @param lookat The location they should be looking
-     * @return The location the player should be facing to have their crosshairs on the location
-     * lookAt Kudos to bergerkiller for most of this function
+     * @return The location the player should be facing to have their crosshairs on
+     *         the location lookAt Kudos to bergerkiller for most of this function
      */
     public static @NotNull Location lookAt(@NotNull Location loc, @NotNull Location lookat) {
+
         // Clone the loc to prevent applied changes to the input loc
         loc = loc.clone();
         // Values of change in distance (make it relative)
@@ -1128,16 +1586,26 @@ public class Util {
         double dz = lookat.getZ() - loc.getZ();
         // Set yaw
         if (dx != 0) {
+
             // Set yaw start value based on dx
             if (dx < 0) {
+
                 loc.setYaw((float) (1.5 * Math.PI));
+
             } else {
+
                 loc.setYaw((float) (0.5 * Math.PI));
+
             }
+
             loc.setYaw(loc.getYaw() - (float) Math.atan(dz / dx));
+
         } else if (dz < 0) {
+
             loc.setYaw((float) Math.PI);
+
         }
+
         // Get the distance from dx/dz
         double dxz = Math.sqrt(Math.pow(dx, 2) + Math.pow(dz, 2));
         float pitch = (float) -Math.atan(dy / dxz);
@@ -1147,6 +1615,7 @@ public class Util {
         // But pitch angles are normal
         loc.setPitch(pitch * 180f / (float) Math.PI);
         return loc;
+
     }
 
     /**
@@ -1156,7 +1625,9 @@ public class Util {
      */
     @Deprecated
     public static void parseColours(@NotNull YamlConfiguration config) {
+
         parseColours((ConfigurationSection) config);
+
     }
 
     /**
@@ -1165,18 +1636,28 @@ public class Util {
      * @param config yaml config
      */
     public static void parseColours(@NotNull ConfigurationSection config) {
+
         Set<String> keys = config.getKeys(true);
         for (String key : keys) {
+
             String filtered = config.getString(key);
             if (filtered == null) {
+
                 continue;
+
             }
+
             if (filtered.startsWith("MemorySection")) {
+
                 continue;
+
             }
+
             filtered = parseColours(filtered);
             config.set(key, filtered);
+
         }
+
     }
 
     /**
@@ -1187,15 +1668,22 @@ public class Util {
      */
     @NotNull
     public static String parseColours(@Nullable String text) {
+
         if (StringUtils.isEmpty(text)) {
+
             return "";
+
         }
+
         MineDownParser parser = MINEDOWN.get().parser();
         parser.reset();
 
-        //A hack for saving reset character
+        // A hack for saving reset character
         text = text.replace("&r", "&l&r").replace("§f", "§l§f");
-        return toLegacyText(parser.enable(MineDownParser.Option.LEGACY_COLORS).enable(MineDownParser.Option.APPEND_COLORS_TO_EMPTY_STRING).backwardsCompatibility(true).parse(text).create());
+        return toLegacyText(parser.enable(MineDownParser.Option.LEGACY_COLORS)
+                .enable(MineDownParser.Option.APPEND_COLORS_TO_EMPTY_STRING).backwardsCompatibility(true).parse(text)
+                .create());
+
     }
 
     /**
@@ -1206,13 +1694,17 @@ public class Util {
      */
     @NotNull
     public static List<String> parseColours(@NotNull List<String> list) {
+
         final List<String> newList = new ArrayList<>();
 
         for (String s : list) {
+
             newList.add(parseColours(s));
+
         }
 
         return newList;
+
     }
 
     /**
@@ -1223,21 +1715,34 @@ public class Util {
      */
     @NotNull
     public static String prettifyText(@NotNull String ugly) {
+
         String[] nameParts = ugly.split("_");
         if (nameParts.length == 1) {
+
             return firstUppercase(ugly);
+
         }
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < nameParts.length; i++) {
+
             if (!nameParts[i].isEmpty()) {
-                sb.append(Character.toUpperCase(nameParts[i].charAt(0))).append(nameParts[i].substring(1).toLowerCase());
+
+                sb.append(Character.toUpperCase(nameParts[i].charAt(0)))
+                        .append(nameParts[i].substring(1).toLowerCase());
+
             }
+
             if (i + 1 != nameParts.length) {
+
                 sb.append(" ");
+
             }
+
         }
 
         return sb.toString();
+
     }
 
     /**
@@ -1248,11 +1753,17 @@ public class Util {
      */
     @NotNull
     public static String firstUppercase(@NotNull String string) {
+
         if (string.length() > 1) {
+
             return Character.toUpperCase(string.charAt(0)) + string.substring(1).toLowerCase();
+
         } else {
+
             return string.toUpperCase();
+
         }
+
     }
 
     /**
@@ -1263,8 +1774,10 @@ public class Util {
      */
     @NotNull
     public static String readToString(@NotNull String fileName) {
+
         File file = new File(fileName);
         return readToString(file);
+
     }
 
     /**
@@ -1275,13 +1788,20 @@ public class Util {
      */
     @NotNull
     public static String readToString(@NotNull File file) {
+
         byte[] filecontent = new byte[(int) file.length()];
         try (FileInputStream in = new FileInputStream(file)) {
+
             in.read(filecontent);
+
         } catch (IOException e) {
+
             plugin.getLogger().log(Level.WARNING, "Failed to read file: " + file, e);
+
         }
+
         return new String(filecontent, StandardCharsets.UTF_8);
+
     }
 
     /**
@@ -1292,9 +1812,11 @@ public class Util {
      */
     @NotNull
     public static String serialize(@NotNull ItemStack iStack) {
+
         YamlConfiguration cfg = new YamlConfiguration();
         cfg.set("item", iStack);
         return cfg.saveToString();
+
     }
 
     /**
@@ -1304,19 +1826,26 @@ public class Util {
      */
     @NotNull
     public static String getClassPrefix() {
+
         String className = Thread.currentThread().getStackTrace()[2].getClassName();
         try {
+
             Class<?> c = Class.forName(className);
             className = c.getSimpleName();
             if (!c.getSimpleName().isEmpty()) {
+
                 className = c.getSimpleName();
+
             }
+
         } catch (ClassNotFoundException ignored) {
+
         }
+
         String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
         return "[" + className + "-" + methodName + "] ";
-    }
 
+    }
 
     /**
      * Get the sign material using by plugin. With compatibly process.
@@ -1325,11 +1854,17 @@ public class Util {
      */
     @NotNull
     public static Material getSignMaterial() {
-        Material signMaterial = Material.matchMaterial(plugin.getConfig().getString("shop.sign-material", "OAK_WALL_SIGN"));
+
+        Material signMaterial = Material
+                .matchMaterial(plugin.getConfig().getString("shop.sign-material", "OAK_WALL_SIGN"));
         if (signMaterial != null) {
+
             return signMaterial;
+
         }
+
         return Material.OAK_WALL_SIGN;
+
     }
 
     /**
@@ -1339,34 +1874,48 @@ public class Util {
      * @return Json
      */
     public static String componentsToJson(BaseComponent[] components) {
+
         return ComponentSerializer.toString(components);
+
     }
 
     @SneakyThrows
     public static void makeExportBackup(@Nullable String backupName) {
+
         if (StringUtils.isEmpty(backupName)) {
+
             backupName = "export.txt";
+
         }
+
         File file = new File(plugin.getDataFolder(), backupName + ".txt");
         if (file.exists()) {
-            Files.move(file.toPath(), new File(file.getParentFile(), file.getName() + UUID.randomUUID().toString().replace("-", "")).toPath());
+
+            Files.move(file.toPath(),
+                    new File(file.getParentFile(), file.getName() + UUID.randomUUID().toString().replace("-", ""))
+                            .toPath());
+
         }
+
         file.createNewFile();
 
         plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
+
             StringBuilder finalReport = new StringBuilder();
-            plugin.getShopLoader()
-                    .getOriginShopsInDatabase()
-                    .forEach((shop -> finalReport.append(shop).append("\n")));
+            plugin.getShopLoader().getOriginShopsInDatabase().forEach((shop -> finalReport.append(shop).append("\n")));
             try (BufferedWriter outputStream = new BufferedWriter(new FileWriter(file, false))) {
+
                 outputStream.write(finalReport.toString());
+
             } catch (IOException exception) {
+
                 plugin.getLogger().log(Level.WARNING, "Backup failed", exception);
+
             }
 
         });
-    }
 
+    }
 
     /**
      * Check QuickShop is running on dev edition or not.
@@ -1374,7 +1923,9 @@ public class Util {
      * @return DevEdition status
      */
     public static boolean isDevEdition() {
+
         return !"release".equalsIgnoreCase(QuickShop.getInstance().getBuildInfo().getGitBranch());
+
     }
 
     /**
@@ -1383,7 +1934,9 @@ public class Util {
      * @return Java startup flags without some JVM args
      */
     public static List<String> getStartupFlags() {
+
         return ManagementFactory.getRuntimeMXBean().getInputArguments();
+
     }
 
     /**
@@ -1392,17 +1945,28 @@ public class Util {
      * @return under dev-mode
      */
     public static boolean isDevMode() {
+
         if (devMode != null) {
+
             return devMode;
+
         } else {
+
             if (plugin != null) {
+
                 devMode = plugin.getConfig().getBoolean("dev-mode");
                 return devMode;
+
             } else {
+
                 return false;
+
             }
+
         }
-        //F  return devMode != null ? devMode : (devMode = plugin.getConfig().getBoolean("dev-mode"));
+
+        // F return devMode != null ? devMode : (devMode =
+        // plugin.getConfig().getBoolean("dev-mode"));
     }
 
     /**
@@ -1412,7 +1976,9 @@ public class Util {
      * @return yes or not
      */
     public static boolean isDyes(@NotNull Material material) {
+
         return material.name().toUpperCase().endsWith("_DYE");
+
     }
 
     /**
@@ -1422,11 +1988,16 @@ public class Util {
      * @return The event is cancelled.
      */
     public static boolean fireCancellableEvent(@NotNull Cancellable event) {
+
         if (!(event instanceof Event)) {
+
             throw new IllegalArgumentException("Cancellable must is event implement");
+
         }
+
         Bukkit.getPluginManager().callEvent((Event) event);
         return event.isCancelled();
+
     }
 
     /**
@@ -1435,19 +2006,28 @@ public class Util {
      * @return The caching folder
      */
     public static File getCacheFolder() {
+
         QuickShop qs = QuickShop.getInstance();
-        //noinspection ConstantConditions
+        // noinspection ConstantConditions
         if (qs != null) {
+
             File cache = new File(QuickShop.getInstance().getDataFolder(), "cache");
             if (!cache.exists()) {
+
                 cache.mkdirs();
+
             }
+
             return cache;
+
         } else {
+
             File file = new File("cache");
             file.mkdirs();
             return file;
+
         }
+
     }
 
     /**
@@ -1457,16 +2037,27 @@ public class Util {
      */
     @NotNull
     public static List<String> getPlayerList() {
-        List<String> tabList = plugin.getServer().getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+
+        List<String> tabList = plugin.getServer().getOnlinePlayers().stream().map(Player::getName)
+                .collect(Collectors.toList());
         if (plugin.getConfig().getBoolean("include-offlineplayer-list")) {
+
             Set<String> names = PlayerFinder.getCachedOfflinePlayerNames();
             if (!names.isEmpty()) {
+
                 tabList.addAll(names);
+
             } else {
-                tabList.addAll(Arrays.stream(plugin.getServer().getOfflinePlayers()).map(OfflinePlayer::getName).filter(Objects::nonNull).collect(Collectors.toList()));
+
+                tabList.addAll(Arrays.stream(plugin.getServer().getOfflinePlayers()).map(OfflinePlayer::getName)
+                        .filter(Objects::nonNull).collect(Collectors.toList()));
+
             }
+
         }
+
         return tabList;
+
     }
 
     /**
@@ -1477,23 +2068,34 @@ public class Util {
      */
     @NotNull
     public static String mergeArgs(@NotNull String[] args) {
+
         StringJoiner joiner = new StringJoiner(" ", "", "");
         for (String arg : args) {
+
             joiner.add(arg);
+
         }
+
         return joiner.toString();
+
     }
 
     public static void ensureThread(Location location, boolean async) {
+
         ensureThread(Bukkit.getServer().isOwnedByCurrentRegion(location), async);
+
     }
 
     public static void ensureThread(Entity entity, boolean async) {
+
         ensureThread(Bukkit.getServer().isOwnedByCurrentRegion(entity), async);
+
     }
 
     public static void ensureThread(Shop shop, boolean async) {
+
         ensureThread(shop.getLocation(), async);
+
     }
 
     /**
@@ -1502,78 +2104,118 @@ public class Util {
      * @param async on async thread or main server thread.
      */
     private static void ensureThread(boolean isTickThread, boolean async) {
+
         if (async) {
+
             if (isTickThread) {
+
                 throw new IllegalStateException("#[Illegal Access] This method require runs on async thread.");
+
             }
+
         } else {
+
             if (!isTickThread) {
+
                 throw new IllegalStateException("#[Illegal Access] This method require runs on server main thread.");
+
             }
+
         }
+
     }
 
     @Deprecated
     public static void mainThreadRun(@NotNull Runnable runnable) {
+
         if (Bukkit.isPrimaryThread()) {
+
             runnable.run();
+
         } else {
+
             Bukkit.getGlobalRegionScheduler().run(QuickShop.getInstance(), t -> runnable.run());
+
         }
+
     }
 
     public static void runOnRegion(@NotNull Location location, @NotNull Runnable runnable) {
+
         final Server server = plugin.getServer();
         if (server.isOwnedByCurrentRegion(location))
             runnable.run();
         else
             server.getRegionScheduler().run(plugin, location, task -> runnable.run());
+
     }
 
     public static void runOnRegion(@NotNull Entity entity, @NotNull Runnable runnable) {
+
         final Server server = plugin.getServer();
         if (server.isOwnedByCurrentRegion(entity))
             runnable.run();
         else
-            entity.getScheduler().run(plugin, task -> runnable.run(), () -> {});
+            entity.getScheduler().run(plugin, task -> runnable.run(), () -> {
+
+            });
+
     }
 
     public static void runOnRegion(@NotNull Shop shop, @NotNull Runnable runnable) {
+
         runOnRegion(shop.getLocation(), runnable);
+
     }
 
     // http://www.java2s.com/Tutorials/Java/Data_Type_How_to/Date_Convert/Convert_long_type_timestamp_to_LocalDate_and_LocalDateTime.htm
     public static LocalDateTime getDateTimeFromTimestamp(long timestamp) {
+
         if (timestamp == 0) {
+
             return null;
+
         }
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TimeZone
-                .getDefault().toZoneId());
+
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TimeZone.getDefault().toZoneId());
+
     }
 
     // http://www.java2s.com/Tutorials/Java/Data_Type_How_to/Date_Convert/Convert_long_type_timestamp_to_LocalDate_and_LocalDateTime.htm
     public static LocalDate getDateFromTimestamp(long timestamp) {
+
         LocalDateTime date = getDateTimeFromTimestamp(timestamp);
         return date == null ? null : date.toLocalDate();
+
     }
 
     public static UUID getNilUniqueId() {
+
         return new UUID(0, 0);
+
     }
 
     public static UUID getSenderUniqueId(CommandSender sender) {
+
         if (sender instanceof OfflinePlayer) {
+
             return ((OfflinePlayer) sender).getUniqueId();
+
         }
+
         return getNilUniqueId();
+
     }
 
     // https://stackoverflow.com/questions/45321050/java-string-matching-with-wildcards
     public static String createRegexFromGlob(@NotNull String glob) {
+
         StringBuilder out = new StringBuilder("^");
         for (int i = 0; i < glob.length(); ++i) {
+
             final char c = glob.charAt(i);
             switch (c) {
+
                 case '*':
                     out.append(".*");
                     break;
@@ -1581,32 +2223,38 @@ public class Util {
                     out.append('.');
                     break;
                 case '.':
-                        out.append("\\.");
-                        break;
-                    case '\\':
-                        out.append("\\\\");
-                        break;
-                    default:
-                        out.append(c);
-                }
+                    out.append("\\.");
+                    break;
+                case '\\':
+                    out.append("\\\\");
+                    break;
+                default:
+                    out.append(c);
+
             }
-            out.append('$');
-            return out.toString();
+
         }
 
-        /**
-         * Get location that converted to block position (.0)
-         *
-         * @param loc location
-         * @return blocked location
-         */
-        @NotNull
-        public static Location getBlockLocation (@NotNull Location loc){
-            loc = loc.clone();
-            loc.setX(loc.getBlockX());
-            loc.setY(loc.getBlockY());
-            loc.setZ(loc.getBlockZ());
-            return loc;
-        }
+        out.append('$');
+        return out.toString();
 
     }
+
+    /**
+     * Get location that converted to block position (.0)
+     *
+     * @param loc location
+     * @return blocked location
+     */
+    @NotNull
+    public static Location getBlockLocation(@NotNull Location loc) {
+
+        loc = loc.clone();
+        loc.setX(loc.getBlockX());
+        loc.setY(loc.getBlockY());
+        loc.setZ(loc.getBlockZ());
+        return loc;
+
+    }
+
+}

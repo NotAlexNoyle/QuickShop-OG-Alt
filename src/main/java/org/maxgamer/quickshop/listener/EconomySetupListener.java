@@ -26,15 +26,22 @@ import org.maxgamer.quickshop.util.reload.ReloadResult;
 import org.maxgamer.quickshop.util.reload.ReloadStatus;
 
 public class EconomySetupListener extends AbstractQSListener {
+
     public EconomySetupListener(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @EventHandler
     public void onPluginEnable(PluginEnableEvent event) {
+
         if (plugin.getEconomy() == null) {
+
             plugin.loadEcon();
+
         }
+
     }
 
     /**
@@ -44,6 +51,9 @@ public class EconomySetupListener extends AbstractQSListener {
      */
     @Override
     public ReloadResult reloadModule() {
+
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
+
 }

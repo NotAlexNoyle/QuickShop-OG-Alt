@@ -36,31 +36,45 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * <p>Taken from the jarsigner utility.
  * <p>
- * see https://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/sun/security/tools/jarsigner/Main.java#l570
+ * Taken from the jarsigner utility.
+ * <p>
+ * see
+ * https://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/sun/security/tools/jarsigner/Main.java#l570
  *
  * @author Roland Schemers
  * @author Jan Luehe
  */
 public class JarVerifyTool {
+
     @NotNull
     public List<JarEntry> verify(@NotNull JarFile jar) throws IOException {
+
         List<JarEntry> modified = new ArrayList<>();
         Enumeration<JarEntry> entries = jar.entries();
         while (entries.hasMoreElements()) {
+
             JarEntry entry = entries.nextElement();
             try (InputStream is = jar.getInputStream(entry)) {
+
                 byte[] buffer = new byte[8192];
-                //noinspection StatementWithEmptyBody
+                // noinspection StatementWithEmptyBody
                 while ((is.read(buffer, 0, buffer.length)) != -1) {
+
                     // We just read. This will throw a SecurityException
                     // if a signature/digest check fails.
                 }
+
             } catch (SecurityException se) {
+
                 modified.add(entry);
+
             }
+
         }
+
         return modified;
+
     }
+
 }

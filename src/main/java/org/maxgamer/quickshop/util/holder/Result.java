@@ -29,28 +29,38 @@ import lombok.ToString;
 public class Result {
 
     public static final Result SUCCESS = new Result() {
+
         @Override
         public String getMessage() {
+
             return "";
+
         }
 
         @Override
         public void setMessage(String message) {
+
         }
 
         @Override
         public boolean isSuccess() {
+
             return true;
+
         }
 
         @Override
         public void setResult(boolean result) {
+
         }
 
         @Override
         public String getListener() {
+
             return "";
+
         }
+
     };
     @Setter
     private boolean result = false;
@@ -61,16 +71,21 @@ public class Result {
     @Setter
     private String listener;
 
-
     public Result() {
+
     }
 
     public Result(String message) {
+
         result = false;
         this.message = message;
+
     }
 
     public boolean isSuccess() {
+
         return result;
+
     }
+
 }

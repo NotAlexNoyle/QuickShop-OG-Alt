@@ -25,13 +25,17 @@ import org.maxgamer.quickshop.QuickShop;
 @Data
 @Deprecated
 public class DisplayWatcher {
+
     private QuickShop plugin;
 
     public DisplayWatcher(QuickShop plugin) {
-        this.plugin = plugin;
-    }
 
+        this.plugin = plugin;
+
+    }
 
     private void registerTask() {
+
     }
+
 }

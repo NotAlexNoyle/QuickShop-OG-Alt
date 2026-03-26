@@ -29,23 +29,33 @@ import java.util.Queue;
 import java.util.function.Consumer;
 
 public class SignUpdateWatcher implements Consumer<ScheduledTask> {
+
     private final Queue<Shop> signUpdateQueue = new LinkedList<>();
     private final QuickShop plugin = QuickShop.getInstance();
 
     public void scheduleSignUpdate(@NotNull Shop shop) {
+
         if (signUpdateQueue.contains(shop)) {
+
             return; // Ignore
+
         }
+
         signUpdateQueue.add(shop);
+
     }
 
     @Override
     public void accept(ScheduledTask scheduledTask) {
+
         Shop shop;
         while ((shop = signUpdateQueue.poll()) != null && !shop.isDeleted()) {
+
             final Shop s = shop;
             plugin.getServer().getRegionScheduler().run(plugin, shop.getLocation(), t -> s.setSignText());
+
         }
+
     }
 
 }

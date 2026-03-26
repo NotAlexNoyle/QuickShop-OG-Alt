@@ -30,6 +30,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class SQLiteCore extends AbstractDatabaseCore {
+
     private final File dbFile;
 
     @NotNull
@@ -37,78 +38,121 @@ public class SQLiteCore extends AbstractDatabaseCore {
     private DatabaseConnection connection;
 
     public SQLiteCore(@NotNull QuickShop plugin, @NotNull File dbFile) {
+
         this.plugin = plugin;
         this.dbFile = dbFile;
+
     }
 
     @Override
     synchronized void close() {
+
         if (!connection.isUsing()) {
+
             if (connection != null && !connection.isValid()) {
+
                 connection.close();
+
             }
+
         } else {
-            //Wait until the connection is finished
+
+            // Wait until the connection is finished
             waitForConnection();
             close();
-        }
-    }
 
+        }
+
+    }
 
     @Override
     protected synchronized DatabaseConnection getConnection0() {
+
         if (this.connection == null) {
+
             return connection = genConnection();
+
         }
+
         // If we have a current connection, fetch it
         if (!this.connection.isUsing()) {
+
             if (connection.isValid()) {
+
                 return this.connection;
+
             } else {
+
                 connection.close();
                 return connection = genConnection();
+
             }
+
         }
-        //If all connection is unusable, wait a moment
+
+        // If all connection is unusable, wait a moment
         waitForConnection();
         return getConnection0();
+
     }
 
     @Nullable
     private synchronized DatabaseConnection genConnection() {
+
         if (this.dbFile.exists()) {
+
             try {
+
                 Class.forName("org.sqlite.JDBC");
-                this.connection = new DatabaseConnection(this, DriverManager.getConnection("jdbc:sqlite:" + this.dbFile));
+                this.connection = new DatabaseConnection(this,
+                        DriverManager.getConnection("jdbc:sqlite:" + this.dbFile));
                 return this.connection;
+
             } catch (ClassNotFoundException e) {
+
                 throw new IllegalStateException("Sqlite driver is not found", e);
+
             } catch (SQLException e) {
+
                 throw new IllegalStateException("Start sqlite database connection failed", e);
+
             }
+
         } else {
+
             // So we need a new file.
             try {
+
                 // Create the file
-                //noinspection ResultOfMethodCallIgnored
+                // noinspection ResultOfMethodCallIgnored
                 this.dbFile.createNewFile();
+
             } catch (IOException e) {
+
                 throw new IllegalStateException("Sqlite database file create failed", e);
+
             }
+
             // Now we won't need a new file, just a connection.
             // This will return that new connection.
             return this.genConnection();
+
         }
+
     }
 
     @Override
     public @NotNull String getName() {
+
         return "BuiltIn-SQLite";
+
     }
 
     @Override
     public @NotNull Plugin getPlugin() {
+
         return plugin;
+
     }
 
 }

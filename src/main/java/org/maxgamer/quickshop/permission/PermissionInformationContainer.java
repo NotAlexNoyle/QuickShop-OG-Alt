@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 @Data
 @AllArgsConstructor
 public class PermissionInformationContainer {
+
     @NotNull
     private CommandSender sender;
 
@@ -47,7 +48,9 @@ public class PermissionInformationContainer {
      * @return yes or no
      */
     public boolean isConsole() {
+
         return sender instanceof Server;
+
     }
 
 }

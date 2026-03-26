@@ -31,12 +31,16 @@ import java.lang.reflect.Method;
 @Builder
 @AllArgsConstructor
 public class ReloadableContainer {
+
     @Nullable
     private WeakReference<Reloadable> reloadable;
     @Nullable
     private Method reloadableMethod;
 
     public boolean isObject() {
+
         return reloadable != null;
+
     }
+
 }

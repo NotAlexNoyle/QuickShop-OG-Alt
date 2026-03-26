@@ -28,19 +28,22 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 public interface GameLanguage {
+
     /**
      * Getting GameLanguage impl name
      *
      * @return Impl name
      */
-    @NotNull String getName();
+    @NotNull
+    String getName();
 
     /**
      * Getting GameLanguage impl owned by
      *
      * @return Owned by
      */
-    @NotNull Plugin getPlugin();
+    @NotNull
+    Plugin getPlugin();
 
     /**
      * Getting a ItemStack in-game language string
@@ -48,7 +51,8 @@ public interface GameLanguage {
      * @param itemStack The ItemStack
      * @return In-game string
      */
-    @NotNull String getItem(@NotNull ItemStack itemStack);
+    @NotNull
+    String getItem(@NotNull ItemStack itemStack);
 
     /**
      * Getting a Material in-game language string
@@ -56,7 +60,8 @@ public interface GameLanguage {
      * @param material Material type
      * @return In-game string
      */
-    @NotNull String getItem(@NotNull Material material);
+    @NotNull
+    String getItem(@NotNull Material material);
 
     /**
      * Getting a PotionEffectType in-game language string
@@ -64,7 +69,8 @@ public interface GameLanguage {
      * @param potionEffectType The potion effect type
      * @return In-game string
      */
-    @NotNull String getPotion(@NotNull PotionEffectType potionEffectType);
+    @NotNull
+    String getPotion(@NotNull PotionEffectType potionEffectType);
 
     /**
      * Getting a Enchantment in-game language string
@@ -72,7 +78,8 @@ public interface GameLanguage {
      * @param enchantment The Enchantment
      * @return In-game string
      */
-    @NotNull String getEnchantment(@NotNull Enchantment enchantment);
+    @NotNull
+    String getEnchantment(@NotNull Enchantment enchantment);
 
     /**
      * Getting a type of Entity in-game language string
@@ -80,5 +87,7 @@ public interface GameLanguage {
      * @param entityType Type of Entity
      * @return In-game string
      */
-    @NotNull String getEntity(@NotNull EntityType entityType);
+    @NotNull
+    String getEntity(@NotNull EntityType entityType);
+
 }

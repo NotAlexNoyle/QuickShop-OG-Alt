@@ -30,6 +30,7 @@ import org.maxgamer.quickshop.api.shop.ShopChunk;
 @ToString
 @AllArgsConstructor
 public class SimpleShopChunk implements ShopChunk {
+
     @NotNull
     private final String world;
 
@@ -39,26 +40,37 @@ public class SimpleShopChunk implements ShopChunk {
 
     @Override
     public boolean isSame(@NotNull World world, int x, int z) {
+
         return isSame(world.getName(), x, z);
+
     }
 
     @Override
     public boolean isSame(@NotNull String world, int x, int z) {
+
         return this.x == x && this.z == z && this.world.equals(world);
+
     }
 
     @Override
     public @NotNull String getWorld() {
+
         return world;
+
     }
 
     @Override
     public int getX() {
+
         return x;
+
     }
 
     @Override
     public int getZ() {
+
         return z;
+
     }
+
 }

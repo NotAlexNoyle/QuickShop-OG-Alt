@@ -28,18 +28,26 @@ import org.maxgamer.quickshop.util.logging.container.ShopRemoveLog;
 public class SubCommand_SilentRemove extends SubCommand_SilentBase {
 
     public SubCommand_SilentRemove(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @Override
     protected void doSilentCommand(Player sender, @NotNull Shop shop, @NotNull String[] cmdArg) {
+
         if (!shop.getModerator().isModerator(sender.getUniqueId())
-                && !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.destroy")) {
+                && !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.destroy"))
+        {
+
             plugin.text().of(sender, "no-permission").send();
             return;
+
         }
 
         plugin.logEvent(new ShopRemoveLog(sender.getUniqueId(), "/qs silentremove command", shop.saveToInfoStorage()));
         shop.delete();
+
     }
+
 }

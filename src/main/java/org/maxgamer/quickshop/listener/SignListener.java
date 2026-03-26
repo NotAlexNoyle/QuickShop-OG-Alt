@@ -34,27 +34,40 @@ import org.maxgamer.quickshop.util.Util;
 import java.util.Locale;
 
 public class SignListener extends AbstractProtectionListener {
+
     public SignListener(@NotNull QuickShop plugin, @Nullable Cache cache) {
+
         super(plugin, cache);
+
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onChangeSign(SignChangeEvent e) {
+
         Block block = e.getBlock();
         if (Util.isWallSign(block.getType())) {
+
             String signSideLine0 = e.getLines()[0].toLowerCase(Locale.ROOT);
             String locketteHeader1 = getPlugin().getConfig().getString("lockette.private", "").toLowerCase(Locale.ROOT);
-            String locketteHeader2 = getPlugin().getConfig().getString("lockette.more_users", "").toLowerCase(Locale.ROOT);
+            String locketteHeader2 = getPlugin().getConfig().getString("lockette.more_users", "")
+                    .toLowerCase(Locale.ROOT);
             if (signSideLine0.equals(locketteHeader1) || signSideLine0.equals(locketteHeader2)) {
+
                 // Ignore changes on lockette sign
                 return;
+
             }
+
             final Shop shop = getShopNextTo(block.getLocation());
             if (shop != null) {
+
                 Util.debugLog("Player cannot change the shop infomation sign.");
                 e.setCancelled(true);
+
             }
+
         }
+
     }
 
     /**
@@ -65,11 +78,17 @@ public class SignListener extends AbstractProtectionListener {
      */
     @Nullable
     private Shop getShopNextTo(@NotNull Location loc) {
+
         final Block b = Util.getAttached(loc.getBlock());
         // Util.getAttached(b)
         if (b == null) {
+
             return null;
+
         }
+
         return getShopPlayer(b.getLocation(), false);
+
     }
+
 }

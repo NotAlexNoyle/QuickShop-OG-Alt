@@ -12,17 +12,20 @@ public interface TextList {
      * @param locale The minecraft locale code (like en_us)
      * @return The text
      */
-    @NotNull List<String> forLocale(@NotNull String locale);
+    @NotNull
+    List<String> forLocale(@NotNull String locale);
 
     /**
      * Getting the text for player locale
      *
      * @return Getting the text for player locale
      */
-    @NotNull List<String> forLocale();
+    @NotNull
+    List<String> forLocale();
 
     /**
      * Send text to the player
      */
     void send();
+
 }

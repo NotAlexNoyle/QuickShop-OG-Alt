@@ -28,6 +28,7 @@ import org.maxgamer.quickshop.api.shop.Shop;
  * Calling when control panel opened for
  */
 public class ShopControlPanelOpenEvent extends AbstractQSEvent implements Cancellable {
+
     private final Shop shop;
     private final CommandSender sender;
     private boolean cancelled = false;
@@ -39,18 +40,24 @@ public class ShopControlPanelOpenEvent extends AbstractQSEvent implements Cancel
      * @param sender The player which receiving shop control panel message
      */
     public ShopControlPanelOpenEvent(@NotNull Shop shop, @NotNull CommandSender sender) {
+
         this.shop = shop;
         this.sender = sender;
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean b) {
+
         this.cancelled = b;
+
     }
 
     /**
@@ -59,7 +66,9 @@ public class ShopControlPanelOpenEvent extends AbstractQSEvent implements Cancel
      * @return The shop
      */
     public Shop getShop() {
+
         return this.shop;
+
     }
 
     /**
@@ -68,6 +77,9 @@ public class ShopControlPanelOpenEvent extends AbstractQSEvent implements Cancel
      * @return The sender
      */
     public CommandSender getSender() {
+
         return this.sender;
+
     }
+
 }

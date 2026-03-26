@@ -28,6 +28,7 @@ import org.maxgamer.quickshop.api.shop.Shop;
  * Calling when shop item was changed
  */
 public class ShopItemChangeEvent extends AbstractQSEvent implements Cancellable {
+
     private final ItemStack oldItem;
 
     private final ItemStack newItem;
@@ -38,27 +39,33 @@ public class ShopItemChangeEvent extends AbstractQSEvent implements Cancellable 
     private boolean cancelled;
 
     /**
-     * Will call when shop price was changed.
-     * All the item will be passed with a copy, so you can't change them
+     * Will call when shop price was changed. All the item will be passed with a
+     * copy, so you can't change them
      *
      * @param shop    Target shop
      * @param oldItem The old shop item
      * @param newItem The new shop item
      */
     public ShopItemChangeEvent(@NotNull Shop shop, ItemStack oldItem, ItemStack newItem) {
+
         this.shop = shop;
         this.oldItem = oldItem.clone();
         this.newItem = newItem.clone();
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return this.cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean cancelled) {
+
         this.cancelled = cancelled;
+
     }
 
     /**
@@ -67,7 +74,9 @@ public class ShopItemChangeEvent extends AbstractQSEvent implements Cancellable 
      * @return OldItem
      */
     public ItemStack getOldItem() {
+
         return this.oldItem;
+
     }
 
     /**
@@ -76,7 +85,9 @@ public class ShopItemChangeEvent extends AbstractQSEvent implements Cancellable 
      * @return NewItem
      */
     public ItemStack getNewItem() {
+
         return this.newItem;
+
     }
 
     /**
@@ -85,6 +96,9 @@ public class ShopItemChangeEvent extends AbstractQSEvent implements Cancellable 
      * @return the shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
+
 }

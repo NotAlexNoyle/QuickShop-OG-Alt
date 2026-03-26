@@ -25,11 +25,15 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class PluginGlobalAlertLog implements ReadableLog {
+
     private static int v = 1;
     private String content;
 
     @Override
     public String toReadableLog() {
+
         return "Plugin global alert: " + content;
+
     }
+
 }

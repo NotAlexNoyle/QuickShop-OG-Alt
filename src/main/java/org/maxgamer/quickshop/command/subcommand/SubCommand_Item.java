@@ -37,45 +37,75 @@ import org.maxgamer.quickshop.util.Util;
 
 @AllArgsConstructor
 public class SubCommand_Item implements CommandHandler<Player> {
+
     private final QuickShop plugin;
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         BlockIterator bIt = new BlockIterator(sender, 10);
         // Loop through every block they're looking at upto 10 blocks away
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
 
             if (shop != null) {
-                if (!shop.getModerator().isModerator(sender.getUniqueId()) && !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.item")) {
+
+                if (!shop.getModerator().isModerator(sender.getUniqueId())
+                        && !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.item"))
+                {
+
                     plugin.text().of(sender, "not-managed-shop").send();
                     return;
+
                 }
+
                 ItemStack itemStack = sender.getInventory().getItemInMainHand().clone();
                 if (itemStack.getType() == Material.AIR) {
+
                     plugin.text().of(sender, "command.no-trade-item").send();
                     return;
+
                 }
-                if (Util.isBlacklisted(itemStack) && !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.bypass." + itemStack.getType().name())) {
+
+                if (Util.isBlacklisted(itemStack) && !QuickShop.getPermissionManager().hasPermission(sender,
+                        "quickshop.bypass." + itemStack.getType().name()))
+                {
+
                     plugin.text().of(sender, "blacklisted-item").send();
                     return;
+
                 }
-                if (!plugin.isAllowStack() || !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.create.stacks")) {
+
+                if (!plugin.isAllowStack()
+                        || !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.create.stacks"))
+                {
+
                     itemStack.setAmount(1);
+
                 }
+
                 SimplePriceLimiter limiter = new SimplePriceLimiter(plugin);
                 PriceLimiterCheckResult checkResult = limiter.check(itemStack, shop.getPrice());
                 if (checkResult.getStatus() != PriceLimiterStatus.PASS) {
+
                     checkResult.sendErrorMsg(plugin, sender, "", MsgUtil.getTranslateText(shop.getItem()));
                     return;
+
                 }
+
                 shop.setItem(itemStack);
-                plugin.text().of(sender, "command.trade-item-now", Integer.toString(shop.getItem().getAmount()), Util.getItemStackName(shop.getItem())).send();
+                plugin.text().of(sender, "command.trade-item-now", Integer.toString(shop.getItem().getAmount()),
+                        Util.getItemStackName(shop.getItem())).send();
                 return;
+
             }
+
         }
+
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
 }

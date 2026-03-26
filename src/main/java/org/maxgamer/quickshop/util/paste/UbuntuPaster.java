@@ -32,6 +32,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public class UbuntuPaster implements PasteInterface {
+
     /**
      * Paste a text to paste.ubuntu.com
      *
@@ -42,12 +43,12 @@ public class UbuntuPaster implements PasteInterface {
     @Override
     @NotNull
     public String pasteTheText(@NotNull String text) throws IOException {
+
         URL url = new URL("https://paste.ubuntu.com");
         URLConnection conn = url.openConnection();
         conn.setRequestProperty("accept", "*/*");
         conn.setRequestProperty("connection", "Keep-Alive");
-        conn.setRequestProperty(
-                "user-agent",
+        conn.setRequestProperty("user-agent",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36");
         conn.setDoOutput(true);
         conn.setDoInput(true);
@@ -56,13 +57,8 @@ public class UbuntuPaster implements PasteInterface {
 
         PrintWriter out = new PrintWriter(conn.getOutputStream());
         // poster=aaaaaaa&syntax=text&expiration=&content=%21%40
-        String builder =
-                "poster="
-                        + "QuickShop Paster"
-                        + "&syntax=text"
-                        + "&expiration=week"
-                        + "&content="
-                        + URLEncoder.encode(text, "UTF-8");
+        String builder = "poster=" + "QuickShop Paster" + "&syntax=text" + "&expiration=week" + "&content="
+                + URLEncoder.encode(text, "UTF-8");
         out.print(builder);
         out.flush(); // Drop
 
@@ -72,6 +68,7 @@ public class UbuntuPaster implements PasteInterface {
         in.close();
         out.close();
         return link;
+
     }
 
 }

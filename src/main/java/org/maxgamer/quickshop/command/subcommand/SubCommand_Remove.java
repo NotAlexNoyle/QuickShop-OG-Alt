@@ -36,27 +36,40 @@ public class SubCommand_Remove implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         BlockIterator bIt = new BlockIterator(sender, 10);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
 
             if (shop == null) {
+
                 continue;
+
             }
+
             if (shop.getModerator().isModerator(sender.getUniqueId())
-                    || QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.destroy")) {
+                    || QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.destroy"))
+            {
+
                 shop.delete();
-                plugin.logEvent(new ShopRemoveLog(sender.getUniqueId(), "/qs remove command", shop.saveToInfoStorage()));
+                plugin.logEvent(
+                        new ShopRemoveLog(sender.getUniqueId(), "/qs remove command", shop.saveToInfoStorage()));
+
             } else {
+
                 plugin.text().of(sender, "no-permission").send();
+
             }
 
             return;
+
         }
 
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
 }

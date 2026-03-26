@@ -35,23 +35,26 @@ import java.net.URL;
  * @author Ghost_chu
  */
 public class HelpChatPastebinPaster implements PasteInterface {
+
     @Override
     @NotNull
     public String pasteTheText(@NotNull String text) throws IOException {
-        HttpRequest request = HttpRequest.post(new URL("https://paste.helpch.at/documents"))
-                .body(text)
-                .header("User-Agent", "QuickShop-" + QuickShop.getFork() + "-" + QuickShop.getVersion())
-                .execute();
+
+        HttpRequest request = HttpRequest.post(new URL("https://paste.helpch.at/documents")).body(text)
+                .header("User-Agent", "QuickShop-" + QuickShop.getFork() + "-" + QuickShop.getVersion()).execute();
         request.expectResponseCode(200, 201, 301, 302);
         String json = request.returnContent().asString("UTF-8");
         Response response = JsonUtil.getGson().fromJson(json, Response.class);
         return "https://paste.helpch.at/" + response.getKey();
+
     }
 
     @NoArgsConstructor
     @Data
     static class Response {
-        private String key;
-    }
-}
 
+        private String key;
+
+    }
+
+}

@@ -19,7 +19,6 @@
 
 package org.maxgamer.quickshop.util.compatibility;
 
-
 import me.vagdedes.spartan.api.API;
 import me.vagdedes.spartan.api.PlayerViolationEvent;
 import me.vagdedes.spartan.system.Enums;
@@ -40,51 +39,71 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class SpartanCompatibilityModule extends AbstractQSCompatibilityModule implements Listener {
 
     public SpartanCompatibilityModule(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     private final Set<UUID> ignoreList = new ConcurrentSkipListSet<>();
 
     @Override
     public void register() {
+
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+
     }
 
     @Override
     public void unregister() {
+
         HandlerList.unregisterAll(this);
+
     }
 
     @Override
     public @NotNull String getName() {
+
         return "Spartan";
+
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onPlayerViolation(PlayerViolationEvent event) {
+
         if (ignoreList.contains(event.getPlayer().getUniqueId())) {
+
             event.setCancelled(true);
+
         }
+
     }
 
     @Override
     public void toggle(@NotNull Player player, boolean status) {
+
         if (status) {
-            Util.debugLog(
-                    "Calling Spartan continue follow " + player.getName() + " cheats detection.");
+
+            Util.debugLog("Calling Spartan continue follow " + player.getName() + " cheats detection.");
             ignoreList.remove(player.getUniqueId());
             for (Enums.HackType value : Enums.HackType.values()) {
+
                 API.startCheck(player, value);
+
             }
+
         } else {
+
             ignoreList.add(player.getUniqueId());
-            Util.debugLog(
-                    "Calling Spartan ignore "
-                            + player.getName()
-                            + " cheats detection until we finished permission checks.");
+            Util.debugLog("Calling Spartan ignore " + player.getName()
+                    + " cheats detection until we finished permission checks.");
             for (Enums.HackType value : Enums.HackType.values()) {
+
                 API.stopCheck(player, value);
+
             }
+
         }
+
     }
+
 }

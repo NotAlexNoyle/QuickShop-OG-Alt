@@ -39,6 +39,7 @@ public class SubCommand_Info implements CommandHandler<CommandSender> {
 
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         int buying, selling, chunks, worlds;
         buying = 0;
         selling = 0;
@@ -46,43 +47,45 @@ public class SubCommand_Info implements CommandHandler<CommandSender> {
         worlds = 0;
         int nostock = 0;
 
-        for (Map<ShopChunk, Map<Location, Shop>> inWorld :
-                plugin.getShopManager().getShops().values()) {
+        for (Map<ShopChunk, Map<Location, Shop>> inWorld : plugin.getShopManager().getShops().values()) {
+
             worlds++;
 
             for (Map<Location, Shop> inChunk : inWorld.values()) {
+
                 chunks++;
                 for (Shop shop : inChunk.values()) {
+
                     if (shop.isBuying()) {
+
                         buying++;
+
                     } else if (shop.isSelling()) {
+
                         selling++;
+
                     }
+
                     if (shop.isSelling() && shop.isLoaded() && shop.getRemainingStock() == 0) {
+
                         nostock++;
+
                     }
+
                 }
+
             }
+
         }
 
         MsgUtil.sendDirectMessage(sender, ChatColor.RED + "QuickShop Statistics...");
         MsgUtil.sendDirectMessage(sender, ChatColor.GREEN + "Server UniqueID: " + plugin.getServerUniqueID());
-        MsgUtil.sendDirectMessage(sender,
-                ChatColor.GREEN
-                        + ""
-                        + (buying + selling)
-                        + " shops in "
-                        + chunks
-                        + " chunks spread over "
-                        + worlds
-                        + " worlds.");
-        MsgUtil.sendDirectMessage(sender,
-                ChatColor.GREEN
-                        + ""
-                        + nostock
-                        + " out-of-stock loaded shops (excluding doubles) which will be removed by /qs clean.");
+        MsgUtil.sendDirectMessage(sender, ChatColor.GREEN + "" + (buying + selling) + " shops in " + chunks
+                + " chunks spread over " + worlds + " worlds.");
+        MsgUtil.sendDirectMessage(sender, ChatColor.GREEN + "" + nostock
+                + " out-of-stock loaded shops (excluding doubles) which will be removed by /qs clean.");
         MsgUtil.sendDirectMessage(sender, ChatColor.GREEN + "QuickShop " + QuickShop.getVersion());
-    }
 
+    }
 
 }

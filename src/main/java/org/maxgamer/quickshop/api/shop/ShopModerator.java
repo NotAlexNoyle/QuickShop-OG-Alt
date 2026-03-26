@@ -28,10 +28,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Contains shop's moderators infomations, owner, staffs etc.
- * You must save the ContainerShop after modify this
+ * Contains shop's moderators infomations, owner, staffs etc. You must save the
+ * ContainerShop after modify this
  */
 public interface ShopModerator {
+
     /**
      * Deserialize a ShopModerator using Gson
      *
@@ -40,9 +41,11 @@ public interface ShopModerator {
      * @throws JsonSyntaxException incorrect json string
      */
     static ShopModerator deserialize(@NotNull String serilized) throws JsonSyntaxException {
+
         // Use Gson deserialize data
         Gson gson = JsonUtil.getGson();
         return gson.fromJson(serilized, ShopModerator.class);
+
     }
 
     /**
@@ -52,8 +55,10 @@ public interface ShopModerator {
      * @return Json String
      */
     static String serialize(@NotNull ShopModerator shopModerator) {
+
         Gson gson = JsonUtil.getGson();
         return gson.toJson(shopModerator); // Use Gson serialize this class
+
     }
 
     /**
@@ -69,10 +74,12 @@ public interface ShopModerator {
      */
     void clearStaffs();
 
-    @NotNull ShopModerator clone();
+    @NotNull
+    ShopModerator clone();
 
     @Override
-    @NotNull String toString();
+    @NotNull
+    String toString();
 
     /**
      * Remove moderators staff from staff list
@@ -111,7 +118,8 @@ public interface ShopModerator {
      *
      * @return Owner's UUID
      */
-    @NotNull UUID getOwner();
+    @NotNull
+    UUID getOwner();
 
     /**
      * Set moderators owner (Shop Owner)
@@ -125,7 +133,8 @@ public interface ShopModerator {
      *
      * @return Staffs
      */
-    @NotNull List<UUID> getStaffs();
+    @NotNull
+    List<UUID> getStaffs();
 
     /**
      * Set moderators staffs

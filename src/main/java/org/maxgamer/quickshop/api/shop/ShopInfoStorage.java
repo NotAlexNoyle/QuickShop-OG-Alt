@@ -34,6 +34,7 @@ import java.util.UUID;
 @Data
 @Builder
 public class ShopInfoStorage {
+
     private final String world;
     private final BlockPosition position;
     private final String moderator;
@@ -47,6 +48,9 @@ public class ShopInfoStorage {
     private final UUID taxAccount;
 
     public String toJson() {
+
         return JsonUtil.standard().toJson(this);
+
     }
+
 }

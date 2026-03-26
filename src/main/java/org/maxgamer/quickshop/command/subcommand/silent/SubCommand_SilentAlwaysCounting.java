@@ -28,19 +28,27 @@ import org.maxgamer.quickshop.util.MsgUtil;
 public class SubCommand_SilentAlwaysCounting extends SubCommand_SilentBase {
 
     public SubCommand_SilentAlwaysCounting(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @Override
     protected void doSilentCommand(Player sender, @NotNull Shop shop, @NotNull String[] cmdArg) {
+
         shop.setAlwaysCountingContainer(!shop.isAlwaysCountingContainer());
         shop.update();
         MsgUtil.sendControlPanelInfo(sender, shop);
         if (shop.isAlwaysCountingContainer()) {
+
             plugin.text().of(sender, "command.toggle-always-counting.counting").send();
+
         } else {
+
             plugin.text().of(sender, "command.toggle-always-counting.not-counting").send();
+
         }
+
     }
 
 }

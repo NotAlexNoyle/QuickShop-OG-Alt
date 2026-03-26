@@ -18,15 +18,18 @@ public class VersionManifest {
     @NoArgsConstructor
     @Data
     public static class LatestDTO {
+
         @JsonProperty("release")
         private String release;
         @JsonProperty("snapshot")
         private String snapshot;
+
     }
 
     @NoArgsConstructor
     @Data
     public static class VersionsDTO {
+
         @JsonProperty("id")
         private String id;
         @JsonProperty("type")
@@ -37,5 +40,7 @@ public class VersionManifest {
         private String time;
         @JsonProperty("releaseTime")
         private String releaseTime;
+
     }
+
 }

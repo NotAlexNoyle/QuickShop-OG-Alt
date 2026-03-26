@@ -12,24 +12,38 @@ import java.lang.reflect.Field;
  * If you are writing test which using runtime stuff, just extend it
  */
 public abstract class TestBukkitBase {
+
     @BeforeAll
     public static void setUp() {
+
         MockBukkit.getOrCreateMock();
         System.getProperties().setProperty("org.maxgamer.quickshop.util.envcheck.skip.SIGNATURE_VERIFY", "true");
-        System.getProperties().setProperty("org.maxgamer.quickshop.util.envcheck.skip.POTENTIAL_INFECTION_CHARACTERISTICS_CHECK", "true");
-        //Prevent network flow to OTA
+        System.getProperties().setProperty(
+                "org.maxgamer.quickshop.util.envcheck.skip.POTENTIAL_INFECTION_CHARACTERISTICS_CHECK", "true");
+        // Prevent network flow to OTA
         try {
-            Field CROWDIN_OTA_HOST = Class.forName("org.maxgamer.quickshop.localization.text.distributions.crowdin.CrowdinOTA").getDeclaredField("CROWDIN_OTA_HOST");
+
+            Field CROWDIN_OTA_HOST = Class
+                    .forName("org.maxgamer.quickshop.localization.text.distributions.crowdin.CrowdinOTA")
+                    .getDeclaredField("CROWDIN_OTA_HOST");
             CROWDIN_OTA_HOST.setAccessible(true);
             CROWDIN_OTA_HOST.set(null, "http://0.0.0.0");
+
         } catch (NoSuchFieldException | IllegalAccessException | ClassNotFoundException e) {
+
             e.printStackTrace();
+
         }
+
         MockBukkit.load(QuickShop.class);
+
     }
 
     @AfterAll
     public static void tearDown() {
+
         MockBukkit.unmock();
+
     }
+
 }

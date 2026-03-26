@@ -29,6 +29,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 public class ShopCreationLog implements ReadableLog {
+
     private static int v = 1;
     private UUID creator;
     private ShopInfoStorage shop;
@@ -36,6 +37,9 @@ public class ShopCreationLog implements ReadableLog {
 
     @Override
     public String toReadableLog() {
+
         return creator + " create a shop at " + location + ", shop data:" + shop.toJson();
+
     }
+
 }

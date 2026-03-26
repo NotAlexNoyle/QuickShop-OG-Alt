@@ -37,6 +37,7 @@ import org.maxgamer.quickshop.api.shop.ShopType;
 @EqualsAndHashCode
 @ToString
 public class SimpleInfo implements Info {
+
     private final Block last;
     private final Location loc;
     private final boolean dirty;
@@ -48,51 +49,62 @@ public class SimpleInfo implements Info {
 
     private ShopType shopType = ShopType.SELLING;
 
-    public SimpleInfo(
-            @NotNull Location loc,
-            @NotNull ShopAction action,
-            @Nullable ItemStack item,
-            @Nullable Block last,
-            @Nullable Shop shop,
-            boolean bypass) {
+    public SimpleInfo(@NotNull Location loc, @NotNull ShopAction action, @Nullable ItemStack item, @Nullable Block last,
+            @Nullable Shop shop, boolean bypass)
+    {
+
         this.loc = loc;
         this.action = action;
         this.last = last;
         this.bypass = bypass;
         if (item != null) {
+
             this.item = item.clone();
+
         }
+
         if (shop != null) {
+
             this.shop = shop.clone();
             this.dirty = shop.isDirty();
             this.shopType = shop.getShopType();
+
         } else {
+
             this.dirty = true;
+
         }
+
     }
 
     public ShopType getShopType() {
+
         return shopType;
+
     }
 
-    public SimpleInfo(
-            @NotNull Location loc,
-            @NotNull ShopAction action,
-            @Nullable ItemStack item,
-            @Nullable Block last,
-            boolean bypass) {
+    public SimpleInfo(@NotNull Location loc, @NotNull ShopAction action, @Nullable ItemStack item, @Nullable Block last,
+            boolean bypass)
+    {
+
         this.loc = loc;
         this.action = action;
         this.last = last;
         this.bypass = bypass;
         if (item != null) {
+
             this.item = item.clone();
+
         }
+
         this.dirty = true;
+
     }
 
     public void setShopType(ShopType shopType) {
+
         this.shopType = shopType;
+
     }
 
     /**
@@ -100,12 +112,16 @@ public class SimpleInfo implements Info {
      */
     @Override
     public @NotNull ShopAction getAction() {
+
         return this.action;
+
     }
 
     @Override
     public void setAction(@NotNull ShopAction action) {
+
         this.action = action;
+
     }
 
     /**
@@ -113,18 +129,25 @@ public class SimpleInfo implements Info {
      */
     @Override
     public @NotNull ItemStack getItem() {
+
         return this.item;
+
     }
 
     /**
-     * @return Pending create message, use as temporary store when creating shop needs select shop type.
+     * @return Pending create message, use as temporary store when creating shop
+     *         needs select shop type.
      */
     public String getPendingCreateMessage() {
+
         return pendingCreateMessage;
+
     }
 
     public void setPendingCreateMessage(String pendingCreateMessage) {
+
         this.pendingCreateMessage = pendingCreateMessage;
+
     }
 
     /**
@@ -132,7 +155,9 @@ public class SimpleInfo implements Info {
      */
     @Override
     public @NotNull Location getLocation() {
+
         return this.loc;
+
     }
 
     /**
@@ -140,7 +165,9 @@ public class SimpleInfo implements Info {
      */
     @Override
     public @Nullable Block getSignBlock() {
+
         return this.last;
+
     }
 
     /**
@@ -151,33 +178,58 @@ public class SimpleInfo implements Info {
      */
     @Override
     public boolean hasChanged(@NotNull Shop shop) {
+
         if (this.shop.isUnlimited() != shop.isUnlimited()) {
+
             return true;
+
         }
+
         if (this.shop.isAlwaysCountingContainer() != shop.isAlwaysCountingContainer()) {
+
             return true;
+
         }
+
         if (this.shop.getShopType() != shop.getShopType()) {
+
             return true;
+
         }
+
         if (!this.shop.getOwner().equals(shop.getOwner())) {
+
             return true;
+
         }
+
         if (this.shop.getPrice() != shop.getPrice()) {
+
             return true;
+
         }
+
         if (!this.shop.getLocation().equals(shop.getLocation())) {
+
             return true;
+
         }
+
         if (this.dirty != shop.isDirty()) {
+
             return false;
+
         }
+
         return !this.shop.matches(shop.getItem());
+
     }
 
     @Override
     public boolean isBypassed() {
+
         return bypass;
+
     }
 
 }

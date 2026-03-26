@@ -28,13 +28,14 @@ import org.maxgamer.quickshop.util.reload.Reloadable;
  * Integration module
  */
 public interface IntegratedPlugin extends Reloadable {
+
     /**
-     * Return the integrated plugin name.
-     * For example, Residence
+     * Return the integrated plugin name. For example, Residence
      *
      * @return integrated plugin
      */
-    @NotNull String getName();
+    @NotNull
+    String getName();
 
     /**
      * Check if a player can create shop here
@@ -62,18 +63,19 @@ public interface IntegratedPlugin extends Reloadable {
      * @return If you can delete the shop here
      */
     default boolean canDeleteShopHere(@NotNull Player player, @NotNull Location location) {
+
         return false;
+
     }
 
     /**
-     * Loading logic
-     * Execute Stage defined by IntegrationStage
+     * Loading logic Execute Stage defined by IntegrationStage
      */
     void load();
 
     /**
-     * Unloding logic
-     * Will execute when Quickshop unloading
+     * Unloding logic Will execute when Quickshop unloading
      */
     void unload();
+
 }

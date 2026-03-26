@@ -40,6 +40,7 @@ import java.util.logging.Level;
  * @author Ghost_chu
  */
 public class CalendarWatcher implements Consumer<ScheduledTask> {
+
     @Getter
     private final File calendarFile = new File(Util.getCacheFolder(), "calendar.cache");
     @Getter
@@ -48,32 +49,54 @@ public class CalendarWatcher implements Consumer<ScheduledTask> {
     private ScheduledTask task;
 
     public CalendarWatcher(QuickShop plugin) {
+
         this.plugin = plugin;
         if (!calendarFile.exists()) {
+
             try {
+
                 calendarFile.createNewFile();
+
             } catch (IOException ioException) {
-                plugin.getLogger().log(Level.WARNING, "Cannot create calendar cache file at " + calendarFile.getAbsolutePath() + ", scheduled tasks may cannot or execute wrongly!", ioException);
+
+                plugin.getLogger().log(Level.WARNING, "Cannot create calendar cache file at "
+                        + calendarFile.getAbsolutePath() + ", scheduled tasks may cannot or execute wrongly!",
+                        ioException);
+
             }
+
         }
+
         configuration = YamlConfiguration.loadConfiguration(calendarFile);
+
     }
 
     public void start() {
-        task = plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, this, 20 * 50, 20 * 50, TimeUnit.MILLISECONDS);
+
+        task = plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, this, 20 * 50, 20 * 50,
+                TimeUnit.MILLISECONDS);
+
     }
 
     public void stop() {
+
         save();
         try {
+
             if (task != null && !task.isCancelled()) {
+
                 task.cancel();
+
             }
+
         } catch (IllegalStateException ignored) {
+
         }
+
     }
 
     public CalendarEvent.CalendarTriggerType getAndUpdate() {
+
         Calendar c = Calendar.getInstance();
         CalendarEvent.CalendarTriggerType type = CalendarEvent.CalendarTriggerType.NOTHING_CHANGED;
         int secondRecord = configuration.getInt("second");
@@ -91,27 +114,46 @@ public class CalendarWatcher implements Consumer<ScheduledTask> {
         int monthNow = c.get(Calendar.MONTH);
         int yearNow = c.get(Calendar.YEAR);
         if (secondNow != secondRecord) {
+
             type = CalendarEvent.CalendarTriggerType.SECOND;
-        }
-        if (minuteNow != minuteRecord) {
-            type = CalendarEvent.CalendarTriggerType.MINUTE;
-        }
-        if (hourNow != hourRecord) {
-            type = CalendarEvent.CalendarTriggerType.HOUR;
-        }
-        if (dayNow != dayRecord) {
-            type = CalendarEvent.CalendarTriggerType.DAY;
-        }
-        if (weekNow != weekRecord) {
-            type = CalendarEvent.CalendarTriggerType.WEEK;
-        }
-        if (monthNow != monthRecord) {
-            type = CalendarEvent.CalendarTriggerType.MONTH;
-        }
-        if (yearNow != yearRecord) {
-            type = CalendarEvent.CalendarTriggerType.YEAR;
+
         }
 
+        if (minuteNow != minuteRecord) {
+
+            type = CalendarEvent.CalendarTriggerType.MINUTE;
+
+        }
+
+        if (hourNow != hourRecord) {
+
+            type = CalendarEvent.CalendarTriggerType.HOUR;
+
+        }
+
+        if (dayNow != dayRecord) {
+
+            type = CalendarEvent.CalendarTriggerType.DAY;
+
+        }
+
+        if (weekNow != weekRecord) {
+
+            type = CalendarEvent.CalendarTriggerType.WEEK;
+
+        }
+
+        if (monthNow != monthRecord) {
+
+            type = CalendarEvent.CalendarTriggerType.MONTH;
+
+        }
+
+        if (yearNow != yearRecord) {
+
+            type = CalendarEvent.CalendarTriggerType.YEAR;
+
+        }
 
         configuration.set("second", secondNow);
         configuration.set("minute", minuteNow);
@@ -120,23 +162,32 @@ public class CalendarWatcher implements Consumer<ScheduledTask> {
         configuration.set("week", weekNow);
         configuration.set("month", monthNow);
         configuration.set("year", yearNow);
-        //We can use ordinal() to check we need update or not
-        //If we need update every minute, use type.ordinal() >= MINUTE
-
+        // We can use ordinal() to check we need update or not
+        // If we need update every minute, use type.ordinal() >= MINUTE
 
         if (type.ordinal() >= CalendarEvent.CalendarTriggerType.HOUR.ordinal()) {
+
             save();
+
         }
 
         return type;
+
     }
 
     public void save() {
+
         try {
+
             configuration.save(calendarFile);
+
         } catch (IOException ioException) {
-            plugin.getLogger().log(Level.WARNING, "Cannot save calendar cache file at " + calendarFile.getAbsolutePath() + ", scheduled tasks may cannot or execute wrongly!", ioException);
+
+            plugin.getLogger().log(Level.WARNING, "Cannot save calendar cache file at " + calendarFile.getAbsolutePath()
+                    + ", scheduled tasks may cannot or execute wrongly!", ioException);
+
         }
+
     }
 
     /**
@@ -144,7 +195,10 @@ public class CalendarWatcher implements Consumer<ScheduledTask> {
      */
     @Override
     public void accept(ScheduledTask task) {
+
         CalendarEvent.CalendarTriggerType type = getAndUpdate();
         Bukkit.getPluginManager().callEvent(new CalendarEvent(type));
+
     }
+
 }

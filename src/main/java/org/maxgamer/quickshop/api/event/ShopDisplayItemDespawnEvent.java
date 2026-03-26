@@ -50,7 +50,9 @@ public class ShopDisplayItemDespawnEvent extends AbstractQSEvent implements Canc
      */
     @Deprecated
     public ShopDisplayItemDespawnEvent(@NotNull Shop shop, @NotNull ItemStack itemStack) {
+
         this(shop, itemStack, AbstractDisplayItem.getNowUsing());
+
     }
 
     /**
@@ -60,21 +62,28 @@ public class ShopDisplayItemDespawnEvent extends AbstractQSEvent implements Canc
      * @param itemStack   Target itemstacck
      * @param displayType The displayType
      */
-    public ShopDisplayItemDespawnEvent(
-            @NotNull Shop shop, @NotNull ItemStack itemStack, @NotNull DisplayType displayType) {
+    public ShopDisplayItemDespawnEvent(@NotNull Shop shop, @NotNull ItemStack itemStack,
+            @NotNull DisplayType displayType)
+    {
+
         this.shop = shop;
         this.itemStack = itemStack;
         this.displayType = displayType;
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return this.cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean cancelled) {
+
         this.cancelled = cancelled;
+
     }
 
     /**
@@ -83,7 +92,9 @@ public class ShopDisplayItemDespawnEvent extends AbstractQSEvent implements Canc
      * @return the shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
 
     /**
@@ -92,7 +103,9 @@ public class ShopDisplayItemDespawnEvent extends AbstractQSEvent implements Canc
      * @return The ItemStack that display using
      */
     public @NotNull ItemStack getItemStack() {
+
         return this.itemStack;
+
     }
 
     /**
@@ -101,6 +114,9 @@ public class ShopDisplayItemDespawnEvent extends AbstractQSEvent implements Canc
      * @return Display type that current using
      */
     public @NotNull DisplayType getDisplayType() {
+
         return this.displayType;
+
     }
+
 }

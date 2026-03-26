@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 @AllArgsConstructor
 @Data
 public class QSHandleChatEvent extends AbstractQSEvent {
+
     private final Player sender;
     private String message;
 
@@ -18,7 +19,9 @@ public class QSHandleChatEvent extends AbstractQSEvent {
      * @return The chat sender
      */
     public Player getSender() {
+
         return sender;
+
     }
 
     /**
@@ -27,7 +30,9 @@ public class QSHandleChatEvent extends AbstractQSEvent {
      * @return The chat content
      */
     public String getMessage() {
+
         return message;
+
     }
 
     /**
@@ -36,6 +41,9 @@ public class QSHandleChatEvent extends AbstractQSEvent {
      * @param message The new chat content
      */
     public void setMessage(String message) {
+
         this.message = message;
+
     }
+
 }

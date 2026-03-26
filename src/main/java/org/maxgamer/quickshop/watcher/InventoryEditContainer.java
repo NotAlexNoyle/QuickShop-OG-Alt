@@ -29,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
 @Builder
 @AllArgsConstructor
 public class InventoryEditContainer {
+
     private Inventory inventory;
 
     private int slot;

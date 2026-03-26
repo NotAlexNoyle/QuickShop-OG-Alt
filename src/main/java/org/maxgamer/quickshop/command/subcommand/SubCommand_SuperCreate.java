@@ -46,19 +46,25 @@ public class SubCommand_SuperCreate implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         ItemStack item = sender.getInventory().getItemInMainHand();
         if (item.getType() == Material.AIR) {
+
             plugin.text().of(sender, "no-anythings-in-your-hand").send();
             return;
+
         }
 
         final BlockIterator bIt = new BlockIterator(sender, 10);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
 
             if (!Util.canBeShop(b)) {
+
                 continue;
+
             }
 
 //            if (cmdArg.length >= 1) {
@@ -66,27 +72,51 @@ public class SubCommand_SuperCreate implements CommandHandler<Player> {
 //                return;
 //            }
             // Send creation menu.
-            final SimpleInfo info = new SimpleInfo(b.getLocation(), ShopAction.CREATE, sender.getInventory().getItemInMainHand(), b.getRelative(sender.getFacing().getOppositeFace()), true);
+            final SimpleInfo info = new SimpleInfo(b.getLocation(), ShopAction.CREATE,
+                    sender.getInventory().getItemInMainHand(), b.getRelative(sender.getFacing().getOppositeFace()),
+                    true);
             plugin.getShopManager().getActions().put(sender.getUniqueId(), info);
             if (plugin.getConfig().getBoolean("shop.create-needs-select-type")) {
+
                 info.setAction(CREATE_TYPE_INPUT);
-                plugin.getQuickChat().sendExecutableChat(sender, plugin.text().of(sender, "select-shop-type-or-cancel").forLocale(),
-                        new AbstractMap.SimpleEntry<>(plugin.text().of(sender, "select-shop-type-or-cancel-selling-button").forLocale(), "/qs amount SELL"),
-                        new AbstractMap.SimpleEntry<>(plugin.text().of(sender, "select-shop-type-or-cancel-buying-button").forLocale(), "/qs amount BUY"),
-                        new AbstractMap.SimpleEntry<>(plugin.text().of(sender, "select-shop-type-or-cancel-cancel-button").forLocale(), "/qs amount CANCEL"));
+                plugin.getQuickChat().sendExecutableChat(sender,
+                        plugin.text().of(sender, "select-shop-type-or-cancel").forLocale(),
+                        new AbstractMap.SimpleEntry<>(
+                                plugin.text().of(sender, "select-shop-type-or-cancel-selling-button").forLocale(),
+                                "/qs amount SELL"),
+                        new AbstractMap.SimpleEntry<>(
+                                plugin.text().of(sender, "select-shop-type-or-cancel-buying-button").forLocale(),
+                                "/qs amount BUY"),
+                        new AbstractMap.SimpleEntry<>(
+                                plugin.text().of(sender, "select-shop-type-or-cancel-cancel-button").forLocale(),
+                                "/qs amount CANCEL"));
+
             } else {
-                plugin.text().of(sender, "how-much-to-trade-for", MsgUtil.getTranslateText(info.getItem()), Integer.toString(plugin.isAllowStack() && QuickShop.getPermissionManager().hasPermission(sender, "quickshop.create.stacks") ? item.getAmount() : 1)).send();
+
+                plugin.text()
+                        .of(sender, "how-much-to-trade-for", MsgUtil.getTranslateText(info.getItem()),
+                                Integer.toString(plugin.isAllowStack() && QuickShop.getPermissionManager()
+                                        .hasPermission(sender, "quickshop.create.stacks") ? item.getAmount() : 1))
+                        .send();
+
             }
+
             return;
+
         }
+
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
     @NotNull
     @Override
-    public List<String> onTabComplete(
-            @NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
-        return cmdArg.length == 1 ? Collections.singletonList(QuickShop.getInstance().text().of(sender, "tabcomplete.amount").forLocale()) : Collections.emptyList();
+    public List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
+        return cmdArg.length == 1
+                ? Collections.singletonList(QuickShop.getInstance().text().of(sender, "tabcomplete.amount").forLocale())
+                : Collections.emptyList();
+
     }
 
 }

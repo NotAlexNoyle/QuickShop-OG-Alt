@@ -22,6 +22,7 @@ package org.maxgamer.quickshop.util.paste;
 import org.jetbrains.annotations.NotNull;
 
 public interface PasteInterface {
+
     /**
      * Paste the text to pastebin
      *

@@ -27,6 +27,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 public class ShopTaxAccountGettingEvent extends AbstractQSEvent {
+
     private final Shop shop;
     @Nullable
     private UUID taxAccount;
@@ -38,7 +39,9 @@ public class ShopTaxAccountGettingEvent extends AbstractQSEvent {
      */
     @Nullable
     public UUID getTaxAccount() {
+
         return taxAccount;
+
     }
 
     /**
@@ -47,7 +50,9 @@ public class ShopTaxAccountGettingEvent extends AbstractQSEvent {
      * @param taxAccount The tax account
      */
     public void setTaxAccount(@Nullable UUID taxAccount) {
+
         this.taxAccount = taxAccount;
+
     }
 
     /**
@@ -56,6 +61,9 @@ public class ShopTaxAccountGettingEvent extends AbstractQSEvent {
      * @return The shop
      */
     public Shop getShop() {
+
         return shop;
+
     }
+
 }

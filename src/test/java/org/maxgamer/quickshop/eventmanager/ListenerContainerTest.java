@@ -19,7 +19,6 @@
 
 package org.maxgamer.quickshop.eventmanager;
 
-
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import org.bukkit.Server;
@@ -45,34 +44,46 @@ public class ListenerContainerTest {
 
     @Test
     public void testMatches() {
+
         Plugin testPlugin = new Plugin() {
+
             @NotNull
             @Override
             public File getDataFolder() {
+
                 return null;
+
             }
+
             @NotNull
             @Override
             public PluginDescriptionFile getDescription() {
+
                 return null;
+
             }
 
             @NotNull
             @Override
             public FileConfiguration getConfig() {
+
                 return null;
+
             }
 
             @NotNull
             public FileConfiguration getConfiguration() {
-                return null;
-            }
 
+                return null;
+
+            }
 
             @Nullable
             @Override
             public InputStream getResource(@NotNull String s) {
+
                 return null;
+
             }
 
             @Override
@@ -98,18 +109,24 @@ public class ListenerContainerTest {
             @NotNull
             @Override
             public PluginLoader getPluginLoader() {
+
                 return null;
+
             }
 
             @NotNull
             @Override
             public Server getServer() {
+
                 return null;
+
             }
 
             @Override
             public boolean isEnabled() {
+
                 return false;
+
             }
 
             @Override
@@ -129,7 +146,9 @@ public class ListenerContainerTest {
 
             @Override
             public boolean isNaggable() {
+
                 return false;
+
             }
 
             @Override
@@ -140,52 +159,74 @@ public class ListenerContainerTest {
             @Nullable
             @Override
             public ChunkGenerator getDefaultWorldGenerator(@NotNull String s, @Nullable String s1) {
+
                 return null;
+
             }
 
             @Nullable
             @Override
             public BiomeProvider getDefaultBiomeProvider(@NotNull String s, @Nullable String s1) {
+
                 return null;
+
             }
 
             @NotNull
             @Override
             public Logger getLogger() {
+
                 return null;
+
             }
 
             @NotNull
             @Override
             public String getName() {
+
                 return "QuickTest";
+
             }
 
             @Override
             public @NotNull LifecycleEventManager<Plugin> getLifecycleManager() {
+
                 return null;
+
             }
 
             @Override
-            public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+            public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s,
+                    @NotNull String[] strings)
+            {
+
                 return false;
+
             }
 
             @Override
             public @NotNull PluginMeta getPluginMeta() {
+
                 return null;
+
             }
 
             @Nullable
             @Override
-            public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+            public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command,
+                    @NotNull String s, @NotNull String[] strings)
+            {
+
                 return null;
+
             }
+
         };
         ListenerContainer listenerContainerA = new ListenerContainer(null, "@QuickTest");
         ListenerContainer listenerContainerB = new ListenerContainer(null, "@QuickTestBad");
         Assertions.assertTrue(listenerContainerA.matches(this.getClass(), testPlugin));
         Assertions.assertFalse(listenerContainerB.matches(this.getClass(), testPlugin));
+
     }
 
 }

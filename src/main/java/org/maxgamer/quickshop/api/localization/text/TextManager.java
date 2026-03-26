@@ -30,6 +30,7 @@ import java.util.UUID;
  * The TextManager that allow create user's locale specified message.
  */
 public interface TextManager {
+
     /**
      * Gets specific locale status
      *
@@ -38,7 +39,6 @@ public interface TextManager {
      * @return The locale enabled status
      */
     boolean localeEnabled(@NotNull String locale, @NotNull List<String> regex);
-
 
     /**
      * Getting the translation with path with default locale
@@ -90,7 +90,7 @@ public interface TextManager {
     List<String> getAvailableLanguages();
 
     /**
-     * Getting the translation with path  with player's locale (if available)
+     * Getting the translation with path with player's locale (if available)
      *
      * @param sender The player unique id
      * @param path   The path
@@ -110,4 +110,5 @@ public interface TextManager {
      */
     @NotNull
     TextList ofList(@Nullable CommandSender sender, @NotNull String path, Object... args);
+
 }

@@ -28,10 +28,9 @@ import org.maxgamer.quickshop.api.shop.Shop;
 /**
  * A click event which have player variable
  * <p>
- * Since  5.1.2.0
+ * Since 5.1.2.0
  */
 public class PlayerShopClickEvent extends AbstractQSEvent implements Cancellable {
-
 
     @Getter
     private final Player player;
@@ -48,18 +47,24 @@ public class PlayerShopClickEvent extends AbstractQSEvent implements Cancellable
      * @param player the player clicking shop
      */
     public PlayerShopClickEvent(@NotNull Shop shop, Player player) {
+
         this.shop = shop;
         this.player = player;
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return this.cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean cancelled) {
+
         this.cancelled = cancelled;
+
     }
 
     /**
@@ -68,6 +73,9 @@ public class PlayerShopClickEvent extends AbstractQSEvent implements Cancellable
      * @return Clicked shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
+
 }

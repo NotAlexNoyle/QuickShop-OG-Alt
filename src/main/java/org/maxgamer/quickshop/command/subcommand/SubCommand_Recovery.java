@@ -36,19 +36,32 @@ public class SubCommand_Recovery implements CommandHandler<ConsoleCommandSender>
     private final QuickShop plugin;
 
     @Override
-    public void onCommand(@NotNull ConsoleCommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public void onCommand(@NotNull ConsoleCommandSender sender, @NotNull String commandLabel,
+            @NotNull String[] cmdArg)
+    {
+
         File file = new File(plugin.getDataFolder(), "recovery.txt");
         if (!file.exists()) {
-            MsgUtil.sendDirectMessage(sender, "recovery.txt doesn't exist! Do not execute this command unless you know what are you doing.");
+
+            MsgUtil.sendDirectMessage(sender,
+                    "recovery.txt doesn't exist! Do not execute this command unless you know what are you doing.");
             return;
+
         }
+
         plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
+
             try {
+
                 Util.backupDatabase();
                 plugin.getShopLoader().recoverFromFile(Util.readToString(file));
+
             } catch (Exception e) {
+
                 plugin.getLogger().log(Level.WARNING, "Failed to recover the data because of the following error:", e);
+
             }
+
         });
 
     }

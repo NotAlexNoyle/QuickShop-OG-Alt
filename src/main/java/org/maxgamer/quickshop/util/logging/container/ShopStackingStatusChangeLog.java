@@ -32,6 +32,10 @@ public class ShopStackingStatusChangeLog implements ReadableLog {
 
     @Override
     public String toReadableLog() {
-        return "Shop at " + rawDatabaseInfo.getWorld() + ", x=" + rawDatabaseInfo.getX() + "y=" + rawDatabaseInfo.getY() + " z=" + rawDatabaseInfo.getZ() + " stacking have been changed, data:" + rawDatabaseInfo;
+
+        return "Shop at " + rawDatabaseInfo.getWorld() + ", x=" + rawDatabaseInfo.getX() + "y=" + rawDatabaseInfo.getY()
+                + " z=" + rawDatabaseInfo.getZ() + " stacking have been changed, data:" + rawDatabaseInfo;
+
     }
+
 }

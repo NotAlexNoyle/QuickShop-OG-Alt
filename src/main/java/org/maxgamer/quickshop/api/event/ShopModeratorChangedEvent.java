@@ -35,15 +35,17 @@ public class ShopModeratorChangedEvent extends AbstractQSEvent {
     private final Shop shop;
 
     /**
-     * Will call when shop moderator was changed.
-     * Shop moderator included owner itself.
+     * Will call when shop moderator was changed. Shop moderator included owner
+     * itself.
      *
      * @param shop          Target shop
      * @param shopModerator The shop moderator
      */
     public ShopModeratorChangedEvent(@NotNull Shop shop, @NotNull ShopModerator shopModerator) {
+
         this.shop = shop;
         this.moderator = shopModerator;
+
     }
 
     /**
@@ -52,7 +54,9 @@ public class ShopModeratorChangedEvent extends AbstractQSEvent {
      * @return the shop
      */
     public @NotNull ShopModerator getModerator() {
+
         return this.moderator;
+
     }
 
     /**
@@ -61,6 +65,9 @@ public class ShopModeratorChangedEvent extends AbstractQSEvent {
      * @return the shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
+
 }

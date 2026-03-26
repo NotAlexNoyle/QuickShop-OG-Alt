@@ -41,77 +41,99 @@ public class SubCommand_CleanGhost implements CommandHandler<CommandSender> {
 
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         if (cmdArg.length < 1) {
-            MsgUtil.sendDirectMessage(sender,
-                    ChatColor.YELLOW
-                            + "This command will purge all shops that: have corrupted data / are created in disallowed or unloaded worlds / trade with blacklisted items! Please make sure you have a backup of your shops data! Use /qs cleanghost to confirm the purge.");
+
+            MsgUtil.sendDirectMessage(sender, ChatColor.YELLOW
+                    + "This command will purge all shops that: have corrupted data / are created in disallowed or unloaded worlds / trade with blacklisted items! Please make sure you have a backup of your shops data! Use /qs cleanghost to confirm the purge.");
             return;
+
         }
 
         if (!"confirm".equalsIgnoreCase(cmdArg[0])) {
-            MsgUtil.sendDirectMessage(sender,
-                    ChatColor.YELLOW
-                            + "This command will purge all shops that: have corrupted data / are created in disallowed or unloaded worlds / trade with blacklisted items! Please make sure you have a backup of your shops data! Use /qs cleanghost to confirm the purge.");
+
+            MsgUtil.sendDirectMessage(sender, ChatColor.YELLOW
+                    + "This command will purge all shops that: have corrupted data / are created in disallowed or unloaded worlds / trade with blacklisted items! Please make sure you have a backup of your shops data! Use /qs cleanghost to confirm the purge.");
             return;
+
         }
 
-        MsgUtil.sendDirectMessage(sender,
-                ChatColor.GREEN
-                        + "Starting to check for ghost shops (missing container blocks). All non-existing shops will be removed...");
+        MsgUtil.sendDirectMessage(sender, ChatColor.GREEN
+                + "Starting to check for ghost shops (missing container blocks). All non-existing shops will be removed...");
 
         plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
+
             MsgUtil.sendDirectMessage(sender, ChatColor.GREEN + "Starting async thread, please wait...");
             Util.backupDatabase(); // Already warn the user, don't care about backup result.
             for (Shop shop : plugin.getShopManager().getAllShops()) {
+
                 MsgUtil.sendDirectMessage(sender,
-                        ChatColor.GRAY
-                                + "Checking the shop "
-                                + shop
-                                + " metadata and location block state...");
+                        ChatColor.GRAY + "Checking the shop " + shop + " metadata and location block state...");
                 if (shop == null) {
+
                     continue; // WTF
+
                 }
+
                 if (shop.getItem().getType() == Material.AIR) {
+
                     MsgUtil.sendDirectMessage(sender,
                             ChatColor.YELLOW + "Deleting shop " + shop + " because of corrupted item data.");
-                    plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "/qs cleanghost command", shop.saveToInfoStorage()));
+                    plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "/qs cleanghost command",
+                            shop.saveToInfoStorage()));
                     Util.runOnRegion(shop, shop::delete);
                     continue;
+
                 }
+
                 if (!shop.getLocation().isWorldLoaded()) {
+
                     MsgUtil.sendDirectMessage(sender,
                             ChatColor.YELLOW + "Deleting shop " + shop + " because the its world is not loaded.");
                     Util.runOnRegion(shop, shop::delete);
-                    plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "/qs cleanghost command", shop.saveToInfoStorage()));
+                    plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "/qs cleanghost command",
+                            shop.saveToInfoStorage()));
                     continue;
+
                 }
-                //noinspection ConstantConditions
+
+                // noinspection ConstantConditions
                 if (shop.getOwner() == null) {
+
                     MsgUtil.sendDirectMessage(sender,
                             ChatColor.YELLOW + "Deleting shop " + shop + " because of corrupted owner data.");
                     Util.runOnRegion(shop, shop::delete);
-                    plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "/qs cleanghost command", shop.saveToInfoStorage()));
+                    plugin.logEvent(new ShopRemoveLog(Util.getSenderUniqueId(sender), "/qs cleanghost command",
+                            shop.saveToInfoStorage()));
                     continue;
+
                 }
+
                 // Shop exist check
                 Util.runOnRegion(shop, () -> {
+
                     Util.debugLog("Posted to main server thread to continue accessing Bukkit API for shop " + shop);
 
-                    shop.getLocation().getWorld().getChunkAtAsync(shop.getLocation(), (Consumer<? super Chunk>) c-> {
-                        if (!Util.canBeShop(shop.getLocation().getBlock())) {
-                            MsgUtil.sendDirectMessage(sender,
-                                    ChatColor.YELLOW
-                                            + "Deleting shop "
-                                            + shop
-                                            + " because it is no longer on the target location or it is not allowed to create shops in this location.");
-                            shop.delete();
-                        }
-                    });
-                }); // Post to server main thread to check.
-            }
-            MsgUtil.sendDirectMessage(sender, ChatColor.GREEN + "All shops have been checked!");
-        });
-    }
+                    shop.getLocation().getWorld().getChunkAtAsync(shop.getLocation(), (Consumer<? super Chunk>) c -> {
 
+                        if (!Util.canBeShop(shop.getLocation().getBlock())) {
+
+                            MsgUtil.sendDirectMessage(sender, ChatColor.YELLOW + "Deleting shop " + shop
+                                    + " because it is no longer on the target location or it is not allowed to create shops in this location.");
+                            shop.delete();
+
+                        }
+
+                    });
+
+                }); // Post to server main thread to check.
+
+            }
+
+            MsgUtil.sendDirectMessage(sender, ChatColor.GREEN + "All shops have been checked!");
+
+        });
+
+    }
 
 }

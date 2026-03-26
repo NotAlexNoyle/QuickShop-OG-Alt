@@ -54,253 +54,378 @@ public class RealDisplayItem extends AbstractDisplayItem {
      * @param shop The shop (See Shop)
      */
     RealDisplayItem(@NotNull Shop shop) {
+
         super(shop);
+
         // this.displayLoc = shop.getLocation().clone().add(0.5, 1.2, 0.5);
     }
 
     @Override
     public boolean checkDisplayIsMoved() {
+
         Util.ensureThread(this.shop.getLocation(), false);
         if (this.item == null) {
+
             return false;
+
         }
+
         if (shop.isLeftShop()) {
+
             return false;
+
         }
+
         // return !this.item.getLocation().equals(getDisplayLocation());
-        /* We give 0.6 block to allow item drop on the chest, not floating on the air. */
+        /*
+         * We give 0.6 block to allow item drop on the chest, not floating on the air.
+         */
         if (!Objects.requireNonNull(this.item.getLocation().getWorld())
-                .equals(Objects.requireNonNull(getDisplayLocation()).getWorld())) {
+                .equals(Objects.requireNonNull(getDisplayLocation()).getWorld()))
+        {
+
             return true;
+
         }
+
         return this.item.getLocation().distance(getDisplayLocation()) > 0.6;
+
     }
 
     @Override
     public boolean checkDisplayNeedRegen() {
+
         Util.ensureThread(this.shop.getLocation(), false);
         if (this.item == null) {
+
             return false;
+
         }
+
         return !this.item.isValid();
+
     }
 
     @Override
     public boolean checkIsShopEntity(@NotNull Entity entity) {
+
         Util.ensureThread(this.shop.getLocation(), false);
         if (!(entity instanceof Item)) {
+
             return false;
+
         }
+
         return AbstractDisplayItem.checkIsGuardItemStack(((Item) entity).getItemStack());
+
     }
 
     @Override
     public void fixDisplayMoved() {
+
         Util.ensureThread(this.shop.getLocation(), false);
         Location location = this.getDisplayLocation();
         if (this.item != null && location != null) {
+
             this.item.teleport(location);
             return;
+
         }
+
         fixDisplayMovedOld();
+
     }
 
     public void fixDisplayMovedOld() {
+
         Util.ensureThread(this.shop.getLocation(), false);
-        if (true) return; // nuh uh
-        for (Entity entity : Objects.requireNonNull(this.shop.getLocation().getWorld())
-                .getEntities()) {
+        if (true)
+            return; // nuh uh
+        for (Entity entity : Objects.requireNonNull(this.shop.getLocation().getWorld()).getEntities()) {
+
             if (!(entity instanceof Item)) {
+
                 continue;
+
             }
+
             Item eItem = (Item) entity;
             if (eItem.getUniqueId().equals(Objects.requireNonNull(this.item).getUniqueId())) {
+
                 if (shop.isLeftShop()) {
+
                     return;
+
                 }
+
                 Util.debugLog("Fixing moved Item displayItem " + eItem.getUniqueId() + " at " + eItem.getLocation());
-                PaperLib.teleportAsync(entity, Objects.requireNonNull(getDisplayLocation()), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                PaperLib.teleportAsync(entity, Objects.requireNonNull(getDisplayLocation()),
+                        PlayerTeleportEvent.TeleportCause.UNKNOWN);
                 return;
+
             }
+
         }
+
     }
 
     @Override
     public void fixDisplayNeedRegen() {
+
         Util.ensureThread(this.shop.getLocation(), false);
         respawn();
+
     }
 
     @Override
     public void remove() {
+
         Util.ensureThread(this.shop.getLocation(), false);
         if (this.item == null) {
+
             Util.debugLog("Ignore the Item removing because the Item is already gone or it's a left shop.");
             return;
+
         }
+
         this.item.remove();
         this.item = null;
         this.guardedIstack = null;
-        ShopDisplayItemDespawnEvent shopDisplayItemDespawnEvent = new ShopDisplayItemDespawnEvent(
-                shop, originalItemStack, DisplayType.REALITEM);
+        ShopDisplayItemDespawnEvent shopDisplayItemDespawnEvent = new ShopDisplayItemDespawnEvent(shop,
+                originalItemStack, DisplayType.REALITEM);
         PLUGIN.getServer().getPluginManager().callEvent(shopDisplayItemDespawnEvent);
+
     }
 
     @Override
     public boolean removeDupe() {
+
         Util.ensureThread(this.shop.getLocation(), false);
         if (shop.isLeftShop()) {
+
             return false;
+
         }
+
         if (this.item == null) {
+
             Util.debugLog("Warning: Trying to removeDupe for a null display shop.");
             return false;
+
         }
 
         boolean removed = false;
 
         List<Entity> elist = new ArrayList<>(item.getNearbyEntities(1.5, 1.5, 1.5));
         if (shop.isRealDouble()) {
-            elist.addAll(item.getWorld()
-                    .getNearbyEntities(Objects.requireNonNull(getDoubleShopDisplayLocations(true)), 1.5,
-                            1.5, 1.5));
-            elist.addAll(item.getWorld()
-                    .getNearbyEntities(Objects.requireNonNull(getDoubleShopDisplayLocations(false)),
-                            1.5, 1.5, 1.5));
+
+            elist.addAll(item.getWorld().getNearbyEntities(Objects.requireNonNull(getDoubleShopDisplayLocations(true)),
+                    1.5, 1.5, 1.5));
+            elist.addAll(item.getWorld().getNearbyEntities(Objects.requireNonNull(getDoubleShopDisplayLocations(false)),
+                    1.5, 1.5, 1.5));
+
         }
 
         for (Entity entity : elist) {
+
             if (entity.getType() != EntityType.DROPPED_ITEM) {
+
                 continue;
+
             }
+
             Item eItem = (Item) entity;
             UUID displayUUID = this.item.getUniqueId();
             if (!eItem.getUniqueId().equals(displayUUID)) {
+
                 if (AbstractDisplayItem.checkIsTargetShopDisplay(eItem.getItemStack(), this.shop)) {
+
                     Util.debugLog("Removing a duped ItemEntity " + eItem.getUniqueId() + " at " + eItem.getLocation());
                     entity.remove();
                     removed = true;
+
                 }
+
             }
+
         }
+
         return removed;
+
     }
 
     @Override
     public void respawn() {
+
         Util.ensureThread(this.shop.getLocation(), false);
         remove();
         spawn();
+
     }
 
     @Override
     public void safeGuard(@NotNull Entity entity) {
+
         Util.ensureThread(entity, false);
         if (!(entity instanceof Item)) {
-            Util.debugLog(
-                    "Failed to safeGuard " + entity.getLocation() + ", cause target not a Item");
+
+            Util.debugLog("Failed to safeGuard " + entity.getLocation() + ", cause target not a Item");
             return;
+
         }
+
         Item item = (Item) entity;
         // Set item protect in the armorstand's hand
 
         if (PLUGIN.getConfig().getBoolean("shop.display-item-use-name")) {
+
             item.setCustomName(Util.getItemStackName(this.originalItemStack));
             item.setCustomNameVisible(true);
+
         } else {
+
             item.setCustomNameVisible(false);
+
         }
+
         item.setPickupDelay(Integer.MAX_VALUE);
         item.setSilent(true);
         item.setInvulnerable(true);
         item.setPortalCooldown(Integer.MAX_VALUE);
         item.setVelocity(new Vector(0, 0.1, 0));
+
     }
 
     @Override
     public void spawn() {
+
         Util.ensureThread(this.shop.getLocation(), false);
         if (shop.isLeftShop()) {
+
             return;
+
         }
+
         if (shop.isDeleted() || !shop.isLoaded()) {
+
             return;
+
         }
+
         if (shop.getLocation().getWorld() == null) {
+
             Util.debugLog("Canceled the displayItem spawning because the location in the world is null.");
             return;
+
         }
 
         if (originalItemStack == null) {
+
             Util.debugLog("Canceled the displayItem spawning because the ItemStack is null.");
             return;
-        }
-        if (item != null && item.isValid()) {
-            Util.debugLog("Warning: Spawning the Dropped Item for DisplayItem when there is already an existing Dropped Item, May cause a duplicated Dropped Item!");
-            MsgUtil.debugStackTrace(Thread.currentThread().getStackTrace());
-        }
-        if (!Util.isDisplayAllowBlock(
-                Objects.requireNonNull(getDisplayLocation()).getBlock().getType())) {
-            Util.debugLog("Can't spawn the displayItem because there is not an AIR block above the shopblock.");
-            return;
+
         }
 
-        ShopDisplayItemSpawnEvent shopDisplayItemSpawnEvent = new ShopDisplayItemSpawnEvent(shop,
-                originalItemStack, DisplayType.REALITEM);
+        if (item != null && item.isValid()) {
+
+            Util.debugLog(
+                    "Warning: Spawning the Dropped Item for DisplayItem when there is already an existing Dropped Item, May cause a duplicated Dropped Item!");
+            MsgUtil.debugStackTrace(Thread.currentThread().getStackTrace());
+
+        }
+
+        if (!Util.isDisplayAllowBlock(Objects.requireNonNull(getDisplayLocation()).getBlock().getType())) {
+
+            Util.debugLog("Can't spawn the displayItem because there is not an AIR block above the shopblock.");
+            return;
+
+        }
+
+        ShopDisplayItemSpawnEvent shopDisplayItemSpawnEvent = new ShopDisplayItemSpawnEvent(shop, originalItemStack,
+                DisplayType.REALITEM);
         PLUGIN.getServer().getPluginManager().callEvent(shopDisplayItemSpawnEvent);
 
         if (shopDisplayItemSpawnEvent.isCancelled()) {
-            Util.debugLog("Canceled the displayItem spawning because a plugin setCancelled the spawning event, usually this is a QuickShop Add on");
+
+            Util.debugLog(
+                    "Canceled the displayItem spawning because a plugin setCancelled the spawning event, usually this is a QuickShop Add on");
             return;
+
         }
+
         this.guardedIstack = AbstractDisplayItem.createGuardItemStack(this.originalItemStack, this.shop);
         this.item = this.shop.getLocation().getWorld().dropItem(getDisplayLocation(), this.guardedIstack);
         this.item.setItemStack(this.guardedIstack);
         safeGuard(this.item);
+
     }
 
     @Override
     public @Nullable Entity getDisplay() {
+
         return this.item;
+
     }
 
     /**
-     * Gets either the item spawn location of this item's chest, or the attached chest.
-     * Used for checking for duplicates.
+     * Gets either the item spawn location of this item's chest, or the attached
+     * chest. Used for checking for duplicates.
      *
-     * @param thisItem Whether to check this item's spawn location or the attached chest's.
+     * @param thisItem Whether to check this item's spawn location or the attached
+     *                 chest's.
      * @return The display location of the item.
      */
     public @Nullable Location getDoubleShopDisplayLocations(boolean thisItem) {
+
         Util.ensureThread(this.shop.getLocation(), false);
         if (!shop.isRealDouble()) {
+
             return null;
+
         }
+
         if (thisItem) {
+
             return shop.getLocation().clone().add(0.5, 1.2, 0.5);
+
         } else {
+
             return shop.getAttachedShop().getLocation().clone().add(0.5, 1.2, 0.5);
+
         }
+
     }
 
     @Override
     public boolean isSpawned() {
+
         if (this.item == null) {
+
             return false;
+
         }
+
         // If it's a left shop, check the attached shop's item instead.
         if (shop.isLeftShop()) {
+
             Shop attachedShop = shop.getAttachedShop();
             if (attachedShop instanceof ContainerShop) {
+
                 ContainerShop shop = (ContainerShop) attachedShop;
                 if (shop.getDisplayItem() == null) {
+
                     return false;
+
                 }
+
                 return shop.getDisplayItem().isSpawned();
+
             }
 
         }
+
         return this.item.isValid();
+
     }
 
 }

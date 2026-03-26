@@ -40,55 +40,89 @@ import java.util.List;
 
 @AllArgsConstructor
 public class SubCommand_Size implements CommandHandler<Player> {
+
     private final QuickShop plugin;
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         if (cmdArg.length < 1) {
+
             plugin.text().of(sender, "command.bulk-size-not-set").send();
             return;
+
         }
+
         int amount;
         try {
+
             amount = Integer.parseInt(cmdArg[0]);
+
         } catch (NumberFormatException e) {
+
             plugin.text().of(sender, "not-a-integer", cmdArg[0]).send();
             return;
+
         }
+
         final BlockIterator bIt = new BlockIterator(sender, 10);
         // Loop through every block they're looking at upto 10 blocks away
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
             if (shop != null) {
-                if (shop.getModerator().isModerator(sender.getUniqueId()) || sender.hasPermission("quickshop.other.amount")) {
+
+                if (shop.getModerator().isModerator(sender.getUniqueId())
+                        || sender.hasPermission("quickshop.other.amount"))
+                {
+
                     if (amount <= 0 || amount > Util.getItemMaxStackSize(shop.getItem().getType())) {
+
                         plugin.text().of(sender, "command.invalid-bulk-amount", Integer.toString(amount)).send();
                         return;
+
                     }
+
                     ItemStack pendingItemStack = shop.getItem().clone();
                     pendingItemStack.setAmount(amount);
                     SimplePriceLimiter limiter = new SimplePriceLimiter(plugin);
                     PriceLimiterCheckResult checkResult = limiter.check(pendingItemStack, shop.getPrice());
                     if (checkResult.getStatus() != PriceLimiterStatus.PASS) {
+
                         checkResult.sendErrorMsg(plugin, sender, cmdArg[0], MsgUtil.getTranslateText(shop.getItem()));
                         return;
-                    }
-                    shop.setItem(pendingItemStack);
-                    plugin.text().of(sender, "command.bulk-size-now", Integer.toString(shop.getItem().getAmount()), MsgUtil.getTranslateText(shop.getItem())).send();
-                    return;
-                } else {
-                    plugin.text().of(sender, "not-managed-shop").send();
-                }
-            }
-        }
-        plugin.text().of(sender, "not-looking-at-shop").send();
 
+                    }
+
+                    shop.setItem(pendingItemStack);
+                    plugin.text().of(sender, "command.bulk-size-now", Integer.toString(shop.getItem().getAmount()),
+                            MsgUtil.getTranslateText(shop.getItem())).send();
+                    return;
+
+                } else {
+
+                    plugin.text().of(sender, "not-managed-shop").send();
+
+                }
+
+            }
+
+        }
+
+        plugin.text().of(sender, "not-looking-at-shop").send();
 
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
-        return cmdArg.length == 1 ? Collections.singletonList(QuickShop.getInstance().text().of(sender, "tabcomplete.amount").forLocale()) : Collections.emptyList();
+    public @Nullable List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel,
+            @NotNull String[] cmdArg)
+    {
+
+        return cmdArg.length == 1
+                ? Collections.singletonList(QuickShop.getInstance().text().of(sender, "tabcomplete.amount").forLocale())
+                : Collections.emptyList();
+
     }
+
 }

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 public class ShopOwnerNameGettingEvent extends AbstractQSEvent {
+
     private final Shop shop;
     private final UUID owner;
     private String name;
@@ -17,7 +18,9 @@ public class ShopOwnerNameGettingEvent extends AbstractQSEvent {
      * @return The shop
      */
     public Shop getShop() {
+
         return shop;
+
     }
 
     /**
@@ -26,7 +29,9 @@ public class ShopOwnerNameGettingEvent extends AbstractQSEvent {
      * @return The shop owner unique id
      */
     public UUID getOwner() {
+
         return owner;
+
     }
 
     /**
@@ -35,15 +40,21 @@ public class ShopOwnerNameGettingEvent extends AbstractQSEvent {
      * @return The shop owner display name
      */
     public String getName() {
+
         return name;
+
     }
 
     /**
      * Sets the shop owner display name
      *
-     * @param name New shop owner display name, just display, won't change actual shop owner
+     * @param name New shop owner display name, just display, won't change actual
+     *             shop owner
      */
     public void setName(String name) {
+
         this.name = name;
+
     }
+
 }

@@ -51,24 +51,26 @@ public class ShopSuccessPurchaseEvent extends AbstractQSEvent implements Cancell
 
     private final double tax;
 
-    private final double
-            total; // Don't use getter, we have important notice need told dev in javadoc.
+    private final double total; // Don't use getter, we have important notice need told dev in javadoc.
 
     private boolean cancelled;
 
     /**
-     * Builds a new shop purchase event
-     * Will called when purchase ended
+     * Builds a new shop purchase event Will called when purchase ended
      *
      * @param shop               The shop bought from
-     * @param purchaser          The player buying, may offline if purchase by plugin
-     * @param purchaserInventory The purchaseing target inventory, *MAY NOT A PLAYER INVENTORY IF PLUGIN PURCHASE THIS*
+     * @param purchaser          The player buying, may offline if purchase by
+     *                           plugin
+     * @param purchaserInventory The purchaseing target inventory, *MAY NOT A PLAYER
+     *                           INVENTORY IF PLUGIN PURCHASE THIS*
      * @param amount             The amount they're buying
      * @param tax                The tax in this purchase
      * @param total              The money in this purchase
      */
-    public ShopSuccessPurchaseEvent(
-            @NotNull Shop shop, @NotNull UUID purchaser, @NotNull Inventory purchaserInventory, int amount, double total, double tax) {
+    public ShopSuccessPurchaseEvent(@NotNull Shop shop, @NotNull UUID purchaser, @NotNull Inventory purchaserInventory,
+            int amount, double total, double tax)
+    {
+
         this.shop = shop;
         this.purchaser = purchaser;
         this.purchaserInventory = purchaserInventory;
@@ -76,36 +78,45 @@ public class ShopSuccessPurchaseEvent extends AbstractQSEvent implements Cancell
         this.tax = tax;
         this.total = total;
         this.player = Bukkit.getPlayer(purchaser);
+
     }
 
     /**
-     * The total money changes in this purchase. Calculate tax, if you want get total without tax,
-     * please use getBalanceWithoutTax()
+     * The total money changes in this purchase. Calculate tax, if you want get
+     * total without tax, please use getBalanceWithoutTax()
      *
      * @return the total money with calculate tax
      */
     public double getBalance() {
+
         return this.total * (1 - tax);
+
     }
 
     /**
-     * The total money changes in this purchase. No calculate tax, if you want get total with tax,
-     * please use getBalance()
+     * The total money changes in this purchase. No calculate tax, if you want get
+     * total with tax, please use getBalance()
      *
      * @return the total money without calculate tax
      */
     public double getBalanceWithoutTax() {
+
         return this.total;
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return this.cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean cancelled) {
+
         this.cancelled = cancelled;
+
     }
 
     /**
@@ -114,7 +125,9 @@ public class ShopSuccessPurchaseEvent extends AbstractQSEvent implements Cancell
      * @return the shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
 
     /**
@@ -123,7 +136,9 @@ public class ShopSuccessPurchaseEvent extends AbstractQSEvent implements Cancell
      * @return Item stack amounts
      */
     public int getAmount() {
+
         return this.amount;
+
     }
 
     /**
@@ -132,7 +147,9 @@ public class ShopSuccessPurchaseEvent extends AbstractQSEvent implements Cancell
      * @return The purchaser uuid
      */
     public @NotNull UUID getPurchaser() {
+
         return this.purchaser;
+
     }
 
     /**
@@ -143,7 +160,9 @@ public class ShopSuccessPurchaseEvent extends AbstractQSEvent implements Cancell
      */
     @Deprecated
     public @Nullable Player getPlayer() {
+
         return this.player;
+
     }
 
     /**
@@ -152,7 +171,9 @@ public class ShopSuccessPurchaseEvent extends AbstractQSEvent implements Cancell
      * @return The inventory
      */
     public @NotNull Inventory getPurchaserInventory() {
+
         return this.purchaserInventory;
+
     }
 
     /**
@@ -161,6 +182,9 @@ public class ShopSuccessPurchaseEvent extends AbstractQSEvent implements Cancell
      * @return The tax
      */
     public double getTax() {
+
         return this.tax;
+
     }
+
 }

@@ -26,16 +26,20 @@ import org.maxgamer.quickshop.TestBukkitBase;
 import java.util.Optional;
 
 public class MojangAPITest_MCBBSAPI extends TestBukkitBase {
+
     @Test
     public void testMojangMetaApi() {
+
         MojangAPI api = new MojangAPI(new MojangApiMcbbsApiMirror());
         Optional<String> metaData = api.getMetaAPI("1.16.5").get();
         Assertions.assertTrue(metaData.isPresent());
         Assertions.assertFalse(metaData.get().isEmpty());
+
     }
 
     @Test
     public void testMojangAssetsApi() {
+
         MojangAPI api = new MojangAPI(new MojangApiMcbbsApiMirror());
         MojangAPI.AssetsAPI assetsAPI = api.getAssetsAPI("1.16.5");
         Assertions.assertTrue(assetsAPI.isAvailable());
@@ -44,5 +48,7 @@ public class MojangAPITest_MCBBSAPI extends TestBukkitBase {
         Assertions.assertFalse(assetsFileData.get().getContent().isEmpty());
         Assertions.assertFalse(assetsFileData.get().getId().isEmpty());
         Assertions.assertFalse(assetsFileData.get().getSha1().isEmpty());
+
     }
+
 }

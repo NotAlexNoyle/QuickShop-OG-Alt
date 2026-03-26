@@ -47,125 +47,171 @@ public class SubCommand_Price implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         if (cmdArg.length < 1) {
+
             plugin.text().of(sender, "no-price-given").send();
             return;
+
         }
 
         final double price;
 
         try {
+
             price = Double.parseDouble(cmdArg[0]);
+
         } catch (NumberFormatException ex) {
+
             // No number input
             Util.debugLog(ex.getMessage());
             plugin.text().of(sender, "not-a-number", cmdArg[0]).send();
             return;
+
         }
 
         double fee = 0;
 
         if (plugin.isPriceChangeRequiresFee()) {
+
             fee = plugin.getConfig().getDouble("shop.fee-for-price-change");
+
         }
 
         final BlockIterator bIt = new BlockIterator(sender, 10);
         // Loop through every block they're looking at upto 10 blocks away
         if (!bIt.hasNext()) {
+
             plugin.text().of(sender, "not-looking-at-shop").send();
             return;
+
         }
 
         SimplePriceLimiter limiter = new SimplePriceLimiter(plugin);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
 
-            if (shop == null
-                    || (!shop.getModerator().isModerator(sender.getUniqueId())
-                    && !QuickShop.getPermissionManager()
-                    .hasPermission(sender, "quickshop.other.price"))) {
+            if (shop == null || (!shop.getModerator().isModerator(sender.getUniqueId())
+                    && !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.price")))
+            {
+
                 continue;
+
             }
 
             if (shop.getPrice() == price) {
+
                 // Stop here if there isn't a price change
                 plugin.text().of(sender, "no-price-change").send();
                 return;
+
             }
 
             PriceLimiterCheckResult checkResult = limiter.check(shop.getItem(), price);
             if (checkResult.getStatus() != PriceLimiterStatus.PASS) {
+
                 checkResult.sendErrorMsg(plugin, sender, cmdArg[0], MsgUtil.getTranslateText(shop.getItem()));
                 return;
+
             }
 
             if (fee > 0) {
+
                 EconomyTransaction transaction = EconomyTransaction.builder()
                         .allowLoan(plugin.getConfig().getBoolean("shop.allow-economy-loan", false))
-                        .core(plugin.getEconomy())
-                        .from(sender.getUniqueId())
-                        .amount(fee)
-                        .world(Objects.requireNonNull(shop.getLocation().getWorld()))
-                        .currency(shop.getCurrency())
+                        .core(plugin.getEconomy()).from(sender.getUniqueId()).amount(fee)
+                        .world(Objects.requireNonNull(shop.getLocation().getWorld())).currency(shop.getCurrency())
                         .build();
                 if (!transaction.failSafeCommit()) {
+
                     EconomyTransaction.TransactionSteps steps = transaction.getSteps();
                     if (steps == EconomyTransaction.TransactionSteps.CHECK) {
-                        plugin.text().of(sender,
-                                "you-cant-afford-to-change-price", plugin.getEconomy().format(fee, shop.getLocation().getWorld(), shop.getCurrency())).send();
+
+                        plugin.text().of(sender, "you-cant-afford-to-change-price",
+                                plugin.getEconomy().format(fee, shop.getLocation().getWorld(), shop.getCurrency()))
+                                .send();
+
                     } else {
-                        plugin.text().of(sender,
-                                "fee-charged-for-price-change", plugin.getEconomy().format(fee, shop.getLocation().getWorld(), shop.getCurrency())).send();
-                        plugin.getLogger().log(Level.WARNING, "QuickShop can't pay taxes to the configured tax account! Please set the tax account name in the config.yml to an existing player: " + transaction.getLastError());
+
+                        plugin.text().of(sender, "fee-charged-for-price-change",
+                                plugin.getEconomy().format(fee, shop.getLocation().getWorld(), shop.getCurrency()))
+                                .send();
+                        plugin.getLogger().log(Level.WARNING,
+                                "QuickShop can't pay taxes to the configured tax account! Please set the tax account name in the config.yml to an existing player: "
+                                        + transaction.getLastError());
+
                     }
+
                     return;
+
                 }
+
             }
+
             // Update the shop
             shop.setPrice(price);
             shop.update();
-            plugin.text().of(sender,
-                    "price-is-now", plugin.getEconomy().format(shop.getPrice(), Objects.requireNonNull(shop.getLocation().getWorld()), shop.getCurrency())).send();
+            plugin.text().of(sender, "price-is-now", plugin.getEconomy().format(shop.getPrice(),
+                    Objects.requireNonNull(shop.getLocation().getWorld()), shop.getCurrency())).send();
             // Chest shops can be double shops.
             if (!(shop instanceof ContainerShop)) {
+
                 return;
+
             }
 
             final ContainerShop cs = (ContainerShop) shop;
 
             if (!cs.isDoubleShop()) {
+
                 return;
+
             }
 
             final Shop nextTo = cs.getAttachedShop();
 
             if (nextTo == null) {
+
                 // TODO: 24/11/2019 Send message about that issue.
                 return;
+
             }
 
             if (cs.isSelling()) {
+
                 if (cs.getPrice() < nextTo.getPrice()) {
+
                     plugin.text().of(sender, "buying-more-than-selling").send();
+
                 }
+
             }
             // Buying
             else if (cs.getPrice() > nextTo.getPrice()) {
+
                 plugin.text().of(sender, "buying-more-than-selling").send();
+
             }
 
             return;
+
         }
+
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
     @NotNull
     @Override
-    public List<String> onTabComplete(
-            @NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
-        return cmdArg.length == 1 ? Collections.singletonList(QuickShop.getInstance().text().of(sender, "tabcomplete.price").forLocale()) : Collections.emptyList();
+    public List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
+        return cmdArg.length == 1
+                ? Collections.singletonList(QuickShop.getInstance().text().of(sender, "tabcomplete.price").forLocale())
+                : Collections.emptyList();
+
     }
 
 }

@@ -38,110 +38,189 @@ public class SubCommand_Transfer implements CommandHandler<Player> {
     private final QuickShop plugin;
 
     public SubCommand_Transfer(QuickShop plugin) {
-        this.plugin = plugin;
-    }
 
+        this.plugin = plugin;
+
+    }
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         if (cmdArg.length == 1) {
-            final PlayerFinder.PlayerProfile targetPlayer = PlayerFinder.findPlayerProfileByName(cmdArg[0], false, plugin.isIncludeOfflinePlayer());
+
+            final PlayerFinder.PlayerProfile targetPlayer = PlayerFinder.findPlayerProfileByName(cmdArg[0], false,
+                    plugin.isIncludeOfflinePlayer());
             if (targetPlayer == null) {
+
                 plugin.text().of(sender, "unknown-player").send();
                 return;
+
             }
+
             String targetPlayerName = targetPlayer.getName();
             if (targetPlayerName == null) {
+
                 targetPlayerName = "null";
+
             }
+
             final UUID targetPlayerUUID = targetPlayer.getUuid();
             List<Shop> shopList = plugin.getShopManager().getPlayerAllShops(sender.getUniqueId());
             if (plugin.isLimit()) {
+
                 final Player player = plugin.getServer().getPlayer(targetPlayerUUID);
                 if (player == null) {
+
                     plugin.text().of(sender, "unknown-player").send();
                     return;
+
                 }
+
                 if (!checkAndSendLimitMessage(player, sender, shopList.size())) {
+
                     return;
+
                 }
-            }
-            for (Shop shop : shopList) {
-                if (!shop.isBuying()) {
-                    shop.setOwner(targetPlayerUUID);
-                }
-            }
-            plugin.text().of(sender, "command.transfer-success", Integer.toString(shopList.size()), targetPlayerName).send();
-        } else if (cmdArg.length == 2) {
-            if (!QuickShop.getPermissionManager().hasPermission(sender, "quickshop.transfer.other")) {
-                plugin.text().of(sender, "no-permission").send();
-                return;
+
             }
 
-            final PlayerFinder.PlayerProfile fromPlayer = PlayerFinder.findPlayerProfileByName(cmdArg[0], false, plugin.isIncludeOfflinePlayer());
+            for (Shop shop : shopList) {
+
+                if (!shop.isBuying()) {
+
+                    shop.setOwner(targetPlayerUUID);
+
+                }
+
+            }
+
+            plugin.text().of(sender, "command.transfer-success", Integer.toString(shopList.size()), targetPlayerName)
+                    .send();
+
+        } else if (cmdArg.length == 2) {
+
+            if (!QuickShop.getPermissionManager().hasPermission(sender, "quickshop.transfer.other")) {
+
+                plugin.text().of(sender, "no-permission").send();
+                return;
+
+            }
+
+            final PlayerFinder.PlayerProfile fromPlayer = PlayerFinder.findPlayerProfileByName(cmdArg[0], false,
+                    plugin.isIncludeOfflinePlayer());
             if (fromPlayer == null) {
+
                 plugin.text().of(sender, "unknown-player").send();
                 return;
+
             }
+
             String fromPlayerName = fromPlayer.getName();
             if (fromPlayerName == null) {
+
                 fromPlayerName = "null";
+
             }
-            //FIXME: Update this when drop 1.15 supports
-            final PlayerFinder.PlayerProfile targetPlayer = PlayerFinder.findPlayerProfileByName(cmdArg[1], false, plugin.isIncludeOfflinePlayer());
+
+            // FIXME: Update this when drop 1.15 supports
+            final PlayerFinder.PlayerProfile targetPlayer = PlayerFinder.findPlayerProfileByName(cmdArg[1], false,
+                    plugin.isIncludeOfflinePlayer());
             if (targetPlayer == null) {
+
                 plugin.text().of(sender, "unknown-player").send();
                 return;
+
             }
+
             String targetPlayerName = targetPlayer.getName();
             if (targetPlayerName == null) {
+
                 targetPlayerName = "null";
+
             }
+
             final UUID targetPlayerUUID = targetPlayer.getUuid();
             List<Shop> shopList = plugin.getShopManager().getPlayerAllShops(fromPlayer.getUuid());
             if (plugin.isLimit()) {
+
                 final Player player = plugin.getServer().getPlayer(targetPlayerUUID);
                 if (player == null) {
+
                     plugin.text().of(sender, "unknown-player").send();
                     return;
+
                 }
+
                 if (!checkAndSendLimitMessage(player, sender, shopList.size())) {
+
                     return;
+
                 }
+
             }
+
             for (Shop shop : shopList) {
+
                 shop.setOwner(targetPlayerUUID);
+
             }
-            plugin.text().of(sender, "command.transfer-success-other", Integer.toString(shopList.size()), fromPlayerName, targetPlayerName).send();
+
+            plugin.text().of(sender, "command.transfer-success-other", Integer.toString(shopList.size()),
+                    fromPlayerName, targetPlayerName).send();
 
         } else {
+
             plugin.text().of(sender, "command.wrong-args").send();
+
         }
+
     }
 
     private boolean checkAndSendLimitMessage(Player checkingPlayer, CommandSender commandSender, int increment) {
+
         if (plugin.isLimit()) {
+
             int owned = 0;
             if (plugin.getConfig().getBoolean("limits.old-algorithm")) {
+
                 owned = plugin.getShopManager().getPlayerAllShops(checkingPlayer.getUniqueId()).size();
+
             } else {
+
                 for (final Shop shop : plugin.getShopManager().getPlayerAllShops(checkingPlayer.getUniqueId())) {
+
                     if (!shop.isUnlimited()) {
+
                         owned++;
+
                     }
+
                 }
+
             }
+
             int max = plugin.getShopLimit(checkingPlayer);
             if (owned + increment <= max) {
-                plugin.text().of(commandSender, "reached-maximum-other-can-hold", String.valueOf(owned + increment), String.valueOf(max)).send();
+
+                plugin.text().of(commandSender, "reached-maximum-other-can-hold", String.valueOf(owned + increment),
+                        String.valueOf(max)).send();
                 return false;
+
             }
+
         }
+
         return true;
+
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public @Nullable List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel,
+            @NotNull String[] cmdArg)
+    {
+
         return cmdArg.length <= 2 ? Util.getPlayerList() : Collections.emptyList();
+
     }
+
 }

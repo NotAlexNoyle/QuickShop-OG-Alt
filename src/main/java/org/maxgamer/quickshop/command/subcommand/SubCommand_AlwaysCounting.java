@@ -35,23 +35,35 @@ public class SubCommand_AlwaysCounting implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         BlockIterator bIt = new BlockIterator(sender, 10);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
             if (shop != null) {
+
                 shop.setAlwaysCountingContainer(!shop.isAlwaysCountingContainer());
                 shop.update();
                 if (shop.isAlwaysCountingContainer()) {
+
                     plugin.text().of(sender, "command.toggle-always-counting.counting").send();
+
                 } else {
+
                     plugin.text().of(sender, "command.toggle-always-counting.not-counting").send();
+
                 }
+
                 return;
+
             }
+
         }
+
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
 }

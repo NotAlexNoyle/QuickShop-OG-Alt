@@ -27,9 +27,11 @@ import lombok.EqualsAndHashCode;
 @AllArgsConstructor
 @Data
 public class CalendarEvent extends AbstractQSEvent {
+
     private CalendarTriggerType calendarTriggerType;
 
     public enum CalendarTriggerType {
         NOTHING_CHANGED, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR
     }
+
 }

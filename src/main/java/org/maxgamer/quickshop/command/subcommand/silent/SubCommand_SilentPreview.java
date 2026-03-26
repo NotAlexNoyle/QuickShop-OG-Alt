@@ -25,21 +25,27 @@ import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.shop.Shop;
 import org.maxgamer.quickshop.shop.ContainerShop;
 
-
 public class SubCommand_SilentPreview extends SubCommand_SilentBase {
 
     public SubCommand_SilentPreview(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @Override
     protected void doSilentCommand(Player sender, @NotNull Shop shop, @NotNull String[] cmdArg) {
+
         if (!(shop instanceof ContainerShop)) {
+
             // This should never happen
             plugin.text().of(sender, "not-looking-at-shop").send();
             return;
+
         }
+
         shop.openPreview(sender);
+
     }
 
 }

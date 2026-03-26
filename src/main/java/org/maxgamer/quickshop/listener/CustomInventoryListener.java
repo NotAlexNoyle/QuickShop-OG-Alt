@@ -31,28 +31,42 @@ import org.maxgamer.quickshop.util.reload.ReloadStatus;
 public class CustomInventoryListener extends AbstractQSListener {
 
     public CustomInventoryListener(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @EventHandler(ignoreCancelled = true)
     public void invEvent(InventoryInteractEvent e) {
+
         if (e.getInventory().getHolder() instanceof QuickShopPreviewGUIHolder) {
+
             e.setCancelled(true);
+
         }
+
     }
 
     @EventHandler(ignoreCancelled = true)
     public void invEvent(InventoryClickEvent e) {
+
         if (e.getInventory().getHolder() instanceof QuickShopPreviewGUIHolder) {
+
             e.setCancelled(true);
+
         }
+
     }
 
     @EventHandler(ignoreCancelled = true)
     public void invEvent(InventoryDragEvent e) {
+
         if (e.getInventory().getHolder() instanceof QuickShopPreviewGUIHolder) {
+
             e.setCancelled(true);
+
         }
+
     }
 
     /**
@@ -62,6 +76,9 @@ public class CustomInventoryListener extends AbstractQSListener {
      */
     @Override
     public ReloadResult reloadModule() {
+
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
+
 }

@@ -29,6 +29,7 @@ import java.util.UUID;
 @Builder
 @Data
 public class EconomyTransactionLog implements ReadableLog {
+
     private static int v = 1;
     private boolean success;
     private UUID from;
@@ -41,6 +42,11 @@ public class EconomyTransactionLog implements ReadableLog {
 
     @Override
     public String toReadableLog() {
-        return "Economy transaction (Last error: " + lastError + ") " + (success ? "Success" : "Failed") + "," + from + " => " + to + " for " + amount + "(currency " + currency + ", tax " + tax + "), tax account is" + taxAccount;
+
+        return "Economy transaction (Last error: " + lastError + ") " + (success ? "Success" : "Failed") + "," + from
+                + " => " + to + " for " + amount + "(currency " + currency + ", tax " + tax + "), tax account is"
+                + taxAccount;
+
     }
+
 }

@@ -63,137 +63,207 @@ public class LandsIntegration extends AbstractQSIntegratedPlugin implements List
     private boolean deleteWhenLandExpired;
 
     public LandsIntegration(QuickShop plugin) {
+
         super(plugin);
         plugin.getReloadManager().register(this);
         init();
+
     }
 
     private void init() {
+
         landsIntegration = new me.angeschossen.lands.api.integration.LandsIntegration(plugin);
         ignoreDisabledWorlds = plugin.getConfig().getBoolean("integration.lands.ignore-disabled-worlds");
         whitelist = plugin.getConfig().getBoolean("integration.lands.whitelist-mode");
         deleteWhenLosePermission = plugin.getConfig().getBoolean("integration.lands.delete-on-lose-permission");
         deleteWhenLandDeleted = plugin.getConfig().getBoolean("integration.lands.delete-on-land-deleted");
         deleteWhenLandExpired = plugin.getConfig().getBoolean("integration.lands.delete-on-land-expired");
+
     }
 
     @Override
     public @NotNull String getName() {
+
         return "Lands";
+
     }
 
     @Override
     public boolean canCreateShopHere(@NotNull Player player, @NotNull Location location) {
+
         if (landsIntegration.getLandWorld(location.getWorld()) == null) {
+
             return ignoreDisabledWorlds;
+
         }
+
         org.bukkit.Chunk chunk = location.getChunk();
         Land land = landsIntegration.getLand(chunk.getWorld(), chunk.getX(), chunk.getZ());
         if (land != null) {
+
             return land.getOwnerUID().equals(player.getUniqueId()) || land.isTrusted(player.getUniqueId());
+
         } else {
+
             return !whitelist;
+
         }
+
     }
 
     @Override
     public boolean canTradeShopHere(@NotNull Player player, @NotNull Location location) {
+
         if (landsIntegration.getLandWorld(location.getWorld()) == null) {
+
             return ignoreDisabledWorlds;
+
         }
+
         return true;
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onLandsDelete(LandDeleteEvent event) {
-        @NotNull DeleteReason reason = event.getReason();
+
+        @NotNull
+        DeleteReason reason = event.getReason();
         if (reason != me.angeschossen.lands.api.events.land.DeleteReason.CAMP_EXPIRED) {
+
             if (!deleteWhenLandDeleted) {
+
                 return;
+
             }
+
         } else if (!deleteWhenLandExpired) {
+
             return;
+
         }
+
         Land land = event.getLand();
         Set<UUID> uuids = new HashSet<>(land.getTrustedPlayers());
         uuids.add(land.getOwnerUID());
         deleteShopInLand(event.getLand(), uuids, reason == DeleteReason.CAMP_EXPIRED ? Reason.EXPIRED : Reason.DELETED);
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onLandsPermissionChanges(LandUntrustPlayerEvent event) {
+
         if (!deleteWhenLosePermission) {
+
             return;
+
         }
+
         deleteShopInLand(event.getLand(), event.getTargetUID(), Reason.UNTRUSTED);
+
     }
 
     private void deleteShopInLand(Land land, UUID target, Reason reason) {
+
         deleteShopInLand(land, Collections.singleton(target), reason);
+
     }
 
     private void deleteShopInLand(Land land, Collection<UUID> targets, Reason reason) {
+
         final Collection<UUID> finalTargets = new CopyOnWriteArrayList<>(targets);
-        //Getting all shop with world-chunk-shop mapping
-        for (Map.Entry<String, Map<ShopChunk, Map<Location, Shop>>> entry : plugin.getShopManager().getShops().entrySet()) {
-            //Matching world
+        // Getting all shop with world-chunk-shop mapping
+        for (Map.Entry<String, Map<ShopChunk, Map<Location, Shop>>> entry : plugin.getShopManager().getShops()
+                .entrySet())
+        {
+
+            // Matching world
             World world = plugin.getServer().getWorld(entry.getKey());
             if (world != null) {
-                //Matching chunk
+
+                // Matching chunk
                 for (Map.Entry<ShopChunk, Map<Location, Shop>> chunkedShopEntry : entry.getValue().entrySet()) {
+
                     ShopChunk shopChunk = chunkedShopEntry.getKey();
                     if (land.hasChunk(world, shopChunk.getX(), shopChunk.getZ())) {
-                        //Matching Owner and delete it
+
+                        // Matching Owner and delete it
                         Map<Location, Shop> shops = chunkedShopEntry.getValue();
-                        List<Shop> shopToRemove = new CopyOnWriteArrayList<>(shops.values()).parallelStream().filter(shop -> finalTargets.contains(shop.getOwner())).collect(Collectors.toList());
-                        //Util.mainThreadRun(() -> {
-                            final String reasonStr = "[Lands Integration] " + reason.message;
-                            for (Shop shop : shopToRemove) {
-                                Util.runOnRegion(shop, () -> {
-                                    plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(), reasonStr, shop.saveToInfoStorage()));
-                                    shop.delete();
-                                });
-                            }
-                        //});
+                        List<Shop> shopToRemove = new CopyOnWriteArrayList<>(shops.values()).parallelStream()
+                                .filter(shop -> finalTargets.contains(shop.getOwner())).collect(Collectors.toList());
+                        // Util.mainThreadRun(() -> {
+                        final String reasonStr = "[Lands Integration] " + reason.message;
+                        for (Shop shop : shopToRemove) {
+
+                            Util.runOnRegion(shop, () -> {
+
+                                plugin.logEvent(
+                                        new ShopRemoveLog(Util.getNilUniqueId(), reasonStr, shop.saveToInfoStorage()));
+                                shop.delete();
+
+                            });
+
+                        }
+
+                        // });
                     }
+
                 }
+
             }
+
         }
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onLandsMember(PlayerLeaveLandEvent event) {
+
         if (!deleteWhenLosePermission) {
+
             return;
+
         }
+
         deleteShopInLand(event.getLand(), event.getLandPlayer().getUID(), Reason.LEAVED);
+
     }
 
     private enum Reason {
-        UNTRUSTED("Land member was untrusted"),
-        LEAVED("Land member was leave"),
-        DELETED("Land was deleted"),
+
+        UNTRUSTED("Land member was untrusted"), LEAVED("Land member was leave"), DELETED("Land was deleted"),
         EXPIRED("Land was expired");
+
         final String message;
 
         Reason(String message) {
+
             this.message = message;
+
         }
+
     }
 
     @Override
     public void load() {
+
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+
     }
 
     @Override
     public void unload() {
+
         HandlerList.unregisterAll(this);
+
     }
 
     @Override
     public ReloadResult reloadModule() {
+
         init();
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
+
 }

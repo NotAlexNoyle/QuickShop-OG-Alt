@@ -35,27 +35,39 @@ import java.util.List;
 public class ClearLaggListener extends AbstractQSListener {
 
     public ClearLaggListener(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void plugin(me.minebuilders.clearlag.events.EntityRemoveEvent clearlaggEvent) {
+
         final List<Entity> entities = clearlaggEvent.getEntityList();
         final List<Entity> pendingExclude = new ArrayList<>();
 
         for (final Entity entity : entities) {
+
             if (!(entity instanceof Item)
-                    || !AbstractDisplayItem.checkIsGuardItemStack(((Item) entity).getItemStack())) {
+                    || !AbstractDisplayItem.checkIsGuardItemStack(((Item) entity).getItemStack()))
+            {
+
                 continue;
+
             }
 
             pendingExclude.add(entity);
+
         }
 
         for (final Entity entity : pendingExclude) {
+
             clearlaggEvent.removeEntity(entity);
+
         }
+
         Util.debugLog("Prevent " + pendingExclude.size() + " displays removal by ClearLagg.");
+
     }
 
     /**
@@ -65,6 +77,9 @@ public class ClearLaggListener extends AbstractQSListener {
      */
     @Override
     public ReloadResult reloadModule() {
+
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
+
 }

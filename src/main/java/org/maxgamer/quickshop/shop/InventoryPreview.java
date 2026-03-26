@@ -62,75 +62,122 @@ public class InventoryPreview implements Listener {
      * @param plugin    The plugin instance.
      */
     public InventoryPreview(@NotNull QuickShop plugin, @NotNull ItemStack itemStack, @NotNull String locale) {
-        //Util.ensureThread(false); // moved up to call
+
+        // Util.ensureThread(false); // moved up to call
         this.itemStack = itemStack.clone();
         ItemMeta itemMeta;
         if (itemStack.hasItemMeta()) {
+
             itemMeta = this.itemStack.getItemMeta();
+
         } else {
+
             itemMeta = plugin.getServer().getItemFactory().getItemMeta(itemStack.getType());
+
         }
+
         previewStr = plugin.text().of("quickshop-gui-preview").forLocale(locale);
         if (StringUtils.isEmpty(previewStr)) {
+
             previewStr = ChatColor.RED + "FIXME: Do not set quickshop-gui-preview to null or empty string.";
+
         }
+
         if (itemMeta != null) {
+
             if (itemMeta.hasLore()) {
+
                 itemMeta.getLore().add(previewStr);
+
             } else {
+
                 itemMeta.setLore(Collections.singletonList(previewStr));
+
             }
 
-            itemMeta.getPersistentDataContainer().set(NAMESPACED_KEY, PreviewGuiPersistentDataType.INSTANCE, UUID.randomUUID());
+            itemMeta.getPersistentDataContainer().set(NAMESPACED_KEY, PreviewGuiPersistentDataType.INSTANCE,
+                    UUID.randomUUID());
             this.itemStack.setItemMeta(itemMeta);
+
         }
+
     }
 
     @Deprecated
     public static boolean isPreviewItem(@Nullable ItemStack stack) {
+
         if (stack == null) {
+
             return false;
+
         }
+
         if (!stack.hasItemMeta() || !stack.getItemMeta().hasLore()) {
+
             return false;
+
         }
-        return stack.getItemMeta().getPersistentDataContainer().get(NAMESPACED_KEY, PreviewGuiPersistentDataType.INSTANCE) != null;
+
+        return stack.getItemMeta().getPersistentDataContainer().get(NAMESPACED_KEY,
+                PreviewGuiPersistentDataType.INSTANCE) != null;
+
     }
 
     /**
      * Open the preview GUI for player.
      */
     public void show(Player player) {
+
         Util.ensureThread(player, false);
         if (itemStack == null || player == null || player.isSleeping()) // Null pointer exception
         {
+
             return;
+
         }
+
         ShopInventoryPreviewEvent shopInventoryPreview = new ShopInventoryPreviewEvent(player, itemStack);
         if (Util.fireCancellableEvent(shopInventoryPreview)) {
+
             Util.debugLog("Inventory preview was canceled by a plugin.");
             return;
+
         }
+
         if (inventory == null) {
+
             final int size = 9;
-            inventory = plugin.getServer().createInventory(new QuickShopPreviewGUIHolder(), size, plugin.text().of(player, "menu.preview").forLocale());
+            inventory = plugin.getServer().createInventory(new QuickShopPreviewGUIHolder(), size,
+                    plugin.text().of(player, "menu.preview").forLocale());
             for (int i = 0; i < size; i++) {
+
                 inventory.setItem(i, itemStack);
+
             }
+
         }
+
         player.openInventory(inventory);
+
     }
 
     public void close() {
-        //Util.ensureThread(false);
+
+        // Util.ensureThread(false);
         if (inventory == null) {
+
             return;
+
         }
 
         for (HumanEntity player : new ArrayList<>(inventory.getViewers())) {
+
             Util.runOnRegion(player, player::closeInventory);
+
         }
+
         inventory = null; // Destroy
+
     }
 
 }

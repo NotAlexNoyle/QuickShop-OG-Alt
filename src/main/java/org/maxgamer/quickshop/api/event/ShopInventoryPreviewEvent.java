@@ -44,18 +44,24 @@ public class ShopInventoryPreviewEvent extends AbstractQSEvent implements Cancel
      * @param itemStack The preview item, with preview flag.
      */
     public ShopInventoryPreviewEvent(@NotNull Player player, @NotNull ItemStack itemStack) {
+
         this.player = player;
         this.itemStack = itemStack;
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return this.cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean cancelled) {
+
         this.cancelled = cancelled;
+
     }
 
     /**
@@ -64,7 +70,9 @@ public class ShopInventoryPreviewEvent extends AbstractQSEvent implements Cancel
      * @return The ItemStack
      */
     public @NotNull ItemStack getItemStack() {
+
         return this.itemStack;
+
     }
 
     /**
@@ -73,6 +81,9 @@ public class ShopInventoryPreviewEvent extends AbstractQSEvent implements Cancel
      * @return The player
      */
     public @NotNull Player getPlayer() {
+
         return this.player;
+
     }
+
 }

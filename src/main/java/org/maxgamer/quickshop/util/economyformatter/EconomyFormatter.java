@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 public class EconomyFormatter implements Reloadable {
+
     private static final Map<String, String> CURRENCY_SYMBOL_MAPPING = new HashMap<>();
     private final QuickShop plugin;
     private boolean disableVaultFormat;
@@ -44,41 +45,54 @@ public class EconomyFormatter implements Reloadable {
     private boolean currencySymbolOnRight;
 
     public EconomyFormatter(QuickShop plugin) {
+
         this.plugin = plugin;
         reloadModule();
         plugin.getReloadManager().register(this);
+
     }
 
     @Override
     public ReloadResult reloadModule() {
+
         CURRENCY_SYMBOL_MAPPING.clear();
         this.disableVaultFormat = plugin.getConfig().getBoolean("shop.disable-vault-format", false);
         this.useDecimalFormat = plugin.getConfig().getBoolean("use-decimal-format", false);
         this.currencySymbolOnRight = plugin.getConfig().getBoolean("shop.currency-symbol-on-right", false);
         List<String> symbols = plugin.getConfig().getStringList("shop.alternate-currency-symbol-list");
         symbols.forEach(entry -> {
+
             String[] splits = entry.split(";", 2);
             if (splits.length < 2) {
+
                 plugin.getLogger().warning("Invalid entry in alternate-currency-symbol-list: " + entry);
                 return;
+
             }
+
             CURRENCY_SYMBOL_MAPPING.put(splits[0], splits[1]);
+
         });
         return new ReloadResult(ReloadStatus.SUCCESS, "Reload successfully.", null);
+
     }
 
     /**
-     * Formats the given number according to how vault would like it. E.g. $50 or 5 dollars.
+     * Formats the given number according to how vault would like it. E.g. $50 or 5
+     * dollars.
      *
      * @param n price
      * @return The formatted string.
      */
     public @Nullable String format(double n, @NotNull World world, @Nullable String currency) {
+
         return format(n, disableVaultFormat, world, currency);
+
     }
 
     /**
-     * Formats the given number according to how vault would like it. E.g. $50 or 5 dollars.
+     * Formats the given number according to how vault would like it. E.g. $50 or 5
+     * dollars.
      *
      * @param n    price
      * @param shop shop
@@ -86,51 +100,79 @@ public class EconomyFormatter implements Reloadable {
      */
     @NotNull
     public String format(double n, @NotNull Shop shop) {
+
         return format(n, disableVaultFormat, shop.getLocation().getWorld(), shop);
+
     }
 
     @NotNull
     public String format(double n, boolean internalFormat, @NotNull World world, @Nullable Shop shop) {
+
         if (shop != null) {
+
             return format(n, internalFormat, world, shop.getCurrency());
+
         } else {
+
             return format(n, internalFormat, world, (Shop) null);
+
         }
+
     }
 
     @NotNull
     public String format(double n, boolean internalFormat, @NotNull World world, @Nullable String currency) {
+
         AbstractEconomy economy = QuickShop.getInstance().getEconomy();
         if (internalFormat || economy == null) {
+
             return getInternalFormat(n, currency);
+
         }
+
         try {
+
             String formatted = economy.format(n, world, currency);
             if (StringUtils.isEmpty(formatted)) {
-                Util.debugLog(
-                        "Use alternate-currency-symbol to formatting, Cause economy plugin returned null");
+
+                Util.debugLog("Use alternate-currency-symbol to formatting, Cause economy plugin returned null");
                 return getInternalFormat(n, currency);
+
             } else {
+
                 return formatted;
+
             }
+
         } catch (NumberFormatException e) {
+
             Util.debugLog("format", e.getMessage());
-            Util.debugLog(
-                    "format", "Use alternate-currency-symbol to formatting, Cause NumberFormatException");
+            Util.debugLog("format", "Use alternate-currency-symbol to formatting, Cause NumberFormatException");
             return getInternalFormat(n, currency);
+
         }
+
     }
 
     private String getInternalFormat(double amount, @Nullable String currency) {
+
         if (StringUtils.isEmpty(currency)) {
+
             Util.debugLog("Format: Currency is null");
             String formatted = useDecimalFormat ? MsgUtil.decimalFormat(amount) : Double.toString(amount);
-            return currencySymbolOnRight ? formatted + plugin.getConfig().getString("shop.alternate-currency-symbol", "$") : plugin.getConfig().getString("shop.alternate-currency-symbol", "$") + formatted;
+            return currencySymbolOnRight
+                    ? formatted + plugin.getConfig().getString("shop.alternate-currency-symbol", "$")
+                    : plugin.getConfig().getString("shop.alternate-currency-symbol", "$") + formatted;
+
         } else {
+
             Util.debugLog("Format: Currency is: [" + currency + "]");
             String formatted = useDecimalFormat ? MsgUtil.decimalFormat(amount) : Double.toString(amount);
             String symbol = CURRENCY_SYMBOL_MAPPING.getOrDefault(currency, currency);
             return currencySymbolOnRight ? formatted + symbol : symbol + formatted;
+
         }
+
     }
+
 }

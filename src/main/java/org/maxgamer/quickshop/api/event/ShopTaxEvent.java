@@ -28,21 +28,25 @@ import java.util.UUID;
  * Calling when shop tax calcing
  */
 public class ShopTaxEvent extends AbstractQSEvent {
+
     private final UUID user;
     private final Shop shop;
     private double tax;
 
     /**
-     * Call when shop calc shop tax that will pay to system account and remove from shop owner/player received money
+     * Call when shop calc shop tax that will pay to system account and remove from
+     * shop owner/player received money
      *
      * @param shop The shop
      * @param tax  The tax
      * @param user The user (buyer/seller)
      */
     public ShopTaxEvent(@NotNull Shop shop, double tax, @NotNull UUID user) {
+
         this.shop = shop;
         this.tax = tax;
         this.user = user;
+
     }
 
     /**
@@ -51,7 +55,9 @@ public class ShopTaxEvent extends AbstractQSEvent {
      * @return User
      */
     public UUID getUser() {
+
         return this.user;
+
     }
 
     /**
@@ -60,7 +66,9 @@ public class ShopTaxEvent extends AbstractQSEvent {
      * @return the shop
      */
     public Shop getShop() {
+
         return this.shop;
+
     }
 
     /**
@@ -69,7 +77,9 @@ public class ShopTaxEvent extends AbstractQSEvent {
      * @return tax
      */
     public double getTax() {
+
         return this.tax;
+
     }
 
     /**
@@ -78,6 +88,9 @@ public class ShopTaxEvent extends AbstractQSEvent {
      * @param tax New tax
      */
     public void setTax(double tax) {
+
         this.tax = tax;
+
     }
+
 }

@@ -30,25 +30,34 @@ import java.util.Queue;
 import java.util.function.Consumer;
 
 /**
- * Check the shops after server booted up, make sure shop can correct self-deleted when container
- * lost.
+ * Check the shops after server booted up, make sure shop can correct
+ * self-deleted when container lost.
  */
 public class ShopContainerWatcher implements Consumer<ScheduledTask> {
+
     private final Queue<Shop> checkQueue = new LinkedList<>();
     private final QuickShop plugin = QuickShop.getInstance();
 
     public void scheduleCheck(@NotNull Shop shop) {
+
         checkQueue.add(shop);
+
     }
 
     @Override
     public void accept(ScheduledTask scheduledTask) {
+
         Shop shop;
         while ((shop = checkQueue.poll()) != null && !shop.isDeleted()) {
+
             if (shop instanceof ContainerShop cs) {
+
                 plugin.getServer().getRegionScheduler().run(plugin, cs.getLocation(), task -> cs.checkContainer());
+
             }
+
         }
+
     }
 
 }

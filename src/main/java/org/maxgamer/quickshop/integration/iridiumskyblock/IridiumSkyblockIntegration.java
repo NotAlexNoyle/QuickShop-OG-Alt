@@ -17,7 +17,6 @@
  *
  */
 
-
 package org.maxgamer.quickshop.integration.iridiumskyblock;
 
 import com.iridium.iridiumskyblock.api.IridiumSkyblockAPI;
@@ -51,24 +50,29 @@ public class IridiumSkyblockIntegration extends AbstractQSIntegratedPlugin imple
     private boolean onlyOwnerCanCreateShop;
 
     public IridiumSkyblockIntegration(QuickShop plugin) {
+
         super(plugin);
         plugin.getReloadManager().register(this);
         init();
+
     }
 
     private void init() {
+
         onlyOwnerCanCreateShop = plugin.getConfig().getBoolean("integration.iridiumskyblock.owner-create-only");
+
     }
 
     /**
-     * Return the integrated plugin name.
-     * For example, Residence
+     * Return the integrated plugin name. For example, Residence
      *
      * @return integrated plugin
      */
     @Override
     public @NotNull String getName() {
+
         return "IridiumSkyblock";
+
     }
 
     /**
@@ -80,20 +84,34 @@ public class IridiumSkyblockIntegration extends AbstractQSIntegratedPlugin imple
      */
     @Override
     public boolean canCreateShopHere(@NotNull Player player, @NotNull Location location) {
+
         if (!IridiumSkyblockAPI.getInstance().isIslandWorld(location.getWorld())) {
+
             return false;
+
         }
+
         Optional<Island> island = IridiumSkyblockAPI.getInstance().getIslandViaLocation(location);
         if (!island.isPresent()) {
+
             return false;
+
         }
+
         if (onlyOwnerCanCreateShop) {
+
             return island.get().getOwner().getUuid().equals(player.getUniqueId());
+
         } else {
+
             if (island.get().getOwner().getUuid().equals(player.getUniqueId())) {
+
                 return true;
+
             }
+
             return island.get().getMembers().stream().anyMatch(users -> users.getUuid().equals(player.getUniqueId()));
+
         }
 
     }
@@ -107,75 +125,118 @@ public class IridiumSkyblockIntegration extends AbstractQSIntegratedPlugin imple
      */
     @Override
     public boolean canTradeShopHere(@NotNull Player player, @NotNull Location location) {
+
         return true;
+
     }
 
     /**
-     * Loading logic
-     * Execute Stage defined by IntegrationStage
+     * Loading logic Execute Stage defined by IntegrationStage
      */
     @Override
     public void load() {
+
         if (plugin.getConfig().getBoolean("integration.iridiumskyblock.delete-shop-on-member-leave")) {
+
             Bukkit.getPluginManager().registerEvents(this, plugin);
+
         }
+
     }
 
     /**
-     * Unloding logic
-     * Will execute when Quickshop unloading
+     * Unloding logic Will execute when Quickshop unloading
      */
     @Override
     public void unload() {
+
         IslandDeleteEvent.getHandlerList().unregister(this);
         IslandRegenEvent.getHandlerList().unregister(this);
         UserKickEvent.getHandlerList().unregister(this);
+
     }
 
     @EventHandler
     public void deleteShopsWhenIslandDelete(IslandDeleteEvent event) {
+
         Island island = event.getIsland();
         List<User> members = event.getIsland().getMembers();
         for (Shop shop : plugin.getShopManager().getAllShops()) {
+
             if (!island.isInIsland(shop.getLocation())) {
+
                 continue;
+
             }
+
             for (User user : members) {
+
                 if (shop.getOwner().equals(user.getUuid())) {
-                    plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(), String.format("[%s Integration]Shop %s deleted caused by ShopOwnerQuitFromIsland", this.getName(), shop), shop.saveToInfoStorage()));
+
+                    plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(),
+                            String.format("[%s Integration]Shop %s deleted caused by ShopOwnerQuitFromIsland",
+                                    this.getName(), shop),
+                            shop.saveToInfoStorage()));
                     shop.delete();
+
                 }
+
             }
+
         }
+
     }
 
     @EventHandler
     public void deleteShopsWhenIslandDelete(IslandRegenEvent event) {
+
         Island island = event.getIsland();
         List<User> members = event.getIsland().getMembers();
         for (Shop shop : plugin.getShopManager().getAllShops()) {
+
             if (!island.isInIsland(shop.getLocation())) {
+
                 continue;
+
             }
+
             for (User user : members) {
+
                 if (shop.getOwner().equals(user.getUuid())) {
-                    plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(), String.format("[%s Integration]Shop %s deleted caused by ShopOwnerQuitFromIsland", this.getName(), shop), shop.saveToInfoStorage()));
+
+                    plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(),
+                            String.format("[%s Integration]Shop %s deleted caused by ShopOwnerQuitFromIsland",
+                                    this.getName(), shop),
+                            shop.saveToInfoStorage()));
                     shop.delete();
+
                 }
+
             }
+
         }
+
     }
 
     @EventHandler
     public void deleteShopWhenMemberKicked(UserKickEvent event) {
+
         Island island = event.getIsland();
         for (Shop shop : plugin.getShopManager().getPlayerAllShops(event.getUser().getUuid())) {
+
             if (!island.isInIsland(shop.getLocation())) {
+
                 continue;
+
             }
-            plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(), String.format("[%s Integration]Shop %s deleted caused by ShopOwnerQuitFromIsland", this.getName(), shop), shop.saveToInfoStorage()));
+
+            plugin.logEvent(new ShopRemoveLog(Util.getNilUniqueId(), String
+                    .format("[%s Integration]Shop %s deleted caused by ShopOwnerQuitFromIsland", this.getName(), shop),
+                    shop.saveToInfoStorage()));
             shop.delete();
+
         }
+
     }
 
     /**
@@ -185,7 +246,10 @@ public class IridiumSkyblockIntegration extends AbstractQSIntegratedPlugin imple
      */
     @Override
     public ReloadResult reloadModule() {
+
         init();
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
+
 }

@@ -48,144 +48,235 @@ public class SubCommand_Create implements CommandHandler<Player> {
 
     private final QuickShop plugin;
 
-
     public SubCommand_Create(@NotNull QuickShop plugin) {
+
         this.plugin = plugin;
+
     }
 
     @Nullable
     private Material matchMaterial(String itemName) {
+
         Material material = Material.matchMaterial(itemName);
         if (isValidMaterial(material)) {
+
             return material;
+
         }
+
         ConfigurationSection section = MsgUtil.getItemi18n().getConfigurationSection("itemi18n");
         for (String itemKey : Objects.requireNonNull(section).getKeys(false)) {
+
             if (itemName.equalsIgnoreCase(section.getString(itemKey))) {
+
                 material = Material.matchMaterial(itemKey);
                 break;
+
             }
+
         }
+
         if (!isValidMaterial(material)) {
+
             return null;
+
         }
+
         return material;
+
     }
 
     private boolean isValidMaterial(@Nullable Material material) {
+
         return material != null && !material.isAir();
+
     }
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         BlockIterator bIt = new BlockIterator(sender, 10);
         ItemStack item = sender.getInventory().getItemInMainHand();
         if (cmdArg.length <= 1) {
+
             if (item.getType().isAir()) {
+
                 plugin.text().of(sender, "no-anythings-in-your-hand").send();
                 return;
+
             }
+
         } else {
+
             Material material = matchMaterial(cmdArg[1]);
             if (material == null) {
+
                 plugin.text().of(sender, "item-not-exist", cmdArg[1]).send();
                 return;
+
             }
-            if (cmdArg.length > 2 && QuickShop.getPermissionManager().hasPermission(sender, "quickshop.create.stack") && plugin.isAllowStack()) {
+
+            if (cmdArg.length > 2 && QuickShop.getPermissionManager().hasPermission(sender, "quickshop.create.stack")
+                    && plugin.isAllowStack())
+            {
+
                 try {
+
                     int amount = Integer.parseInt(cmdArg[2]);
                     if (amount < 1) {
+
                         amount = 1;
+
                     }
+
                     item = new ItemStack(material, amount);
+
                 } catch (NumberFormatException e) {
+
                     item = new ItemStack(material, 1);
+
                 }
+
             } else {
+
                 item = new ItemStack(material, 1);
+
             }
+
         }
+
         Util.debugLog("Pending task for material: " + item);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
 
             if (!Util.canBeShop(b)) {
+
                 continue;
+
             }
 
             Result result = plugin.getPermissionChecker().canBuild(sender, b);
             if (!result.isSuccess()) {
+
                 plugin.text().of(sender, "3rd-plugin-build-check-failed", result.getMessage()).send();
-                Util.debugLog("Failed to create shop because the protection check has failed! Reason:" + result.getMessage());
+                Util.debugLog(
+                        "Failed to create shop because the protection check has failed! Reason:" + result.getMessage());
                 return;
+
             }
 
             BlockFace blockFace = sender.getFacing();
 
             if (!plugin.getShopManager().canBuildShop(sender, b, blockFace)) {
+
                 // As of the new checking system, most plugins will tell the
                 // player why they can't create a shop there.
                 // So telling them a message would cause spam etc.
                 Util.debugLog("Util report you can't build shop there.");
                 return;
+
             }
 
             if (Util.isDoubleChest(b.getBlockData())
-                    && !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.create.double")) {
+                    && !QuickShop.getPermissionManager().hasPermission(sender, "quickshop.create.double"))
+            {
+
                 plugin.text().of(sender, "no-double-chests").send();
                 return;
+
             }
 
-            if (Util.isBlacklisted(item)
-                    && !QuickShop.getPermissionManager()
-                    .hasPermission(sender, "quickshop.bypass." + item.getType().name())) {
+            if (Util.isBlacklisted(item) && !QuickShop.getPermissionManager().hasPermission(sender,
+                    "quickshop.bypass." + item.getType().name()))
+            {
+
                 plugin.text().of(sender, "blacklisted-item").send();
                 return;
-            }
 
+            }
 
             // Send creation menu.
-            Info info = new SimpleInfo(b.getLocation(), ShopAction.CREATE, item, b.getRelative(sender.getFacing().getOppositeFace()), false);
+            Info info = new SimpleInfo(b.getLocation(), ShopAction.CREATE, item,
+                    b.getRelative(sender.getFacing().getOppositeFace()), false);
             plugin.getShopManager().getActions().put(sender.getUniqueId(), info);
             if (plugin.getConfig().getBoolean("shop.create-needs-select-type")) {
+
                 if (cmdArg.length >= 1) {
+
                     info.setPendingCreateMessage(cmdArg[0]);
+
                 }
+
                 info.setAction(CREATE_TYPE_INPUT);
-                plugin.getQuickChat().sendExecutableChat(sender, plugin.text().of(sender, "select-shop-type-or-cancel").forLocale(),
-                        new AbstractMap.SimpleEntry<>(plugin.text().of(sender, "select-shop-type-or-cancel-selling-button").forLocale(), "/qs amount SELL"),
-                        new AbstractMap.SimpleEntry<>(plugin.text().of(sender, "select-shop-type-or-cancel-buying-button").forLocale(), "/qs amount BUY"),
-                        new AbstractMap.SimpleEntry<>(plugin.text().of(sender, "select-shop-type-or-cancel-cancel-button").forLocale(), "/qs amount CANCEL"));
+                plugin.getQuickChat().sendExecutableChat(sender,
+                        plugin.text().of(sender, "select-shop-type-or-cancel").forLocale(),
+                        new AbstractMap.SimpleEntry<>(
+                                plugin.text().of(sender, "select-shop-type-or-cancel-selling-button").forLocale(),
+                                "/qs amount SELL"),
+                        new AbstractMap.SimpleEntry<>(
+                                plugin.text().of(sender, "select-shop-type-or-cancel-buying-button").forLocale(),
+                                "/qs amount BUY"),
+                        new AbstractMap.SimpleEntry<>(
+                                plugin.text().of(sender, "select-shop-type-or-cancel-cancel-button").forLocale(),
+                                "/qs amount CANCEL"));
+
             } else {
+
                 if (cmdArg.length >= 1) {
+
                     String price = cmdArg[0];
                     plugin.getShopManager().handleChat(sender, price);
+
                 } else {
-                    plugin.text().of(sender, "how-much-to-trade-for", MsgUtil.getTranslateText(Objects.requireNonNull(item)), Integer.toString(plugin.isAllowStack() && QuickShop.getPermissionManager().hasPermission(sender, "quickshop.create.stacks") ? item.getAmount() : 1)).send();
+
+                    plugin.text()
+                            .of(sender, "how-much-to-trade-for", MsgUtil.getTranslateText(Objects.requireNonNull(item)),
+                                    Integer.toString(plugin.isAllowStack() && QuickShop.getPermissionManager()
+                                            .hasPermission(sender, "quickshop.create.stacks") ? item.getAmount() : 1))
+                            .send();
+
                 }
+
             }
+
             return;
+
         }
+
         plugin.text().of(sender, "not-looking-at-valid-shop-block").send();
+
     }
 
     @NotNull
     @Override
-    public List<String> onTabComplete(
-            @NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         if (cmdArg.length == 1) {
+
             return Collections.singletonList(plugin.text().of(sender, "tabcomplete.price").forLocale());
+
         }
+
         if (sender.getInventory().getItemInMainHand().getType().isAir()) {
+
             if (cmdArg.length == 2) {
+
                 return Collections.singletonList(plugin.text().of(sender, "tabcomplete.item").forLocale());
+
             }
+
             if (cmdArg.length == 3) {
+
                 return Collections.singletonList(plugin.text().of(sender, "tabcomplete.amount").forLocale());
+
             }
+
         }
+
         return Collections.emptyList();
+
     }
 
 }

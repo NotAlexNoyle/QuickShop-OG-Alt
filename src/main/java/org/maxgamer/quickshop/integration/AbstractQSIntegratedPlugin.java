@@ -27,27 +27,37 @@ import org.maxgamer.quickshop.api.integration.IntegratedPlugin;
 import org.maxgamer.quickshop.api.integration.IntegrationStage;
 import org.maxgamer.quickshop.util.holder.QuickShopInstanceHolder;
 
-
 @IntegrationStage
 public abstract class AbstractQSIntegratedPlugin extends QuickShopInstanceHolder implements IntegratedPlugin, Listener {
 
     private boolean register = false;
+
     public AbstractQSIntegratedPlugin(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     public void registerListener() {
+
         if (!register) {
+
             Bukkit.getPluginManager().registerEvents(this, plugin);
             register = true;
+
         }
+
     }
 
     public void unregisterListener() {
+
         if (register) {
+
             HandlerList.unregisterAll(this);
             register = false;
+
         }
+
     }
 
 }

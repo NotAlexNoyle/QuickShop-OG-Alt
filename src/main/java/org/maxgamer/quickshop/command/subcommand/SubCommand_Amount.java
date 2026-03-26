@@ -35,24 +35,33 @@ public class SubCommand_Amount implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         if (cmdArg.length < 1) {
+
             plugin.text().of(sender, "command.wrong-args").send();
             return;
+
         }
 
         if (!plugin.getShopManager().getActions().containsKey(sender.getUniqueId())) {
+
             plugin.text().of(sender, "no-pending-action").send();
             return;
+
         }
 
         plugin.getShopManager().handleChat(sender, cmdArg[0]);
+
     }
 
     @NotNull
     @Override
-    public List<String> onTabComplete(
-            @NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
-        return cmdArg.length == 1 ? Collections.singletonList(QuickShop.getInstance().text().of(sender, "tabcomplete.amount").forLocale()) : Collections.emptyList();
+    public List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
+        return cmdArg.length == 1
+                ? Collections.singletonList(QuickShop.getInstance().text().of(sender, "tabcomplete.amount").forLocale())
+                : Collections.emptyList();
+
     }
 
 }

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface IntegrationManager {
+
     /**
      * Check if a class is Integration module
      *
@@ -33,7 +34,9 @@ public interface IntegrationManager {
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     static boolean isIntegrationClass(@NotNull Class<?> clazz) {
+
         return clazz.getDeclaredAnnotation(IntegrationStage.class) != null;
+
     }
 
     /**
@@ -63,14 +66,16 @@ public interface IntegrationManager {
     void register(@NotNull IntegratedPlugin integratedPlugin);
 
     /**
-     * Register custom integrated module to QuickShop integration system from a class
+     * Register custom integrated module to QuickShop integration system from a
+     * class
      *
      * @param integratedPluginClass custom integrated module class
      */
     void register(@NotNull Class<? extends IntegratedPlugin> integratedPluginClass);
 
     /**
-     * Register custom integrated module to QuickShop integration system from a plugin name
+     * Register custom integrated module to QuickShop integration system from a
+     * plugin name
      *
      * @param integratedPluginName custom integrated module name
      */
@@ -102,4 +107,5 @@ public interface IntegrationManager {
      * @return Registered
      */
     boolean isRegistered(@NotNull String integrationName);
+
 }

@@ -24,7 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.command.CommandHandler;
 
-
 public class SubCommand_ROOT implements CommandHandler<CommandSender> {
 
     private final QuickShop plugin;
@@ -32,13 +31,17 @@ public class SubCommand_ROOT implements CommandHandler<CommandSender> {
     private final CommandHandler<CommandSender> helpCommand;
 
     public SubCommand_ROOT(QuickShop plugin) {
+
         this.plugin = plugin;
         this.helpCommand = new SubCommand_Help(plugin);
+
     }
 
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         helpCommand.onCommand(sender, commandLabel, cmdArg);
+
     }
 
 }

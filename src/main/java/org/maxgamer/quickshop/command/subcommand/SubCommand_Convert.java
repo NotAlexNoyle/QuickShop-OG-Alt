@@ -43,21 +43,24 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 
-
 public class SubCommand_Convert implements CommandHandler<ConsoleCommandSender> {
+
     private final QuickShop plugin;
     private volatile boolean running;
 
     public SubCommand_Convert(QuickShop plugin) {
+
         this.plugin = plugin;
+
     }
 
     /**
-     * Accept the onCommand, it will call when have Command Event cmdArg not contains
-     * CommandContainer's prefix. E.g: Register the CommandContainer with Prefix: unlimited
-     * Permission: quickshop.unlimited
+     * Accept the onCommand, it will call when have Command Event cmdArg not
+     * contains CommandContainer's prefix. E.g: Register the CommandContainer with
+     * Prefix: unlimited Permission: quickshop.unlimited
      *
-     * <p>When player type /qs unlimited 123 cmdArg's content is 123
+     * <p>
+     * When player type /qs unlimited 123 cmdArg's content is 123
      *
      * @param sender       Sender
      * @param commandLabel The command prefix /qs is qs
@@ -65,20 +68,33 @@ public class SubCommand_Convert implements CommandHandler<ConsoleCommandSender> 
      */
     @SneakyThrows
     @Override
-    public void onCommand(@NotNull ConsoleCommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public void onCommand(@NotNull ConsoleCommandSender sender, @NotNull String commandLabel,
+            @NotNull String[] cmdArg)
+    {
+
         if (cmdArg.length == 0) {
+
             sender.sendMessage(ChatColor.RED + "Please select what you want convert to: mysql or sqlite");
             return;
+
         }
+
         if (running) {
+
             sender.sendMessage(ChatColor.RED + "Conversion is already running! Please wait until it has finished!");
             return;
+
         }
+
         if ("mysql".equalsIgnoreCase(cmdArg[0])) {
+
             if (plugin.getDatabaseManager().getDatabase() instanceof MySQLCore) {
+
                 sender.sendMessage(ChatColor.RED + "Your database is already in MySQL!");
                 return;
+
             }
+
             ConfigurationSection dbCfg = plugin.getConfig().getConfigurationSection("database");
             String user = dbCfg.getString("user");
             String pass = dbCfg.getString("password");
@@ -88,72 +104,116 @@ public class SubCommand_Convert implements CommandHandler<ConsoleCommandSender> 
             boolean useSSL = dbCfg.getBoolean("usessl");
             String prefix = dbCfg.getString("prefix");
             if (prefix == null || "none".equals(prefix)) {
+
                 prefix = "";
+
             }
+
             Map<String, String> optionsMap = new HashMap<>();
             for (String options : dbCfg.getStringList("mysql-connect-options")) {
+
                 String[] strings = options.split("=", 2);
                 if (strings.length == 2) {
+
                     optionsMap.put(strings[0], strings[1]);
+
                 }
+
             }
+
             running = true;
             final String finalPrefix = prefix;
             plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
+
                 try {
-                    AbstractDatabaseCore dbCore = new MySQLCore(plugin, Objects.requireNonNull(host, "MySQL host can't be null"), Objects.requireNonNull(user, "MySQL username can't be null"), Objects.requireNonNull(pass, "MySQL password can't be null"), Objects.requireNonNull(databaseStr, "MySQL database name can't be null"), Objects.requireNonNull(port, "MySQL port can't be null"), finalPrefix, useSSL, optionsMap);
+
+                    AbstractDatabaseCore dbCore = new MySQLCore(plugin,
+                            Objects.requireNonNull(host, "MySQL host can't be null"),
+                            Objects.requireNonNull(user, "MySQL username can't be null"),
+                            Objects.requireNonNull(pass, "MySQL password can't be null"),
+                            Objects.requireNonNull(databaseStr, "MySQL database name can't be null"),
+                            Objects.requireNonNull(port, "MySQL port can't be null"), finalPrefix, useSSL, optionsMap);
                     DatabaseManager databaseManager = new DatabaseManager(QuickShop.getInstance(), dbCore);
                     sender.sendMessage(ChatColor.GREEN + "Converting...");
                     transferShops(new SimpleDatabaseHelper(plugin, databaseManager), sender);
                     databaseManager.unInit();
-                    sender.sendMessage(ChatColor.GREEN + "All done, please change your config.yml settings to mysql to apply the changes.");
+                    sender.sendMessage(ChatColor.GREEN
+                            + "All done, please change your config.yml settings to mysql to apply the changes.");
+
                 } catch (Exception e) {
+
                     sender.sendMessage(ChatColor.RED + "Error in database conversion! Please check your console.");
                     plugin.getServer().getLogger().log(Level.SEVERE, "Error in database conversion", e);
+
                 } finally {
+
                     running = false;
+
                 }
+
             });
+
         } else if ("sqlite".equalsIgnoreCase(cmdArg[0])) {
+
             if (plugin.getDatabaseManager().getDatabase() instanceof SQLiteCore) {
+
                 sender.sendMessage(ChatColor.GREEN + "Your database is already in SQLite!");
                 return;
+
             }
+
             running = true;
             plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
+
                 try {
+
                     AbstractDatabaseCore core = new SQLiteCore(plugin, new File(plugin.getDataFolder(), "shops.db"));
                     DatabaseManager databaseManager = new DatabaseManager(QuickShop.getInstance(), core);
                     sender.sendMessage(ChatColor.GREEN + "Converting...");
                     transferShops(new SimpleDatabaseHelper(plugin, databaseManager), sender);
                     databaseManager.unInit();
-                    sender.sendMessage(ChatColor.GREEN + "All done, please change your config.yml settings to sqlite to apply the changes.");
+                    sender.sendMessage(ChatColor.GREEN
+                            + "All done, please change your config.yml settings to sqlite to apply the changes.");
+
                 } catch (Exception e) {
+
                     sender.sendMessage(ChatColor.RED + "Error in database conversion! Please check your console.");
                     plugin.getServer().getLogger().log(Level.SEVERE, "Error in database conversion", e);
+
                 } finally {
+
                     running = false;
+
                 }
+
             });
 
         } else {
+
             sender.sendMessage(ChatColor.RED + "Invalid type! Please choose mysql or sqlite");
+
         }
+
     }
 
     private void transferShops(@NotNull SimpleDatabaseHelper helper, @NotNull CommandSender sender) {
+
         plugin.getShopManager().getAllShops().forEach(shop -> {
+
             helper.removeShop(shop);
             helper.createShop(shop, null, (ignored) -> sender.sendMessage("Failed to convert shop " + shop));
+
         });
+
     }
 
     /**
-     * Accept the onTabComplete, it will call when have Tab Event cmdArg not contains
-     * CommandContainer's prefix. E.g: Register the CommandContainer with Prefix: unlimited
-     * Permission: quickshop.unlimited
+     * Accept the onTabComplete, it will call when have Tab Event cmdArg not
+     * contains CommandContainer's prefix. E.g: Register the CommandContainer with
+     * Prefix: unlimited Permission: quickshop.unlimited
      *
-     * <p>When player type /qs unlimited 123 cmdArg's content is 123
+     * <p>
+     * When player type /qs unlimited 123 cmdArg's content is 123
      *
      * @param sender       Sender
      * @param commandLabel The command prefix /qs is qs
@@ -161,13 +221,21 @@ public class SubCommand_Convert implements CommandHandler<ConsoleCommandSender> 
      * @return The result for tab-complete lists
      */
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull ConsoleCommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public @Nullable List<String> onTabComplete(@NotNull ConsoleCommandSender sender, @NotNull String commandLabel,
+            @NotNull String[] cmdArg)
+    {
+
         if (cmdArg.length < 2) {
+
             List<String> str = new ArrayList<>();
             str.add("sqlite");
             str.add("mysql");
             return str;
+
         }
+
         return Collections.emptyList();
+
     }
+
 }

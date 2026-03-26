@@ -30,31 +30,41 @@ import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.listener.AbstractQSListener;
 
 public class WorldEditAdapter extends AbstractQSListener {
+
     private final WorldEditPlugin weBukkit;
 
     public WorldEditAdapter(QuickShop plugin, WorldEditPlugin weBukkit) {
+
         super(plugin);
         this.weBukkit = weBukkit;
+
     }
 
     @Override
     public void register() {
+
         weBukkit.getWorldEdit().getEventBus().register(this);
+
     }
 
     @Override
     public void unregister() {
+
         weBukkit.getWorldEdit().getEventBus().unregister(this);
+
     }
 
     @Subscribe(priority = EventHandler.Priority.NORMAL)
     public void proxyEditSession(EditSessionEvent event) {
+
         Actor actor = event.getActor();
         World world = event.getWorld();
         if (actor != null && event.getStage() == EditSession.Stage.BEFORE_CHANGE) {
-            event.setExtent(new WorldEditBlockListener(actor, world, event.getExtent(), plugin));
-        }
-    }
 
+            event.setExtent(new WorldEditBlockListener(actor, world, event.getExtent(), plugin));
+
+        }
+
+    }
 
 }

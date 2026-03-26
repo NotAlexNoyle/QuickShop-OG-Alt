@@ -41,15 +41,15 @@ import java.util.Map;
 import java.util.SortedSet;
 
 /**
- * Utilities for managing plugins.
- * (Originally from Plugman: https://github.com/r-clancy/PlugMan/blob/master/src/main/java/com/rylinaux/plugman/util/PluginUtil.java)
+ * Utilities for managing plugins. (Originally from Plugman:
+ * https://github.com/r-clancy/PlugMan/blob/master/src/main/java/com/rylinaux/plugman/util/PluginUtil.java)
  * <p>
  * Edited by sandtechnology (Modified and taken the unload method)
  *
  * @author rylinaux
  * @author sandtechnology
  */
-@SuppressWarnings({"ConstantConditions", "unchecked"})
+@SuppressWarnings({ "ConstantConditions", "unchecked" })
 public class PluginUtil {
 
     /**
@@ -90,11 +90,15 @@ public class PluginUtil {
                 names = (Map<String, Plugin>) lookupNamesField.get(pluginManager);
 
                 try {
+
                     Field listenersField = Bukkit.getPluginManager().getClass().getDeclaredField("listeners");
                     listenersField.setAccessible(true);
                     listeners = (Map<Event, SortedSet<RegisteredListener>>) listenersField.get(pluginManager);
+
                 } catch (Exception e) {
+
                     reloadlisteners = false;
+
                 }
 
                 Field commandMapField = Bukkit.getPluginManager().getClass().getDeclaredField("commandMap");
@@ -106,7 +110,9 @@ public class PluginUtil {
                 commands = (Map<String, Command>) knownCommandsField.get(commandMap);
 
             } catch (NoSuchFieldException | IllegalAccessException e) {
+
                 return e;
+
             }
 
         }
@@ -114,35 +120,51 @@ public class PluginUtil {
         pluginManager.disablePlugin(plugin);
 
         if (plugins != null) {
+
             plugins.remove(plugin);
+
         }
 
         if (names != null) {
+
             names.remove(name);
+
         }
 
         if (listeners != null && reloadlisteners) {
+
             for (SortedSet<RegisteredListener> set : listeners.values()) {
+
                 set.removeIf(value -> value.getPlugin() == plugin);
+
             }
+
         }
 
         if (commandMap != null) {
-            for (Iterator<Map.Entry<String, Command>> it = commands.entrySet().iterator(); it.hasNext(); ) {
+
+            for (Iterator<Map.Entry<String, Command>> it = commands.entrySet().iterator(); it.hasNext();) {
+
                 Map.Entry<String, Command> entry = it.next();
                 if (entry.getValue() instanceof PluginCommand) {
+
                     PluginCommand c = (PluginCommand) entry.getValue();
                     if (c.getPlugin() == plugin) {
+
                         c.unregister(commandMap);
                         it.remove();
+
                     }
+
                 }
+
             }
+
         }
 
-        // Attempt to close the classloader to unlock any handles on the plugin's jar file.
+        // Attempt to close the classloader to unlock any handles on the plugin's jar
+        // file.
         ClassLoader cl = plugin.getClass().getClassLoader();
-
 
         if (cl instanceof URLClassLoader) {
 
@@ -156,19 +178,27 @@ public class PluginUtil {
                 pluginInitField.setAccessible(true);
                 pluginInitField.set(cl, null);
 
-            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ignored) {
+            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+                    | IllegalAccessException ignored)
+            {
+
             }
 
             try {
+
                 ((URLClassLoader) cl).close();
+
             } catch (IOException ignored) {
+
             }
 
         }
 
-        // Will not work on processes started with the -XX:+DisableExplicitGC flag, but lets try it anyway.
-        // This tries to get around the issue where Windows refuses to unlock jar files that were previously loaded into the JVM.
-        //System.gc();
+        // Will not work on processes started with the -XX:+DisableExplicitGC flag, but
+        // lets try it anyway.
+        // This tries to get around the issue where Windows refuses to unlock jar files
+        // that were previously loaded into the JVM.
+        // System.gc();
 
         return null;
 

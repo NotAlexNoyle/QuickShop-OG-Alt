@@ -26,31 +26,33 @@ import org.junit.jupiter.api.Test;
 
 public class InteractUtilTest {
 
-
     private ConfigurationSection genConfig(int mode, boolean allowSneaking) {
+
         ConfigurationSection configurationSection = new MemoryConfiguration();
         configurationSection.set("shop.interact.interact-mode", mode);
         configurationSection.set("shop.interact.sneak-to-create", allowSneaking);
         return configurationSection.getConfigurationSection("shop.interact");
+
     }
 
     @Test
     public void testInteractBoolean() {
-        //ONLY
+
+        // ONLY
         InteractUtil.init(genConfig(0, true));
         Assertions.assertTrue(InteractUtil.check(InteractUtil.Action.CREATE, true));
         Assertions.assertFalse(InteractUtil.check(InteractUtil.Action.CREATE, false));
         InteractUtil.init(genConfig(0, false));
         Assertions.assertFalse(InteractUtil.check(InteractUtil.Action.CREATE, true));
         Assertions.assertTrue(InteractUtil.check(InteractUtil.Action.CREATE, false));
-        //BOTH
+        // BOTH
         InteractUtil.init(genConfig(1, false));
         Assertions.assertFalse(InteractUtil.check(InteractUtil.Action.CREATE, true));
         Assertions.assertTrue(InteractUtil.check(InteractUtil.Action.CREATE, false));
         InteractUtil.init(genConfig(1, true));
         Assertions.assertTrue(InteractUtil.check(InteractUtil.Action.CREATE, true));
         Assertions.assertTrue(InteractUtil.check(InteractUtil.Action.CREATE, false));
-        //REVERSED
+        // REVERSED
         InteractUtil.init(genConfig(2, false));
         Assertions.assertTrue(InteractUtil.check(InteractUtil.Action.CREATE, true));
         Assertions.assertTrue(InteractUtil.check(InteractUtil.Action.CREATE, false));
@@ -59,4 +61,5 @@ public class InteractUtilTest {
         Assertions.assertTrue(InteractUtil.check(InteractUtil.Action.CREATE, false));
 
     }
+
 }

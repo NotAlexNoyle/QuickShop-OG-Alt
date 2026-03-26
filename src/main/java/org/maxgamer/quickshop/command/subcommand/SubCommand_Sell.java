@@ -37,24 +37,38 @@ public class SubCommand_Sell implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         BlockIterator bIt = new BlockIterator(sender, 10);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
 
             if (shop != null) {
-                if (shop.getModerator().isModerator(sender.getUniqueId()) || QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.control")) {
+
+                if (shop.getModerator().isModerator(sender.getUniqueId())
+                        || QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.control"))
+                {
+
                     shop.setShopType(ShopType.SELLING);
                     shop.update();
                     plugin.text().of(sender, "command.now-selling", MsgUtil.getTranslateText(shop.getItem())).send();
+
                 } else {
+
                     plugin.text().of(sender, "not-managed-shop").send();
+
                 }
+
                 return;
+
             }
+
         }
+
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
 }

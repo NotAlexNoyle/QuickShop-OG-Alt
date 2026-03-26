@@ -25,7 +25,6 @@ import com.google.gson.JsonSyntaxException;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -66,7 +65,7 @@ public class ShopLoader {
     private final QuickShop plugin;
     /* This may contains broken shop, must use null check before load it. */
     private int errors;
-    //private final WarningSender warningSender;
+    // private final WarningSender warningSender;
 
     /**
      * The shop load allow plugin load shops fast and simply.
@@ -74,12 +73,16 @@ public class ShopLoader {
      * @param plugin Plugin main class
      */
     public ShopLoader(@NotNull QuickShop plugin) {
+
         this.plugin = plugin;
-        //this.warningSender = new WarningSender(plugin, 15000);
+
+        // this.warningSender = new WarningSender(plugin, 15000);
     }
 
     public void loadShops() {
+
         loadShops(null);
+
     }
 
     /**
@@ -88,8 +91,10 @@ public class ShopLoader {
      * @param worldName The world name, null if load all shops
      */
     public void loadShops(@Nullable String worldName) {
-        //boolean backupedDatabaseInDeleteProcess = false;
-        this.plugin.getLogger().info("Fetching shops from the database...If plugin stuck there, check your database connection.");
+
+        // boolean backupedDatabaseInDeleteProcess = false;
+        this.plugin.getLogger()
+                .info("Fetching shops from the database...If plugin stuck there, check your database connection.");
         int loadAfterChunkLoaded = 0;
         int loadAfterWorldLoaded = 0;
         int loaded = 0;
@@ -97,205 +102,315 @@ public class ShopLoader {
         int valid = 0;
         List<Shop> pendingLoading = new ArrayList<>();
 
-        try (WarpedResultSet warpRS = plugin.getDatabaseHelper().selectAllShops(); ResultSet rs = warpRS.getResultSet()) {
+        try (WarpedResultSet warpRS = plugin.getDatabaseHelper().selectAllShops();
+                ResultSet rs = warpRS.getResultSet())
+        {
+
             Timer timer = new Timer();
             timer.start();
             boolean deleteCorruptShops = plugin.getConfig().getBoolean("debug.delete-corrupt-shops", false);
             this.plugin.getLogger().info("Loading shops from the database...");
             while (rs.next()) {
+
                 ++total;
                 ShopRawDatabaseInfo origin = new ShopRawDatabaseInfo(rs);
                 if (worldName != null && !origin.getWorld().equals(worldName)) {
+
                     continue;
+
                 }
+
                 ShopDatabaseInfo data;
                 try {
+
                     data = new ShopDatabaseInfo(origin);
+
                 } catch (Exception e) {
+
                     exceptionHandler(e, null);
                     continue;
+
                 }
+
                 if (shopNullCheck(data)) {
+
                     if (deleteCorruptShops) {
+
                         plugin.getLogger().warning("Deleting shop " + data + " caused by corrupted.");
-                        plugin.getDatabaseHelper().removeShop(origin.getWorld(), origin.getX(), origin.getY(), origin.getZ());
+                        plugin.getDatabaseHelper().removeShop(origin.getWorld(), origin.getX(), origin.getY(),
+                                origin.getZ());
+
                     } else {
+
                         Util.debugLog("Trouble database loading debug: " + data);
                         Util.debugLog("Somethings gone wrong, skipping the loading...");
+
                     }
+
                     continue;
+
                 }
-                //World unloaded and not found
+
+                // World unloaded and not found
                 if (data.getWorld() == null) {
+
                     ++loadAfterWorldLoaded;
                     continue;
+
                 }
+
                 Shop shop;
                 try {
+
                     double price = data.getPrice();
                     if (!plugin.isAllowStack() && data.item.getAmount() > 1) {
-                        //Shop stack changed, logging for backup
+
+                        // Shop stack changed, logging for backup
                         plugin.logEvent(new ShopStackingStatusChangeLog(origin));
-                        //Update the actual price
+                        // Update the actual price
                         price = price / data.item.getAmount();
-                        //Setting item amount
+                        // Setting item amount
                         data.item.setAmount(1);
+
                     }
-                    shop =
-                            new ContainerShop(plugin,
-                                    data.getLocation(),
-                                    price,
-                                    data.getItem(),
-                                    data.getModerators(),
-                                    data.isUnlimited(),
-                                    data.getType(),
-                                    data.getExtra(),
-                                    data.getCurrency(),
-                                    data.isDisableDisplay(),
-                                    data.getTaxAccount());
+
+                    shop = new ContainerShop(plugin, data.getLocation(), price, data.getItem(), data.getModerators(),
+                            data.isUnlimited(), data.getType(), data.getExtra(), data.getCurrency(),
+                            data.isDisableDisplay(), data.getTaxAccount());
+
                 } catch (Exception e) {
+
                     exceptionHandler(e, data.location);
                     continue;
+
                 }
+
                 if (data.needUpdate.get()) {
+
                     shop.setDirty();
+
                 }
+
                 ++valid;
 
                 Location shopLocation = shop.getLocation();
-                //World unloaded but found
+                // World unloaded but found
                 if (!shopLocation.isWorldLoaded()) {
+
                     ++loadAfterWorldLoaded;
                     continue;
+
                 }
+
                 // Load to RAM
                 plugin.getShopManager().loadShop(shopLocation.getWorld().getName(), shop);
 
                 if (false && Util.isLoaded(shopLocation)) { // Never going to be loaded
+
                     // Load to World
                     if (!Util.canBeShop(shopLocation.getBlock())) {
+
                         Util.debugLog("Target block can't be a shop, removing it from the memory...");
                         // shop.delete();
                         valid--;
                         plugin.getShopManager().removeShop(shop); // Remove from Mem
-                        //TODO: Only remove from memory, so if it actually is a bug, user won't lost all shops.
-                        //TODO: Old shop will be deleted when in same location creating new shop.
+                        // TODO: Only remove from memory, so if it actually is a bug, user won't lost
+                        // all shops.
+                        // TODO: Old shop will be deleted when in same location creating new shop.
+
                     } else {
+
                         pendingLoading.add(shop);
                         ++loaded;
+
                     }
+
                 } else {
+
                     loadAfterChunkLoaded++;
+
                 }
+
             }
+
             for (Shop shop : pendingLoading) {
+
                 plugin.getServer().getRegionScheduler().run(plugin, shop.getLocation(), task -> {
+
                     try {
+
                         shop.onLoad();
+
                     } catch (Throwable throwable) {
+
                         exceptionHandler(throwable, shop.getLocation());
+
                     }
+
                     shop.update();
+
                 });
+
             }
+
             this.plugin.getLogger().info(">> Shop Loader Information");
             this.plugin.getLogger().info("Total           shops: " + total);
             this.plugin.getLogger().info("Valid           shops: " + valid);
             this.plugin.getLogger().info("Pending              : " + loaded);
             this.plugin.getLogger().info("Waiting worlds loaded: " + loadAfterWorldLoaded);
             this.plugin.getLogger().info("Waiting chunks loaded: " + loadAfterChunkLoaded);
-            this.plugin.getLogger().info("Done! Used " + timer.stopAndGetTimePassed() + "ms to loaded shops in database.");
+            this.plugin.getLogger()
+                    .info("Done! Used " + timer.stopAndGetTimePassed() + "ms to loaded shops in database.");
+
         } catch (Exception e) {
+
             exceptionHandler(e, null);
+
         }
+
     }
 
     @SuppressWarnings("ConstantConditions")
     private boolean shopNullCheck(@Nullable ShopDatabaseInfo databaseInfo) {
+
         if (databaseInfo == null) {
+
             Util.debugLog("Shop object is null");
             return true;
+
         }
+
         if (databaseInfo.getItem() == null) {
+
             Util.debugLog("Shop itemStack is null");
             return true;
+
         }
+
         if (databaseInfo.getItem().getType() == Material.AIR) {
+
             Util.debugLog("Shop itemStack type can't be AIR");
             return true;
+
         }
+
         if (databaseInfo.getLocation() == null) {
+
             Util.debugLog("Shop location is null");
             return true;
+
         }
+
         if (databaseInfo.moderators == null || databaseInfo.moderators.getOwner() == null) {
+
             Util.debugLog("Shop owner is null");
             return true;
+
         }
+
         if (PlayerFinder.findOfflinePlayerByUUID(databaseInfo.moderators.getOwner()) == null) {
+
             Util.debugLog("Shop owner not exist on this server, did you have reset the playerdata?");
+
         }
+
         return false;
+
     }
 
     @NotNull
     private YamlConfiguration extraUpgrade(@NotNull String extraString) {
+
         if (!StringUtils.isEmpty(extraString) && !"QuickShop: {}".equalsIgnoreCase(extraString)) {
+
             Util.debugLog("Extra API -> Upgrading -> " + extraString.replaceAll("\n", ""));
+
         }
+
         YamlConfiguration yamlConfiguration = new YamlConfiguration();
         JsonConfiguration jsonConfiguration = new JsonConfiguration();
         try {
+
             jsonConfiguration.loadFromString(extraString);
+
         } catch (InvalidConfigurationException e) {
+
             plugin.getLogger().log(Level.WARNING, "Cannot upgrade extra data: " + extraString, e);
+
         }
+
         for (String key : jsonConfiguration.getKeys(true)) {
+
             yamlConfiguration.set(key, jsonConfiguration.get(key));
+
         }
+
         return yamlConfiguration;
+
     }
 
-    private @NotNull YamlConfiguration deserializeExtra(@NotNull String extraString, @NotNull AtomicBoolean needUpdate) {
+    private @NotNull YamlConfiguration deserializeExtra(@NotNull String extraString,
+            @NotNull AtomicBoolean needUpdate)
+    {
+
         YamlConfiguration yamlConfiguration = new YamlConfiguration();
         try {
+
             if (extraString.startsWith("{")) {
+
                 yamlConfiguration = extraUpgrade(extraString);
                 needUpdate.set(true);
+
             } else {
+
                 yamlConfiguration.loadFromString(extraString);
+
             }
+
         } catch (InvalidConfigurationException e) {
+
             yamlConfiguration = extraUpgrade(extraString);
             needUpdate.set(true);
+
         }
+
         return yamlConfiguration;
+
     }
 
     private void exceptionHandler(@NotNull Throwable ex, @Nullable Location shopLocation) {
+
         errors++;
         Logger logger = plugin.getLogger();
         logger.warning("##########FAILED TO LOAD SHOP##########");
         logger.warning("  >> Error Info:");
         String err = ex.getMessage();
         if (err == null) {
+
             err = "null";
+
         }
+
         logger.warning(err);
         logger.warning("  >> Error Trace");
         ex.printStackTrace();
         logger.warning("  >> Target Location Info");
         logger.warning("Location: " + ((shopLocation == null) ? "NULL" : shopLocation.toString()));
         logger.warning(
-                "Block: " + ((shopLocation == null || !plugin.getServer().isOwnedByCurrentRegion(shopLocation)) ? "NULL" : shopLocation.getBlock().getType().name()));
+                "Block: " + ((shopLocation == null || !plugin.getServer().isOwnedByCurrentRegion(shopLocation)) ? "NULL"
+                        : shopLocation.getBlock().getType().name()));
         logger.warning("#######################################");
         if (errors > 10) {
+
             logger.severe(
                     "QuickShop detected too many errors when loading shops, you should backup your shop database and ask the developer for help");
+
         }
+
     }
 
     public synchronized void recoverFromFile(@NotNull String fileContent) {
+
         plugin.getLogger().info("Processing the shop data...");
         String[] shopsPlain = fileContent.split("\n");
         plugin.getLogger().info("Recovering shops...");
@@ -303,72 +418,97 @@ public class ShopLoader {
         int total = shopsPlain.length;
         List<ShopRawDatabaseInfo> list = new ArrayList<>(total);
         for (String s : shopsPlain) {
+
             String shopStr = s.trim();
             try {
+
                 list.add(gson.fromJson(shopStr, ShopRawDatabaseInfo.class));
+
             } catch (JsonSyntaxException ignore) {
+
             }
+
         }
+
         plugin.getLogger().info("Processed " + total + "/" + total + " - [ Valid " + list.size() + "]");
         // Load to RAM
-        //Util.mainThreadRun(() -> {
-            plugin.getLogger().info("Loading recovered shops...");
-            for (ShopRawDatabaseInfo rawDatabaseInfo : list) {
-                ShopDatabaseInfo data = new ShopDatabaseInfo(rawDatabaseInfo);
-                if (shopNullCheck(data)) {
-                    continue;
-                }
-                Util.runOnRegion(data.getLocation(), () -> {
-                    Shop shop;
-                    try {
-                        shop = new ContainerShop(plugin,
-                                data.getLocation(),
-                                data.getPrice(),
-                                data.getItem(),
-                                data.getModerators(),
-                                data.isUnlimited(),
-                                data.getType(),
-                                data.getExtra(),
-                                data.getCurrency(),
-                                data.isDisableDisplay(),
-                                data.getTaxAccount());
-                    } catch (Exception exception) {
-                        exceptionHandler(exception, data.location);
-                        return;
-                    }
+        // Util.mainThreadRun(() -> {
+        plugin.getLogger().info("Loading recovered shops...");
+        for (ShopRawDatabaseInfo rawDatabaseInfo : list) {
 
-                    plugin.getDatabaseHelper().createShop(shop, null, null);
-                    plugin.getShopManager().loadShop(data.getWorld().getName(), shop);
-                    shop.update();
-                    if (Util.isLoaded(shop.getLocation()) && !shop.isLoaded()) {
-                        shop.onLoad();
-                    }
-                });
+            ShopDatabaseInfo data = new ShopDatabaseInfo(rawDatabaseInfo);
+            if (shopNullCheck(data)) {
+
+                continue;
+
             }
-            plugin.getLogger().info("Finished!");
-        //});
+
+            Util.runOnRegion(data.getLocation(), () -> {
+
+                Shop shop;
+                try {
+
+                    shop = new ContainerShop(plugin, data.getLocation(), data.getPrice(), data.getItem(),
+                            data.getModerators(), data.isUnlimited(), data.getType(), data.getExtra(),
+                            data.getCurrency(), data.isDisableDisplay(), data.getTaxAccount());
+
+                } catch (Exception exception) {
+
+                    exceptionHandler(exception, data.location);
+                    return;
+
+                }
+
+                plugin.getDatabaseHelper().createShop(shop, null, null);
+                plugin.getShopManager().loadShop(data.getWorld().getName(), shop);
+                shop.update();
+                if (Util.isLoaded(shop.getLocation()) && !shop.isLoaded()) {
+
+                    shop.onLoad();
+
+                }
+
+            });
+
+        }
+
+        plugin.getLogger().info("Finished!");
+
+        // });
     }
 
     @NotNull
     public List<ShopRawDatabaseInfo> getOriginShopsInDatabase() {
+
         errors = 0;
         List<ShopRawDatabaseInfo> shopRawDatabaseInfoList = new ArrayList<>();
-        try (WarpedResultSet warpRS = plugin.getDatabaseHelper().selectAllShops(); ResultSet rs = warpRS.getResultSet()) {
-           // this.plugin.getLogger().info("Getting shops from the database...");
+        try (WarpedResultSet warpRS = plugin.getDatabaseHelper().selectAllShops();
+                ResultSet rs = warpRS.getResultSet())
+        {
+
+            // this.plugin.getLogger().info("Getting shops from the database...");
             while (rs.next()) {
+
                 ShopRawDatabaseInfo origin = new ShopRawDatabaseInfo(rs);
                 shopRawDatabaseInfoList.add(origin);
+
             }
+
         } catch (SQLException e) {
+
             exceptionHandler(e, null);
             return Collections.emptyList();
+
         }
+
         return shopRawDatabaseInfoList;
+
     }
 
     @Getter
     @Setter
     static public class ShopRawDatabaseInfo {
+
         private String item;
 
         private String moderators;
@@ -394,7 +534,9 @@ public class ShopLoader {
         private boolean disableDisplay;
 
         private String taxAccount;
+
         ShopRawDatabaseInfo(ResultSet rs) throws SQLException {
+
             this.x = rs.getInt("x");
             this.y = rs.getInt("y");
             this.z = rs.getInt("z");
@@ -405,24 +547,32 @@ public class ShopLoader {
             this.type = rs.getInt("type");
             this.unlimited = rs.getBoolean("unlimited");
             this.extra = rs.getString("extra");
-            //handle old shops
+            // handle old shops
             if (extra == null) {
+
                 extra = "";
+
             }
+
             this.currency = rs.getString("currency");
             this.disableDisplay = rs.getInt("disableDisplay") != 0;
             this.taxAccount = rs.getString("taxAccount");
+
         }
 
         @Override
         public String toString() {
+
             return JsonUtil.getGson().toJson(this);
+
         }
+
     }
 
     @Getter
     @Setter
     public class ShopDatabaseInfo {
+
         private ItemStack item;
 
         private Location location;
@@ -454,7 +604,9 @@ public class ShopLoader {
         private boolean disableDisplay;
 
         ShopDatabaseInfo(ShopRawDatabaseInfo origin) {
+
             try {
+
                 this.x = origin.getX();
                 this.y = origin.getY();
                 this.z = origin.getZ();
@@ -469,37 +621,61 @@ public class ShopLoader {
                 this.currency = origin.getCurrency();
                 this.disableDisplay = origin.isDisableDisplay();
                 this.taxAccount = origin.getTaxAccount() != null ? UUID.fromString(origin.getTaxAccount()) : null;
+
             } catch (Exception ex) {
+
                 exceptionHandler(ex, this.location);
+
             }
+
         }
+
         private @Nullable ItemStack deserializeItem(@NotNull String itemConfig) throws RuntimeException {
+
             try {
+
                 return Util.deserialize(itemConfig);
+
             } catch (InvalidConfigurationException e) {
-                plugin.getLogger().log(Level.WARNING, "Failed load shop data, because target config can't deserialize the ItemStack", e);
+
+                plugin.getLogger().log(Level.WARNING,
+                        "Failed load shop data, because target config can't deserialize the ItemStack", e);
                 Util.debugLog("Failed to load data to the ItemStack: " + itemConfig);
-                throw new RuntimeException("Failed load shop data, because target config can't deserialize the ItemStack", e);
+                throw new RuntimeException(
+                        "Failed load shop data, because target config can't deserialize the ItemStack", e);
+
             }
+
         }
 
         private @Nullable ShopModerator deserializeModerator(@NotNull String moderatorJson, AtomicBoolean needUpdate) {
+
             ShopModerator shopModerator;
             if (Util.isUUID(moderatorJson)) {
+
                 Util.debugLog("Updating old shop data... for " + moderatorJson);
                 shopModerator = new SimpleShopModerator(UUID.fromString(moderatorJson)); // New one
                 needUpdate.set(true);
+
             } else {
+
                 try {
+
                     shopModerator = SimpleShopModerator.deserialize(moderatorJson);
+
                 } catch (JsonSyntaxException ex) {
+
                     Util.debugLog("Updating old shop data... for " + moderatorJson);
                     moderatorJson = PlayerFinder.findUUIDByName(moderatorJson, true, true).toString();
                     shopModerator = new SimpleShopModerator(UUID.fromString(moderatorJson)); // New one
                     needUpdate.set(true);
+
                 }
+
             }
+
             return shopModerator;
+
         }
 
     }

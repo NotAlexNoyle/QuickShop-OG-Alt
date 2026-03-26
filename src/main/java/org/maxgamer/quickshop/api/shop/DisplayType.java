@@ -29,51 +29,72 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum DisplayType {
+
     /*
-     * REALITEM = USE REAL DROPPED ITEM
-     * ARMORSTAND = USE ARMORSTAND DISPLAY
+     * REALITEM = USE REAL DROPPED ITEM ARMORSTAND = USE ARMORSTAND DISPLAY
      * VIRTUALITEM = USE VIRTUAL DROPPED ITEM (CLIENT SIDE)
-     * */
-    UNKNOWN(-1),
-    REALITEM(0),
-    //  ARMORSTAND(1),
+     */
+    UNKNOWN(-1), REALITEM(0),
+    // ARMORSTAND(1),
     VIRTUALITEM(2);
 
     private static final Map<Integer, DisplayType> TYPE_MAP;
 
     static {
+
         Map<Integer, DisplayType> map = new HashMap<>(values().length);
         for (DisplayType type : values()) {
+
             map.put(type.id, type);
+
         }
+
         TYPE_MAP = Collections.unmodifiableMap(map);
+
     }
 
     private final int id;
 
     DisplayType(int id) {
+
         this.id = id;
+
     }
 
     public static @NotNull DisplayType fromID(int id) {
+
         return TYPE_MAP.getOrDefault(id, UNKNOWN);
+
     }
 
     public static int toID(@NotNull DisplayType displayType) {
+
         return displayType.id;
+
     }
 
     public static DisplayType typeIs(@Nullable AbstractDisplayItem displayItem) {
+
         if (displayItem instanceof RealDisplayItem) {
+
             return REALITEM;
+
         }
+
         if (displayItem instanceof VirtualDisplayItem) {
+
             return VIRTUALITEM;
+
         }
+
         return UNKNOWN;
+
     }
 
     public int toID() {
+
         return id;
+
     }
+
 }

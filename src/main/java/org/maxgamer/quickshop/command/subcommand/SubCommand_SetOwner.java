@@ -43,38 +43,50 @@ public class SubCommand_SetOwner implements CommandHandler<Player> {
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
 
         if (cmdArg.length < 1) {
+
             plugin.text().of(sender, "command.no-owner-given").send();
             return;
+
         }
 
         final BlockIterator bIt = new BlockIterator(sender, 10);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
 
             if (shop == null) {
+
                 continue;
+
             }
 
-            final PlayerFinder.PlayerProfile newShopOwnerProfile = PlayerFinder.findPlayerProfileByName(cmdArg[0], false, plugin.isIncludeOfflinePlayer());
+            final PlayerFinder.PlayerProfile newShopOwnerProfile = PlayerFinder.findPlayerProfileByName(cmdArg[0],
+                    false, plugin.isIncludeOfflinePlayer());
             if (newShopOwnerProfile == null) {
+
                 plugin.text().of(sender, "unknown-player").send();
                 return;
+
             }
+
             shop.setOwner(newShopOwnerProfile.getUuid());
             plugin.text().of(sender, "command.new-owner", newShopOwnerProfile.getName()).send();
             return;
+
         }
 
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
     @NotNull
     @Override
-    public List<String> onTabComplete(
-            @NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         return cmdArg.length <= 1 ? getPlayerList() : Collections.emptyList();
+
     }
 
 }

@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("DuplicatedCode")
 @IntegrationStage(loadStage = IntegrateStage.onLoadAfter)
 public class WorldGuardIntegration extends AbstractQSIntegratedPlugin {
+
     private final StateFlag createFlag = createOrGet("quickshop-create", false);
     private final StateFlag tradeFlag = createOrGet("quickshop-trade", true);
     private final List<String> whiteListWorldList = new ArrayList<>();
@@ -64,216 +65,307 @@ public class WorldGuardIntegration extends AbstractQSIntegratedPlugin {
     private boolean load = false;
 
     public WorldGuardIntegration(QuickShop plugin) {
+
         super(plugin);
         plugin.getReloadManager().register(this);
+
     }
 
     private boolean checkWhitelist(Location location) {
+
         World world = location.getWorld();
         if (world != null) {
+
             if (!whiteListWorldList.contains("*") && !whiteListWorldList.contains(world.getName().toLowerCase())) {
+
                 return false;
+
             }
+
         }
+
         return whiteList;
+
     }
 
     private StateFlag createOrGet(String key, boolean def) {
+
         FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
         Flag<?> result = WorldGuard.getInstance().getFlagRegistry().get(key);
         if (!(result instanceof StateFlag)) {
+
             result = new StateFlag(key, def);
             try {
+
                 registry.register(result);
                 plugin.getLogger().info(ChatColor.GREEN + getName() + " flags register successfully.");
                 Util.debugLog("Success register " + getName() + " flags.");
+
             } catch (FlagConflictException | IllegalStateException e) {
+
                 plugin.getLogger().log(Level.SEVERE, "Failed to register " + getName() + " flags.", e);
+
             }
+
         }
+
         return (StateFlag) result;
+
     }
 
     @Override
     public void load() {
+
         if (load) {
+
             return;
+
         }
+
         init();
         load = true;
+
     }
 
     private void init() {
+
         this.whiteList = plugin.getConfig().getBoolean("integration.worldguard.whitelist-mode");
         this.anyOwner = plugin.getConfig().getBoolean("integration.worldguard.any-owner");
         respectGlobalRegion = plugin.getConfig().getBoolean("integration.worldguard.respect-global-region");
-        createFlags =
-                WorldGuardFlags.deserialize(
-                        plugin.getConfig().getStringList("integration.worldguard.create"));
-        tradeFlags =
-                WorldGuardFlags.deserialize(
-                        plugin.getConfig().getStringList("integration.worldguard.trade"));
+        createFlags = WorldGuardFlags.deserialize(plugin.getConfig().getStringList("integration.worldguard.create"));
+        tradeFlags = WorldGuardFlags.deserialize(plugin.getConfig().getStringList("integration.worldguard.trade"));
         whiteListWorldList.clear();
-        whiteListWorldList.addAll(plugin.getConfig().getStringList("integration.worldguard.whitelist-worlds").stream().map(String::toLowerCase).collect(Collectors.toList()));
+        whiteListWorldList.addAll(plugin.getConfig().getStringList("integration.worldguard.whitelist-worlds").stream()
+                .map(String::toLowerCase).collect(Collectors.toList()));
+
     }
 
     @Override
     public void unload() {
+
         load = false;
+
     }
 
     private void checkIfLoaded() {
+
         if (!load) {
+
             load();
             Util.debugLog(getName() + " Integration not loaded, loading...");
+
         }
+
     }
 
     @Override
     public @NotNull String getName() {
+
         return "WorldGuard";
+
     }
 
     @Override
     public boolean canCreateShopHere(@NotNull Player player, @NotNull Location location) {
+
         checkIfLoaded();
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
         com.sk89q.worldedit.util.Location wgLoc = BukkitAdapter.adapt(location);
-        boolean canBypass =
-                WorldGuard.getInstance()
-                        .getPlatform()
-                        .getSessionManager()
-                        .hasBypass(localPlayer, BukkitAdapter.adapt(location.getWorld()));
+        boolean canBypass = WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer,
+                BukkitAdapter.adapt(location.getWorld()));
         if (canBypass) {
-            Util.debugLog(
-                    "Player "
-                            + player.getName()
-                            + " bypassing the protection checks, because player have bypass permission in WorldGuard");
+
+            Util.debugLog("Player " + player.getName()
+                    + " bypassing the protection checks, because player have bypass permission in WorldGuard");
             return true;
+
         }
+
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery query = container.createQuery();
         ApplicableRegionSet applicableRegionSet = query.getApplicableRegions(wgLoc);
-        //Regions not included global one
+        // Regions not included global one
         if (applicableRegionSet.getRegions().isEmpty()) {
+
             if (!respectGlobalRegion) {
+
                 return !checkWhitelist(location);
+
             } else {
-                //So check it manually
-                RegionManager worldManger = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(location.getWorld()));
+
+                // So check it manually
+                RegionManager worldManger = WorldGuard.getInstance().getPlatform().getRegionContainer()
+                        .get(BukkitAdapter.adapt(location.getWorld()));
                 if (worldManger != null && !worldManger.hasRegion("__global__")) {
-                    //If not have, just check whitelist
+
+                    // If not have, just check whitelist
                     return !checkWhitelist(location);
+
                 }
+
             }
+
         }
-        //Passed, but flag calculation will include the global region
+
+        // Passed, but flag calculation will include the global region
         for (WorldGuardFlags flag : createFlags) {
+
             switch (flag) {
+
                 case BUILD:
                     if (!applicableRegionSet.testState(localPlayer, Flags.BUILD)) {
+
                         return false;
+
                     }
                     break;
                 case FLAG:
                     if (!applicableRegionSet.testState(localPlayer, this.createFlag)) {
+
                         return false;
+
                     }
                     break;
                 case CHEST_ACCESS:
                     if (!applicableRegionSet.testState(localPlayer, Flags.CHEST_ACCESS)) {
+
                         return false;
+
                     }
                     break;
                 case INTERACT:
                     if (!applicableRegionSet.testState(localPlayer, Flags.INTERACT)) {
+
                         return false;
+
                     }
                     break;
                 case OWN:
                     if (anyOwner) {
-                        if (applicableRegionSet.getRegions().stream().noneMatch(region -> region.isOwner(localPlayer))) {
+
+                        if (applicableRegionSet.getRegions().stream()
+                                .noneMatch(region -> region.isOwner(localPlayer)))
+                        {
+
                             return false;
+
                         }
+
                     } else {
+
                         if (!applicableRegionSet.isOwnerOfAll(localPlayer)) {
+
                             return false;
+
                         }
+
                     }
                 default:
+
                     // do nothing
             }
+
         }
+
         return true;
+
     }
 
     @Override
     public boolean canTradeShopHere(@NotNull Player player, @NotNull Location location) {
+
         checkIfLoaded();
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
         com.sk89q.worldedit.util.Location wgLoc = BukkitAdapter.adapt(location);
-        boolean canBypass =
-                WorldGuard.getInstance()
-                        .getPlatform()
-                        .getSessionManager()
-                        .hasBypass(localPlayer, BukkitAdapter.adapt(location.getWorld()));
+        boolean canBypass = WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer,
+                BukkitAdapter.adapt(location.getWorld()));
         if (canBypass) {
-            Util.debugLog(
-                    "Player "
-                            + player.getName()
-                            + " bypassing the protection checks, because player have bypass permission in WorldGuard");
+
+            Util.debugLog("Player " + player.getName()
+                    + " bypassing the protection checks, because player have bypass permission in WorldGuard");
             return true;
+
         }
+
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery query = container.createQuery();
         ApplicableRegionSet applicableRegionSet = query.getApplicableRegions(wgLoc);
-        //Regions not included global one
+        // Regions not included global one
         if (applicableRegionSet.getRegions().isEmpty()) {
+
             if (!respectGlobalRegion) {
+
                 return !checkWhitelist(location);
+
             } else {
-                //So check it manually
-                RegionManager worldManger = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(location.getWorld()));
+
+                // So check it manually
+                RegionManager worldManger = WorldGuard.getInstance().getPlatform().getRegionContainer()
+                        .get(BukkitAdapter.adapt(location.getWorld()));
                 if (worldManger != null && !worldManger.hasRegion("__global__")) {
-                    //If not have, just check whitelist
+
+                    // If not have, just check whitelist
                     return !checkWhitelist(location);
+
                 }
+
             }
+
         }
-        //Passed, but flag calculation will include the global region
+
+        // Passed, but flag calculation will include the global region
         for (WorldGuardFlags flag : tradeFlags) {
+
             switch (flag) {
+
                 case BUILD:
                     if (!applicableRegionSet.testState(localPlayer, Flags.BUILD)) {
+
                         return false;
+
                     }
                     break;
                 case FLAG:
                     if (!applicableRegionSet.testState(localPlayer, this.tradeFlag)) {
+
                         return false;
+
                     }
                     break;
                 case CHEST_ACCESS:
                     if (!applicableRegionSet.testState(localPlayer, Flags.CHEST_ACCESS)) {
+
                         return false;
+
                     }
                     break;
                 case INTERACT:
                     if (!applicableRegionSet.testState(localPlayer, Flags.INTERACT)) {
+
                         return false;
+
                     }
                     break;
                 case OWN:
                     if (anyOwner) {
-                        return applicableRegionSet.getRegions().stream().anyMatch(region -> region.isOwner(localPlayer));
+
+                        return applicableRegionSet.getRegions().stream()
+                                .anyMatch(region -> region.isOwner(localPlayer));
+
                     } else {
+
                         return applicableRegionSet.isOwnerOfAll(localPlayer);
+
                     }
                 default:
+
                     // do nothing
             }
+
         }
+
         return true;
+
     }
 
     /**
@@ -283,7 +375,10 @@ public class WorldGuardIntegration extends AbstractQSIntegratedPlugin {
      */
     @Override
     public ReloadResult reloadModule() {
+
         init();
         return ReloadResult.builder().status(ReloadStatus.REQUIRE_RESTART).build();
+
     }
+
 }

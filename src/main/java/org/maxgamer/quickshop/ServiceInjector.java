@@ -29,49 +29,80 @@ import org.maxgamer.quickshop.database.AbstractDatabaseCore;
 import org.maxgamer.quickshop.localization.game.game.GameLanguage;
 
 /**
- * ServiceInjector used for "Replaceable Modules" features that allow 3rd party QuickShop addon
- * replace some modules used in QuickShop internal by register as service.
+ * ServiceInjector used for "Replaceable Modules" features that allow 3rd party
+ * QuickShop addon replace some modules used in QuickShop internal by register
+ * as service.
  *
  * @author Ghost_chu
  */
 public class ServiceInjector {
+
     public static @NotNull AbstractEconomy getEconomy(@NotNull AbstractEconomy def) {
-        @Nullable RegisteredServiceProvider<? extends AbstractEconomy> registeredServiceProvider =
-                Bukkit.getServicesManager().getRegistration(AbstractEconomy.class);
+
+        @Nullable
+        RegisteredServiceProvider<? extends AbstractEconomy> registeredServiceProvider = Bukkit.getServicesManager()
+                .getRegistration(AbstractEconomy.class);
         if (registeredServiceProvider == null) {
+
             return def;
+
         } else {
+
             return registeredServiceProvider.getProvider();
+
         }
+
     }
 
     public static @NotNull ItemMatcher getItemMatcher(@NotNull ItemMatcher def) {
-        @Nullable RegisteredServiceProvider<? extends ItemMatcher> registeredServiceProvider =
-                Bukkit.getServicesManager().getRegistration(ItemMatcher.class);
+
+        @Nullable
+        RegisteredServiceProvider<? extends ItemMatcher> registeredServiceProvider = Bukkit.getServicesManager()
+                .getRegistration(ItemMatcher.class);
         if (registeredServiceProvider == null) {
+
             return def;
+
         } else {
+
             return registeredServiceProvider.getProvider();
+
         }
+
     }
 
     public static @Nullable GameLanguage getGameLanguage() {
-        @Nullable RegisteredServiceProvider<? extends GameLanguage> registeredServiceProvider =
-                Bukkit.getServicesManager().getRegistration(GameLanguage.class);
+
+        @Nullable
+        RegisteredServiceProvider<? extends GameLanguage> registeredServiceProvider = Bukkit.getServicesManager()
+                .getRegistration(GameLanguage.class);
         if (registeredServiceProvider == null) {
+
             return null;
+
         } else {
+
             return registeredServiceProvider.getProvider();
+
         }
+
     }
 
     public static @NotNull AbstractDatabaseCore getDatabaseCore(@NotNull AbstractDatabaseCore def) {
-        @Nullable RegisteredServiceProvider<? extends AbstractDatabaseCore> registeredServiceProvider =
-                Bukkit.getServicesManager().getRegistration(AbstractDatabaseCore.class);
+
+        @Nullable
+        RegisteredServiceProvider<? extends AbstractDatabaseCore> registeredServiceProvider = Bukkit
+                .getServicesManager().getRegistration(AbstractDatabaseCore.class);
         if (registeredServiceProvider == null) {
+
             return def;
+
         } else {
+
             return registeredServiceProvider.getProvider();
+
         }
+
     }
+
 }

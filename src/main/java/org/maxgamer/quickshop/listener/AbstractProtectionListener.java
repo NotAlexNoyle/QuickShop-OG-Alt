@@ -29,16 +29,21 @@ import org.maxgamer.quickshop.api.shop.Shop;
 
 @Getter
 public abstract class AbstractProtectionListener extends AbstractQSListener {
+
     private final Cache cache;
 
     public AbstractProtectionListener(@NotNull QuickShop plugin, @Nullable Cache cache) {
+
         super(plugin);
         plugin.getReloadManager().register(this);
         this.cache = cache;
+
     }
 
     public QuickShop getPlugin() {
+
         return plugin;
+
     }
 
     /**
@@ -51,15 +56,25 @@ public abstract class AbstractProtectionListener extends AbstractQSListener {
     @SuppressWarnings("SpellCheckingInspection")
     @Nullable
     public Shop getShopRedstone(@NotNull Location location, boolean includeAttached) {
+
         if (cache != null) {
+
             return cache.find(location, includeAttached);
+
         } else {
+
             if (includeAttached) {
+
                 return plugin.getShopManager().getShopIncludeAttached(location);
+
             } else {
+
                 return plugin.getShopManager().getShop(location);
+
             }
+
         }
+
     }
 
     /**
@@ -71,12 +86,16 @@ public abstract class AbstractProtectionListener extends AbstractQSListener {
      */
     @Nullable
     public Shop getShopPlayer(@NotNull Location location, boolean includeAttached) {
-        return includeAttached ? plugin.getShopManager().getShopIncludeAttached(location, false) : plugin.getShopManager().getShop(location);
+
+        return includeAttached ? plugin.getShopManager().getShopIncludeAttached(location, false)
+                : plugin.getShopManager().getShop(location);
+
     }
 
     /**
-     * Get shop for nature events, may will caching but usually it doesn't will cached.
-     * Because nature events usually won't check same block twice in shore time.
+     * Get shop for nature events, may will caching but usually it doesn't will
+     * cached. Because nature events usually won't check same block twice in shore
+     * time.
      *
      * @param location        The block location
      * @param includeAttached whether to include the attached shop
@@ -84,7 +103,10 @@ public abstract class AbstractProtectionListener extends AbstractQSListener {
      */
     @Nullable
     public Shop getShopNature(@NotNull Location location, boolean includeAttached) {
-        return includeAttached ? plugin.getShopManager().getShopIncludeAttached(location, false) : plugin.getShopManager().getShop(location);
+
+        return includeAttached ? plugin.getShopManager().getShopIncludeAttached(location, false)
+                : plugin.getShopManager().getShop(location);
+
     }
 
 }

@@ -32,10 +32,13 @@ public class SubCommand_Export implements CommandHandler<ConsoleCommandSender> {
 
     @Override
     @SneakyThrows
-    public synchronized void onCommand(@NotNull ConsoleCommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public synchronized void onCommand(@NotNull ConsoleCommandSender sender, @NotNull String commandLabel,
+            @NotNull String[] cmdArg)
+    {
+
         Util.makeExportBackup(null);
         MsgUtil.sendDirectMessage(sender, "Done.");
-    }
 
+    }
 
 }

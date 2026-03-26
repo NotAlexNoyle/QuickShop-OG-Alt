@@ -36,27 +36,39 @@ public class SubCommand_Buy implements CommandHandler<Player> {
     private final QuickShop plugin;
 
     @Override
-    public void onCommand(@NotNull Player sender
-            , @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         BlockIterator bIt = new BlockIterator(sender, 10);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
 
             if (shop != null) {
-                if (shop.getModerator().isModerator(sender.getUniqueId()) || QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.control")) {
+
+                if (shop.getModerator().isModerator(sender.getUniqueId())
+                        || QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.control"))
+                {
+
                     shop.setShopType(ShopType.BUYING);
                     shop.update();
                     plugin.text().of(sender, "command.now-buying", MsgUtil.getTranslateText(shop.getItem())).send();
-                } else {
-                    plugin.text().of(sender, "not-managed-shop").send();
-                }
-                return;
-            }
-        }
-        plugin.text().of(sender, "not-looking-at-shop").send();
-    }
 
+                } else {
+
+                    plugin.text().of(sender, "not-managed-shop").send();
+
+                }
+
+                return;
+
+            }
+
+        }
+
+        plugin.text().of(sender, "not-looking-at-shop").send();
+
+    }
 
 }

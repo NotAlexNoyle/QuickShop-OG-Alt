@@ -44,6 +44,7 @@ import java.util.UUID;
  * A shop
  */
 public interface Shop {
+
     NamespacedKey SHOP_NAMESPACED_KEY = new NamespacedKey(QuickShop.getInstance(), "shopsign");
     String SHOP_SIGN_PATTERN = "§d§o ";
 
@@ -68,7 +69,8 @@ public interface Shop {
      *
      * @param buyer          The player buying
      * @param buyerInventory The buyer inventory ( may not a player inventory )
-     * @param loc2Drop       The location to drops items if player inventory are full
+     * @param loc2Drop       The location to drops items if player inventory are
+     *                       full
      * @param paramInt       How many buyed?
      */
     void buy(@NotNull UUID buyer, @NotNull Inventory buyerInventory, @NotNull Location loc2Drop, int paramInt);
@@ -107,7 +109,8 @@ public interface Shop {
     /**
      * Delete shop from ram or ram and database
      *
-     * @param memoryOnly true = only delete from ram, false = delete from both ram and database
+     * @param memoryOnly true = only delete from ram, false = delete from both ram
+     *                   and database
      */
     void delete(boolean memoryOnly);
 
@@ -143,7 +146,8 @@ public interface Shop {
     void onUnload();
 
     /**
-     * Get shop's owner name, it will return owner name or Admin Shop(i18n) when it is unlimited
+     * Get shop's owner name, it will return owner name or Admin Shop(i18n) when it
+     * is unlimited
      *
      * @param forceUsername Force returns username of shop
      * @return owner name
@@ -152,7 +156,8 @@ public interface Shop {
     String ownerName(boolean forceUsername);
 
     /**
-     * Get shop's owner name, it will return owner name or Admin Shop(i18n) when it is unlimited
+     * Get shop's owner name, it will return owner name or Admin Shop(i18n) when it
+     * is unlimited
      *
      * @return owner name
      */
@@ -172,7 +177,9 @@ public interface Shop {
      *
      * @param seller          Seller
      * @param sellerInventory Seller's inventory ( may not a player inventory )
-     * @param loc2Drop        The location to be drop if buyer inventory full ( if player enter a number that < 0, it will turn to buying item)
+     * @param loc2Drop        The location to be drop if buyer inventory full ( if
+     *                        player enter a number that < 0, it will turn to buying
+     *                        item)
      * @param paramInt        How many sold?
      */
     void sell(@NotNull UUID seller, @NotNull Inventory sellerInventory, @NotNull Location loc2Drop, int paramInt);
@@ -186,16 +193,14 @@ public interface Shop {
      * Get sign texts on shop's sign.
      *
      * @param locale The locale to be created for
-     * @return String arrays represents sign texts:
-     * Index | Content
-     * Line 0: Header
-     * Line 1: Shop Type
-     * Line 2: Shop Item Name
-     * Line 3: Price
+     * @return String arrays represents sign texts: Index | Content Line 0: Header
+     *         Line 1: Shop Type Line 2: Shop Item Name Line 3: Price
      */
     default List<ComponentPackage> getSignText(String locale) {
-        //backward support
+
+        // backward support
         throw new UnsupportedOperationException();
+
     }
 
     /**
@@ -263,7 +268,8 @@ public interface Shop {
     /**
      * Get shop's owner UUID
      *
-     * @return Shop's owner UUID, can use Bukkit.getOfflinePlayer to convert to the OfflinePlayer.
+     * @return Shop's owner UUID, can use Bukkit.getOfflinePlayer to convert to the
+     *         OfflinePlayer.
      */
     @NotNull
     UUID getOwner();
@@ -392,8 +398,7 @@ public interface Shop {
     AbstractDisplayItem getDisplay();
 
     /**
-     * Gets if shop is dirty
-     * (so shop will be save)
+     * Gets if shop is dirty (so shop will be save)
      *
      * @return Is dirty
      */
@@ -411,7 +416,6 @@ public interface Shop {
      */
     void setDirty();
 
-
     /**
      * Save the plugin extra data to Json format
      *
@@ -424,7 +428,8 @@ public interface Shop {
      * Getting ConfigurationSection (extra data) instance of your plugin namespace)
      *
      * @param plugin The plugin and plugin name will used for namespace
-     * @return ExtraSection, save it through Shop#setExtra. If you don't save it, it may randomly loose or save
+     * @return ExtraSection, save it through Shop#setExtra. If you don't save it, it
+     *         may randomly loose or save
      */
     @NotNull
     ConfigurationSection getExtra(@NotNull Plugin plugin);
@@ -445,12 +450,13 @@ public interface Shop {
     boolean isStackingShop();
 
     /**
-     * WARNING: This UUID will changed after plugin reload, shop reload or server restart
-     * DO NOT USE IT TO STORE DATA!
+     * WARNING: This UUID will changed after plugin reload, shop reload or server
+     * restart DO NOT USE IT TO STORE DATA!
      *
      * @return Random UUID
      */
-    @NotNull UUID getRuntimeRandomUniqueId();
+    @NotNull
+    UUID getRuntimeRandomUniqueId();
 
     /**
      * Gets the currency that shop use
@@ -489,8 +495,8 @@ public interface Shop {
     boolean isRealDouble();
 
     /**
-     * Updates the attachedShop variable to reflect the currently attached shop, if any.
-     * Also updates the left shop status.
+     * Updates the attachedShop variable to reflect the currently attached shop, if
+     * any. Also updates the left shop status.
      */
     void updateAttachedShop();
 
@@ -523,7 +529,8 @@ public interface Shop {
     void setDisableDisplay(boolean disabled);
 
     /**
-     * Getting the shop tax account for using, it can be specific uuid or general tax account
+     * Getting the shop tax account for using, it can be specific uuid or general
+     * tax account
      *
      * @return Shop Tax Account or fallback to general tax account
      */
@@ -560,51 +567,75 @@ public interface Shop {
      * @return Is shop info sign
      */
     default boolean isShopSign(@NotNull Sign sign) {
+
         // Check for new shop sign
         String[] lines = sign.getLines();
         // Can be claim
         if (lines[0].isEmpty() && lines[1].isEmpty() && lines[2].isEmpty() && lines[3].isEmpty()) {
+
             return true;
+
         }
 
         // Check for exists shop sign (modern)
-        ShopSignStorage shopSignStorage = sign.getPersistentDataContainer().get(SHOP_NAMESPACED_KEY, ShopSignPersistentDataType.INSTANCE);
+        ShopSignStorage shopSignStorage = sign.getPersistentDataContainer().get(SHOP_NAMESPACED_KEY,
+                ShopSignPersistentDataType.INSTANCE);
         if (shopSignStorage != null) {
-            return shopSignStorage.equals(getLocation().getWorld().getName(), getLocation().getBlockX(), getLocation().getBlockY(), getLocation().getBlockZ());
+
+            return shopSignStorage.equals(getLocation().getWorld().getName(), getLocation().getBlockX(),
+                    getLocation().getBlockY(), getLocation().getBlockZ());
+
         }
 
         // Check for exists shop sign (legacy upgrade)
-        //Check if attached with the shop block
+        // Check if attached with the shop block
         if (!isAttached(sign.getBlock())) {
+
             return false;
+
         }
-        //Check sign content
+
+        // Check sign content
         if (lines[1].startsWith(SHOP_SIGN_PATTERN)) {
+
             return true;
+
         } else {
+
             if (!QuickShop.getInstance().getConfig().getBoolean("legacy-updater.shop-sign", false)) {
+
                 return false;
+
             }
+
             String header = lines[0];
             TextManager textManager = QuickShop.getInstance().text();
             String ownerName = this.ownerName(true);
-            //Raw text matching
-            String adminShopHeader = textManager.of("signs.header", textManager.of("admin-shop").forLocale()).forLocale();
+            // Raw text matching
+            String adminShopHeader = textManager.of("signs.header", textManager.of("admin-shop").forLocale())
+                    .forLocale();
             String userShopHeader = textManager.of("signs.header", ownerName).forLocale();
             if (header.contains(adminShopHeader) || header.contains(userShopHeader)) {
+
                 return true;
-                //TEXT SIGN
-                //continue
+
+                // TEXT SIGN
+                // continue
             } else {
-                //Try no color matching
-                //arg[0] is name, arg[1] is color code
-                adminShopHeader = textManager.of("signs.header", textManager.of("admin-shop").forLocale(), "").forLocale();
+
+                // Try no color matching
+                // arg[0] is name, arg[1] is color code
+                adminShopHeader = textManager.of("signs.header", textManager.of("admin-shop").forLocale(), "")
+                        .forLocale();
                 userShopHeader = textManager.of("signs.header", ownerName, "").forLocale();
                 adminShopHeader = ChatColor.stripColor(adminShopHeader);
                 userShopHeader = ChatColor.stripColor(userShopHeader);
                 return header.contains(adminShopHeader) || header.contains(userShopHeader);
+
             }
+
         }
+
     }
 
     /**
@@ -618,7 +649,9 @@ public interface Shop {
      * If this shop is always counting space or stocks, even is unlimited
      */
     default boolean isAlwaysCountingContainer() {
+
         return false;
+
     }
 
     /**
@@ -627,7 +660,10 @@ public interface Shop {
      * @param value is always counting space or stocks
      */
     default void setAlwaysCountingContainer(boolean value) {
-        //For back-ward compatibility
+
+        // For back-ward compatibility
         throw new UnsupportedOperationException("setAlwaysCountingContainer is not implemented");
+
     }
+
 }

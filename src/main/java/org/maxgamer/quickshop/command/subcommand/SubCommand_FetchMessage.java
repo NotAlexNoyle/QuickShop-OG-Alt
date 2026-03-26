@@ -31,8 +31,9 @@ public class SubCommand_FetchMessage implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
-        Util.runOnRegion(sender, () -> MsgUtil.flush(sender));
-    }
 
+        Util.runOnRegion(sender, () -> MsgUtil.flush(sender));
+
+    }
 
 }

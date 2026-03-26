@@ -50,34 +50,52 @@ public class Economy_TNE extends AbstractEconomy {
     private TNEAPI api;
 
     public Economy_TNE(@NotNull QuickShop plugin) {
+
         super();
         this.plugin = plugin;
         plugin.getReloadManager().register(this);
         init();
         setupEconomy();
+
     }
 
     private void init() {
+
         this.allowLoan = plugin.getConfig().getBoolean("shop.allow-economy-loan");
+
     }
 
     private void setupEconomy() {
+
         this.api = TNE.instance().api();
+
     }
 
     @Nullable
     private TNECurrency getCurrency(@NotNull World world, @Nullable String currency) {
+
         if (!isValid()) {
+
             return null;
+
         }
+
         if (currency != null) {
+
             for (TNECurrency apiCurrency : this.api.getCurrencies(world.getName())) {
+
                 if (apiCurrency.getIdentifier().equals(currency)) {
+
                     return apiCurrency;
+
                 }
+
             }
+
         }
+
         return this.api.getDefault(world.getName()); // Want to get some default currency available in thi world
+
     }
 
     /**
@@ -90,8 +108,10 @@ public class Economy_TNE extends AbstractEconomy {
      */
     @Override
     public boolean deposit(@NotNull UUID name, double amount, @NotNull World world, @Nullable String currency) {
+
         deposit(PlayerFinder.findOfflinePlayerByUUID(name), amount, world, currency);
         return false;
+
     }
 
     /**
@@ -103,20 +123,33 @@ public class Economy_TNE extends AbstractEconomy {
      * @return True if success (Should be almost always)
      */
     @Override
-    public boolean deposit(@NotNull OfflinePlayer trader, double amount, @NotNull World world, @Nullable String currency) {
+    public boolean deposit(@NotNull OfflinePlayer trader, double amount, @NotNull World world,
+            @Nullable String currency)
+    {
+
         if (!isValid()) {
+
             return false;
+
         }
+
         BigDecimal decimal = BigDecimal.valueOf(amount);
-        if (!this.api.canAddHoldings(trader.getUniqueId().toString(), decimal, getCurrency(world, currency), world.getName())) {
+        if (!this.api.canAddHoldings(trader.getUniqueId().toString(), decimal, getCurrency(world, currency),
+                world.getName()))
+        {
+
             return false;
+
         }
-        return this.api.addHoldings(trader.getUniqueId().toString(), decimal, getCurrency(world, currency), world.getName());
+
+        return this.api.addHoldings(trader.getUniqueId().toString(), decimal, getCurrency(world, currency),
+                world.getName());
+
     }
 
-
     /**
-     * Formats the given number... E.g. 50.5 becomes $50.5 Dollars, or 50 Dollars 5 Cents
+     * Formats the given number... E.g. 50.5 becomes $50.5 Dollars, or 50 Dollars 5
+     * Cents
      *
      * @param balance  The given number
      * @param currency The currency name
@@ -124,13 +157,17 @@ public class Economy_TNE extends AbstractEconomy {
      */
     @Override
     public String format(double balance, @NotNull World world, @Nullable String currency) {
+
         if (!isValid()) {
+
             return "Error";
+
         }
+
         BigDecimal decimal = BigDecimal.valueOf(balance);
         return this.api.format(decimal, getCurrency(world, currency), world.getName());
-    }
 
+    }
 
     /**
      * Fetches the balance of the given account name
@@ -141,7 +178,9 @@ public class Economy_TNE extends AbstractEconomy {
      */
     @Override
     public double getBalance(@NotNull UUID name, @NotNull World world, @Nullable String currency) {
+
         return getBalance(PlayerFinder.findOfflinePlayerByUUID(name), world, currency);
+
     }
 
     /**
@@ -153,18 +192,28 @@ public class Economy_TNE extends AbstractEconomy {
      */
     @Override
     public double getBalance(@NotNull OfflinePlayer player, @NotNull World world, @Nullable String currency) {
+
         if (!isValid()) {
+
             return 0.0;
+
         }
+
         if (getCurrency(world, currency) != null) {
+
             return this.api.getHoldings(player.getName(), getCurrency(world, currency)).doubleValue();
+
         } else {
+
             return this.api.getHoldings(player.getName(), world.getName()).doubleValue();
+
         }
+
     }
 
     /**
-     * Withdraws a given amount of money from the given username and turns it to thin air.
+     * Withdraws a given amount of money from the given username and turns it to
+     * thin air.
      *
      * @param name     The exact (case insensitive) username to take money from
      * @param amount   The amount to take from them
@@ -173,11 +222,14 @@ public class Economy_TNE extends AbstractEconomy {
      */
     @Override
     public boolean withdraw(@NotNull UUID name, double amount, @NotNull World world, @Nullable String currency) {
+
         return withdraw(PlayerFinder.findOfflinePlayerByUUID(name), amount, world, currency);
+
     }
 
     /**
-     * Withdraws a given amount of money from the given username and turns it to thin air.
+     * Withdraws a given amount of money from the given username and turns it to
+     * thin air.
      *
      * @param trader   The player to take money from
      * @param amount   The amount to take from them
@@ -185,15 +237,28 @@ public class Economy_TNE extends AbstractEconomy {
      * @return True if success, false if they didn't have enough cash
      */
     @Override
-    public boolean withdraw(@NotNull OfflinePlayer trader, double amount, @NotNull World world, @Nullable String currency) {
+    public boolean withdraw(@NotNull OfflinePlayer trader, double amount, @NotNull World world,
+            @Nullable String currency)
+    {
+
         if (!isValid()) {
+
             return false;
+
         }
+
         BigDecimal decimal = BigDecimal.valueOf(amount);
-        if (!this.api.canRemoveHoldings(trader.getUniqueId().toString(), decimal, getCurrency(world, currency), world.getName())) {
+        if (!this.api.canRemoveHoldings(trader.getUniqueId().toString(), decimal, getCurrency(world, currency),
+                world.getName()))
+        {
+
             return false;
+
         }
-        return this.api.removeHoldings(trader.getUniqueId().toString(), decimal, getCurrency(world, currency), world.getName());
+
+        return this.api.removeHoldings(trader.getUniqueId().toString(), decimal, getCurrency(world, currency),
+                world.getName());
+
     }
 
     /**
@@ -204,7 +269,9 @@ public class Economy_TNE extends AbstractEconomy {
      */
     @Override
     public boolean hasCurrency(@NotNull World world, @NotNull String currency) {
+
         return getCurrency(world, currency) != null;
+
     }
 
     /**
@@ -214,12 +281,16 @@ public class Economy_TNE extends AbstractEconomy {
      */
     @Override
     public boolean supportCurrency() {
+
         return true;
+
     }
 
     @Override
     public @Nullable String getLastError() {
+
         return "Cannot provide: TNE not supports enhanced error tracing.";
+
     }
 
     /**
@@ -229,17 +300,23 @@ public class Economy_TNE extends AbstractEconomy {
      */
     @Override
     public boolean isValid() {
+
         return this.api != null && TNE.instance() != null;
+
     }
 
     @Override
     public @NotNull String getName() {
+
         return "BuiltIn-TNE";
+
     }
 
     @Override
     public @NotNull Plugin getPlugin() {
+
         return this.plugin;
+
     }
 
     /**
@@ -249,7 +326,10 @@ public class Economy_TNE extends AbstractEconomy {
      */
     @Override
     public ReloadResult reloadModule() {
+
         init();
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
+
 }

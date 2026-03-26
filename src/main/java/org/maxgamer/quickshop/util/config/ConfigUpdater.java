@@ -7,5 +7,7 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Inherited
 public @interface ConfigUpdater {
+
     int version();
+
 }

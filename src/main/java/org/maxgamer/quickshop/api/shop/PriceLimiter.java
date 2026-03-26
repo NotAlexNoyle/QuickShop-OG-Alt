@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * Utility used for shop price validating
  */
 public interface PriceLimiter {
+
     /**
      * Checks a stack with a price is allowed
      *

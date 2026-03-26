@@ -35,6 +35,7 @@ import java.util.UUID;
 public abstract class AbstractEconomy implements EconomyCore, Reloadable {
 
     public AbstractEconomy() {
+
     }
 
     /**
@@ -43,15 +44,17 @@ public abstract class AbstractEconomy implements EconomyCore, Reloadable {
      * @return Economy type that QuickShop now using
      */
     public static EconomyType getNowUsing() {
+
         return EconomyType.fromID(QuickShop.getInstance().getConfig().getInt("economy-type"));
+
     }
 
     @Override
     public abstract String toString();
 
     /**
-     * Transfer specific amount of currency from A to B
-     * (Developer: This is low layer of Economy System, use EconomyTransaction if possible)
+     * Transfer specific amount of currency from A to B (Developer: This is low
+     * layer of Economy System, use EconomyTransaction if possible)
      *
      * @param from     The player who is paying money
      * @param to       The player who is receiving money
@@ -61,26 +64,44 @@ public abstract class AbstractEconomy implements EconomyCore, Reloadable {
      * @return successed
      */
     @Override
-    public boolean transfer(@NotNull UUID from, @NotNull UUID to, double amount, @NotNull World world, @Nullable String currency) {
+    public boolean transfer(@NotNull UUID from, @NotNull UUID to, double amount, @NotNull World world,
+            @Nullable String currency)
+    {
+
         if (!isValid()) {
+
             return false;
+
         }
+
         if (this.getBalance(from, world, currency) >= amount) {
+
             if (this.withdraw(from, amount, world, currency)) {
+
                 if (this.deposit(to, amount, world, currency)) {
+
                     this.deposit(from, amount, world, currency);
                     return false;
+
                 }
+
                 return true;
+
             }
+
             return false;
+
         }
+
         return false;
+
     }
 
     @Override
     public @NotNull String getName() {
+
         return "BuiltIn-Economy Processor";
+
     }
 
     /**
@@ -90,6 +111,9 @@ public abstract class AbstractEconomy implements EconomyCore, Reloadable {
      */
     @Override
     public ReloadResult reloadModule() {
+
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
+
 }

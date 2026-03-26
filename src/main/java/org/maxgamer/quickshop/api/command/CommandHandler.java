@@ -29,13 +29,16 @@ import java.util.List;
 /**
  * The command handler that processing sub commands under QS main command
  *
- * @param <T> The required sender class you want, must is the sub type of CommandSender
+ * @param <T> The required sender class you want, must is the sub type of
+ *            CommandSender
  */
 public interface CommandHandler<T extends CommandSender> {
+
     /**
      * Calling while command executed by specified sender
      *
-     * @param sender       The command sender but will automatically convert to specified instance
+     * @param sender       The command sender but will automatically convert to
+     *                     specified instance
      * @param commandLabel The command prefix (/qs = qs, /shop = shop)
      * @param cmdArg       The arguments (/qs create stone will receive stone)
      */
@@ -44,13 +47,17 @@ public interface CommandHandler<T extends CommandSender> {
     /**
      * Calling while sender trying to tab-complete
      *
-     * @param sender       The command sender but will automatically convert to specified instance
+     * @param sender       The command sender but will automatically convert to
+     *                     specified instance
      * @param commandLabel The command prefix (/qs = qs, /shop = shop)
      * @param cmdArg       The arguments (/qs create stone [TAB] will receive stone)
      * @return Candidate list
      */
     @Nullable
     default List<String> onTabComplete(@NotNull T sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         return Collections.emptyList();
+
     }
+
 }

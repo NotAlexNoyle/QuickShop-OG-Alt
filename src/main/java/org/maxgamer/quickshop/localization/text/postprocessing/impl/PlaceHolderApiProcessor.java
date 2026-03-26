@@ -28,14 +28,22 @@ import org.jetbrains.annotations.Nullable;
 import org.maxgamer.quickshop.api.localization.text.postprocessor.PostProcessor;
 
 public class PlaceHolderApiProcessor implements PostProcessor {
+
     @Override
     public @NotNull String process(@NotNull String text, @Nullable CommandSender sender, Object... args) {
+
         if (sender instanceof OfflinePlayer) {
+
             if (Bukkit.getPluginManager().isPluginEnabled("PlaceHolderAPI")) {
+
                 return PlaceholderAPI.setPlaceholders((OfflinePlayer) sender, text);
+
             }
+
         }
+
         return text;
+
     }
 
 }

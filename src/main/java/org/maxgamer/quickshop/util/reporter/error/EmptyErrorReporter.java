@@ -22,6 +22,7 @@ package org.maxgamer.quickshop.util.reporter.error;
 import org.jetbrains.annotations.NotNull;
 
 public class EmptyErrorReporter implements IErrorReporter {
+
     @Override
     public void unregister() {
 
@@ -34,7 +35,9 @@ public class EmptyErrorReporter implements IErrorReporter {
 
     @Override
     public boolean canReport(@NotNull Throwable throwable) {
+
         return false;
+
     }
 
     @Override
@@ -54,6 +57,9 @@ public class EmptyErrorReporter implements IErrorReporter {
 
     @Override
     public boolean isEnabled() {
+
         return true;
+
     }
+
 }

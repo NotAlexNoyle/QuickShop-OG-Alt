@@ -33,6 +33,7 @@ import java.util.Optional;
  * @author Ghost_chu
  */
 public class HttpCacheLoader extends CacheLoader<URL, Optional<String>> {
+
     /**
      * Computes or retrieves the value corresponding to {@code key}.
      *
@@ -41,14 +42,18 @@ public class HttpCacheLoader extends CacheLoader<URL, Optional<String>> {
      */
     @Override
     public Optional<String> load(@NotNull URL key) {
+
         try {
-            return Optional.ofNullable(HttpRequest.get(key)
-                    .execute()
-                    .expectResponseCode(200)
-                    .returnContent()
-                    .asString("UTF-8"));
+
+            return Optional.ofNullable(
+                    HttpRequest.get(key).execute().expectResponseCode(200).returnContent().asString("UTF-8"));
+
         } catch (IOException e) {
+
             return Optional.empty();
+
         }
+
     }
+
 }

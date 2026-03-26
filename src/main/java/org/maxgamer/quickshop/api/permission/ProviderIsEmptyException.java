@@ -25,6 +25,7 @@ import lombok.Setter;
 
 @AllArgsConstructor
 public class ProviderIsEmptyException extends RuntimeException {
+
     @Getter
     @Setter
     private String providerName;

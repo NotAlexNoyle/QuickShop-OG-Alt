@@ -43,157 +43,211 @@ import java.util.List;
 import java.util.logging.Level;
 
 public class QSEventManager implements QuickEventManager, Listener, Reloadable {
+
     private final QuickShop plugin;
     private final List<ListenerContainer> ignoredListener = new ArrayList<>();
 
     public QSEventManager(QuickShop plugin) {
+
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.rescan();
+
     }
 
     @Override
     public ReloadResult reloadModule() throws Exception {
+
         rescan();
-        return new ReloadResult(ReloadStatus.SUCCESS,null,null);
+        return new ReloadResult(ReloadStatus.SUCCESS, null, null);
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void serverReloaded(ServerLoadEvent event) {
+
         this.rescan();
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void pluginDisable(PluginDisableEvent event) {
+
         this.rescan();
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void pluginEnable(PluginEnableEvent event) {
+
         this.rescan();
+
     }
 
     private synchronized void rescan() {
+
         this.ignoredListener.clear();
-        plugin
-                .getConfig()
-                .getStringList("shop.protection-checking-listener-blacklist")
-                .forEach(
-                        input -> {
-                            if (StringUtils.isEmpty(input)) {
-                                return;
-                            }
-                            try {
-                                Class<?> clazz = Class.forName(input);
-                                this.ignoredListener.add(new ListenerContainer(clazz, input));
-                                Util.debugLog("Successfully added blacklist: [BINDING] " + clazz.getName());
-                            } catch (Exception ignored) {
-                                this.ignoredListener.add(new ListenerContainer(null, input));
-                                Util.debugLog("Successfully added blacklist: [DYNAMIC] " + input);
-                            }
-                        });
+        plugin.getConfig().getStringList("shop.protection-checking-listener-blacklist").forEach(input -> {
+
+            if (StringUtils.isEmpty(input)) {
+
+                return;
+
+            }
+
+            try {
+
+                Class<?> clazz = Class.forName(input);
+                this.ignoredListener.add(new ListenerContainer(clazz, input));
+                Util.debugLog("Successfully added blacklist: [BINDING] " + clazz.getName());
+
+            } catch (Exception ignored) {
+
+                this.ignoredListener.add(new ListenerContainer(null, input));
+                Util.debugLog("Successfully added blacklist: [DYNAMIC] " + input);
+
+            }
+
+        });
+
     }
 
     @Override
     public void callEvent(Event event) {
+
         if (event.isAsynchronous()) {
+
             if (Thread.holdsLock(plugin.getServer().getPluginManager())) {
+
                 throw new IllegalStateException(
-                        event.getEventName()
-                                + " cannot be triggered asynchronously from inside synchronized code.");
+                        event.getEventName() + " cannot be triggered asynchronously from inside synchronized code.");
+
             }
+
             if (Bukkit.getServer().isPrimaryThread()) {
+
                 throw new IllegalStateException(
-                        event.getEventName()
-                                + " cannot be triggered asynchronously from primary server thread.");
+                        event.getEventName() + " cannot be triggered asynchronously from primary server thread.");
+
             }
+
         } else {
+
             if (!Bukkit.getServer().isPrimaryThread()) {
+
                 throw new IllegalStateException(
                         event.getEventName() + " cannot be triggered asynchronously from another thread.");
+
             }
+
         }
 
         fireEvent(event);
+
     }
 
     private void fireEvent(Event event) {
+
         HandlerList handlers = event.getHandlers();
         RegisteredListener[] listeners = handlers.getRegisteredListeners();
 
         for (RegisteredListener registration : listeners) {
-            if (!registration.getPlugin().isEnabled()) {
-                continue;
-            }
-            Class<?> regClass = registration.getListener().getClass();
 
+            if (!registration.getPlugin().isEnabled()) {
+
+                continue;
+
+            }
+
+            Class<?> regClass = registration.getListener().getClass();
 
             boolean skip = false;
             for (ListenerContainer container : this.ignoredListener) {
+
                 if (container.matches(regClass, registration.getPlugin())) {
+
                     skip = true;
                     break;
+
                 }
+
             }
 
             if (skip) {
+
                 continue;
+
             }
 
             try {
+
                 registration.callEvent(event);
+
             } catch (AuthorNagException ex) {
+
                 Plugin plugin = registration.getPlugin();
 
                 if (plugin.isNaggable()) {
+
                     plugin.setNaggable(false);
 
-                    plugin.getServer()
-                            .getLogger()
-                            .log(
-                                    Level.SEVERE,
-                                    String.format(
-                                            "Nag author(s): '%s' of '%s' about the following: %s",
-                                            plugin.getDescription().getAuthors(),
-                                            plugin.getDescription().getFullName(),
-                                            ex.getMessage()));
+                    plugin.getServer().getLogger().log(Level.SEVERE,
+                            String.format("Nag author(s): '%s' of '%s' about the following: %s",
+                                    plugin.getDescription().getAuthors(), plugin.getDescription().getFullName(),
+                                    ex.getMessage()));
+
                 }
+
             } catch (Throwable ex) {
-                plugin.getServer()
-                        .getLogger()
-                        .log(
-                                Level.SEVERE,
-                                "Could not pass event "
-                                        + event.getEventName()
-                                        + " to "
-                                        + registration.getPlugin().getDescription().getFullName(),
-                                ex);
+
+                plugin.getServer().getLogger().log(Level.SEVERE, "Could not pass event " + event.getEventName() + " to "
+                        + registration.getPlugin().getDescription().getFullName(), ex);
+
             }
+
         }
+
     }
+
 }
 
 @AllArgsConstructor
 class ListenerContainer {
+
     @Nullable
     private final Class<?> clazz;
     @NotNull
     private final String clazzName;
 
     public boolean matches(@NotNull Class<?> matching, @NotNull Plugin plugin) {
+
         if (clazz != null) {
+
             return matching.equals(clazz);
+
         }
+
         if (clazzName.startsWith("@")) {
+
             return clazzName.equalsIgnoreCase("@" + plugin.getName());
+
         }
+
         String name = matching.getName();
         if (name.equalsIgnoreCase(clazzName)) {
+
             return true;
+
         }
+
         if (name.startsWith(clazzName)) {
+
             return true;
+
         }
+
         return name.matches(clazzName);
+
     }
+
 }

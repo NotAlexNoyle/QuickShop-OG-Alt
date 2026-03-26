@@ -26,11 +26,12 @@ import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.compatibility.AbstractQSCompatibilityModule;
 import org.maxgamer.quickshop.util.Util;
 
-
 public class NCPCompatibilityModule extends AbstractQSCompatibilityModule {
 
     public NCPCompatibilityModule(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     /**
@@ -40,29 +41,35 @@ public class NCPCompatibilityModule extends AbstractQSCompatibilityModule {
      */
     @Override
     public @NotNull String getName() {
+
         return "NoCheatPlus";
+
     }
 
-
     /**
-     * Calls CompatibilityModule to toggle the detection status for playerb between on and off
+     * Calls CompatibilityModule to toggle the detection status for playerb between
+     * on and off
      *
      * @param player The player
      * @param status On or Off
      */
     @Override
     public void toggle(@NotNull Player player, boolean status) {
+
         if (status) {
-            Util.debugLog(
-                    "Calling NoCheatPlus continue follow " + player.getName() + " cheats detection.");
+
+            Util.debugLog("Calling NoCheatPlus continue follow " + player.getName() + " cheats detection.");
             NCPExemptionManager.unexempt(player);
+
         } else {
-            Util.debugLog(
-                    "Calling NoCheatPlus ignore "
-                            + player.getName()
-                            + " cheats detection until we finished permission checks.");
+
+            Util.debugLog("Calling NoCheatPlus ignore " + player.getName()
+                    + " cheats detection until we finished permission checks.");
 
             NCPExemptionManager.exemptPermanently(player);
+
         }
+
     }
+
 }

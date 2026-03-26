@@ -26,19 +26,22 @@ import java.io.File;
 import java.io.IOException;
 
 public interface QuickUpdater {
+
     /**
      * Gets current running branch of QuickShop
      *
      * @return VersionType of current running
      */
-    @NotNull VersionType getCurrentRunning();
+    @NotNull
+    VersionType getCurrentRunning();
 
     /**
      * Gets the version on remote server
      *
      * @return Version on remote server
      */
-    @NotNull String getRemoteServerVersion();
+    @NotNull
+    String getRemoteServerVersion();
 
     /**
      * Check specified type of version is the latest version on remote version
@@ -48,8 +51,8 @@ public interface QuickUpdater {
     boolean isLatest();
 
     /**
-     * Install updates to server
-     * * Warning: It is unstable, recommend to restart server *
+     * Install updates to server * Warning: It is unstable, recommend to restart
+     * server *
      *
      * @throws IOException IOException will throw if copying failed
      */
@@ -60,5 +63,7 @@ public interface QuickUpdater {
      *
      * @return null if not updated, or updated file
      */
-    @Nullable File getUpdatedJar();
+    @Nullable
+    File getUpdatedJar();
+
 }

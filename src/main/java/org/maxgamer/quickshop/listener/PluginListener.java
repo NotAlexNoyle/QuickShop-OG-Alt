@@ -45,48 +45,75 @@ public class PluginListener extends AbstractQSListener {
     private CompatibilityManager compatibilityManager;
 
     public PluginListener(QuickShop plugin) {
+
         super(plugin);
         init();
+
     }
 
     private void init() {
+
         integrationHelper = plugin.getIntegrationHelper();
         compatibilityManager = plugin.getCompatibilityManager();
-    }
 
+    }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPluginDisabled(PluginDisableEvent event) {
+
         String pluginName = event.getPlugin().getName();
         IntegratedPlugin plugin = integrationHelper.getIntegrationMap().get(pluginName);
         if (plugin != null) {
+
             Util.debugLog("[Hot Unload] Calling for unloading " + pluginName);
             plugin.unload();
             integrationHelper.unregister(plugin);
+
         }
 
         if (COMPATIBILITY_MODULE_LIST.contains(pluginName)) {
+
             compatibilityManager.unregister(pluginName);
+
         }
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPluginEnabled(PluginEnableEvent event) {
+
         String pluginName = event.getPlugin().getName();
-        Class<? extends IntegratedPlugin> pluginClass = SimpleIntegrationManager.getBuiltInIntegrationMapping().get(pluginName);
-        if (pluginClass != null && plugin.getConfig().getBoolean("integration." + pluginName.toLowerCase() + ".enable")) {
+        Class<? extends IntegratedPlugin> pluginClass = SimpleIntegrationManager.getBuiltInIntegrationMapping()
+                .get(pluginName);
+        if (pluginClass != null
+                && plugin.getConfig().getBoolean("integration." + pluginName.toLowerCase() + ".enable"))
+        {
+
             try {
+
                 IntegratedPlugin integratedPlugin = pluginClass.getConstructor(plugin.getClass()).newInstance(plugin);
                 integratedPlugin.load();
                 integrationHelper.register(integratedPlugin);
                 Util.debugLog("[Hot Load] Calling for loading " + pluginName);
-            } catch (NullPointerException | NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                plugin.getLogger().log(Level.WARNING, "Hot load integration failed", new InvalidIntegratedPluginClassException("Invalid Integration module class: " + pluginClass, e));
+
+            } catch (NullPointerException | NoSuchMethodException | InvocationTargetException | InstantiationException
+                    | IllegalAccessException e)
+            {
+
+                plugin.getLogger().log(Level.WARNING, "Hot load integration failed",
+                        new InvalidIntegratedPluginClassException("Invalid Integration module class: " + pluginClass,
+                                e));
+
             }
+
         }
+
         if (COMPATIBILITY_MODULE_LIST.contains(pluginName)) {
+
             ((SimpleCompatibilityManager) compatibilityManager).register(pluginName);
+
         }
+
     }
 
     /**
@@ -96,6 +123,9 @@ public class PluginListener extends AbstractQSListener {
      */
     @Override
     public ReloadResult reloadModule() {
+
         return ReloadResult.builder().status(ReloadStatus.SUCCESS).build();
+
     }
+
 }

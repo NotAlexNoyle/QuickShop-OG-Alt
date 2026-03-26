@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * Manager that managing all registered compatibility for anti-cheat modules
  */
 public interface CompatibilityManager {
+
     /**
      * Check a module registered
      *
@@ -35,10 +36,12 @@ public interface CompatibilityManager {
     boolean isRegistered(String moduleName);
 
     /**
-     * Switch the compatibility mode on or off, set false to disable all we known incompatiable plugin
-     * listener, set true to enable back all disabled plugin liseners. WIP
+     * Switch the compatibility mode on or off, set false to disable all we known
+     * incompatiable plugin listener, set true to enable back all disabled plugin
+     * liseners. WIP
      *
-     * @param status true=turn on closed listeners, false=turn off all turned on listeners.
+     * @param status true=turn on closed listeners, false=turn off all turned on
+     *               listeners.
      * @param player The player to check the listeners
      */
     void toggleProtectionListeners(boolean status, @NotNull Player player);
@@ -68,4 +71,5 @@ public interface CompatibilityManager {
      * @param module Compatibility module
      */
     void unregister(@NotNull CompatibilityModule module);
+
 }

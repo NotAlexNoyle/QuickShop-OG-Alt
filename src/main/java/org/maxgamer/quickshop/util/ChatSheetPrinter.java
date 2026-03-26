@@ -27,50 +27,67 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.maxgamer.quickshop.QuickShop;
 
-
 @AllArgsConstructor
 @Getter
 @Setter
 /*
- A utils for print sheet on chat.
-*/
+ * A utils for print sheet on chat.
+ */
 public class ChatSheetPrinter {
+
     private final CommandSender p;
 
     public void printCenterLine(@NotNull String text) {
+
         if (!text.isEmpty()) {
+
             MsgUtil.sendDirectMessage(p,
                     ChatColor.DARK_PURPLE
-                            + QuickShop.getInstance().text().of(p, "tableformat.left_half_line").forLocale()
-                            + text
+                            + QuickShop.getInstance().text().of(p, "tableformat.left_half_line").forLocale() + text
                             + QuickShop.getInstance().text().of(p, "tableformat.right_half_line").forLocale());
+
         }
+
     }
 
-    public void printExecutableCmdLine(
-            @NotNull String text, @NotNull String hoverText, @NotNull String executeCmd) {
+    public void printExecutableCmdLine(@NotNull String text, @NotNull String hoverText, @NotNull String executeCmd) {
+
         QuickShop.getInstance().getQuickChat().sendExecutableChat(p, text, hoverText, executeCmd);
+
     }
 
     public void printFooter() {
-        MsgUtil.sendDirectMessage(p, ChatColor.DARK_PURPLE + QuickShop.getInstance().text().of(p, "tableformat.full_line").forLocale());
+
+        MsgUtil.sendDirectMessage(p,
+                ChatColor.DARK_PURPLE + QuickShop.getInstance().text().of(p, "tableformat.full_line").forLocale());
+
     }
 
     public void printHeader() {
-        MsgUtil.sendDirectMessage(p, ChatColor.DARK_PURPLE + QuickShop.getInstance().text().of(p, "tableformat.full_line").forLocale());
+
+        MsgUtil.sendDirectMessage(p,
+                ChatColor.DARK_PURPLE + QuickShop.getInstance().text().of(p, "tableformat.full_line").forLocale());
+
     }
 
     public void printLine(@NotNull String text) {
+
         String[] texts = text.split("\n");
         for (String str : texts) {
+
             if (!str.isEmpty()) {
-                MsgUtil.sendDirectMessage(p, ChatColor.DARK_PURPLE + QuickShop.getInstance().text().of(p, "tableformat.left_begin").forLocale() + str);
+
+                MsgUtil.sendDirectMessage(p, ChatColor.DARK_PURPLE
+                        + QuickShop.getInstance().text().of(p, "tableformat.left_begin").forLocale() + str);
+
             }
+
         }
+
     }
 
-    public void printSuggestedCmdLine(
-            @NotNull String text, @NotNull String hoverText, @NotNull String suggestCmd) {
+    public void printSuggestedCmdLine(@NotNull String text, @NotNull String hoverText, @NotNull String suggestCmd) {
+
         QuickShop.getInstance().getQuickChat().sendSuggestedChat(p, text, hoverText, suggestCmd);
 
     }

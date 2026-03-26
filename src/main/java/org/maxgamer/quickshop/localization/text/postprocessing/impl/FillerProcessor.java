@@ -28,26 +28,40 @@ import org.maxgamer.quickshop.util.MsgUtil;
 import org.maxgamer.quickshop.util.TextSplitter;
 
 public class FillerProcessor implements PostProcessor {
+
     @Override
     public @NotNull String process(@NotNull String text, @Nullable CommandSender sender, Object... args) {
+
         String[] strings = new String[args.length];
         boolean hit = false;
         for (int i = 0; i < args.length; i++) {
 
             if (args[i] instanceof String) {
+
                 strings[i] = (String) args[i];
                 continue;
+
             }
 
             if (args[i] instanceof BaseComponent[]) {
+
                 if (hit) {
+
                     throw new IllegalStateException("Only one BaseComponent[] can be applied into text");
+
                 }
+
                 strings[i] = TextSplitter.bakeComponent((BaseComponent[]) args[i]);
                 hit = true;
+
             }
+
             strings[i] = String.valueOf(args[i]);
+
         }
+
         return MsgUtil.fillArgs(text, strings);
+
     }
+
 }

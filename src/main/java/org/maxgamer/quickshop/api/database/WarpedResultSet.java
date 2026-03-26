@@ -23,8 +23,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public interface WarpedResultSet extends AutoCloseable {
+
     @Override
     void close() throws SQLException;
 
     ResultSet getResultSet();
+
 }

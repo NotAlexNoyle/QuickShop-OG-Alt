@@ -46,8 +46,7 @@ import java.util.logging.Level;
 @ToString
 public class Economy_Reserve extends AbstractEconomy {
 
-    private static final String errorMsg =
-            "QuickShop received an error when processing Economy response, THIS NOT A QUICKSHOP FAULT, you might need ask help with your Economy Provider plugin author.";
+    private static final String errorMsg = "QuickShop received an error when processing Economy response, THIS NOT A QUICKSHOP FAULT, you might need ask help with your Economy Provider plugin author.";
 
     private final QuickShop plugin;
     private final BuiltInEconomyFormatter formatter;
@@ -63,23 +62,33 @@ public class Economy_Reserve extends AbstractEconomy {
      */
     @Deprecated
     public Economy_Reserve(@NotNull QuickShop plugin) {
+
         this.plugin = plugin;
         this.formatter = new BuiltInEconomyFormatter(plugin);
         plugin.getReloadManager().register(this);
 
         setup();
+
     }
 
     @SuppressWarnings("ConstantConditions")
     private void setup() {
+
         try {
+
             Reserve re = ((Reserve) plugin.getServer().getPluginManager().getPlugin("Reserve"));
             if (re.economyProvided()) {
+
                 reserve = re.economy();
+
             }
+
         } catch (Exception throwable) {
+
             reserve = null;
+
         }
+
     }
 
     /**
@@ -93,22 +102,34 @@ public class Economy_Reserve extends AbstractEconomy {
     @Deprecated
     @Override
     public boolean deposit(@NotNull UUID name, double amount, @NotNull World world, @Nullable String currency) {
+
         try {
-            return Objects.requireNonNull(reserve).addHoldings(name, BigDecimal.valueOf(amount), world.getName(), currency);
+
+            return Objects.requireNonNull(reserve).addHoldings(name, BigDecimal.valueOf(amount), world.getName(),
+                    currency);
+
         } catch (Exception throwable) {
+
             plugin.getSentryErrorReporter().ignoreThrow();
             plugin.getLogger().log(Level.WARNING, errorMsg, throwable);
             return false;
+
         }
+
     }
 
     @Override
-    public boolean deposit(@NotNull OfflinePlayer trader, double amount, @NotNull World world, @Nullable String currency) {
+    public boolean deposit(@NotNull OfflinePlayer trader, double amount, @NotNull World world,
+            @Nullable String currency)
+    {
+
         return deposit(trader.getUniqueId(), amount, world, currency);
+
     }
 
     /**
-     * Formats the given number... E.g. 50.5 becomes $50.5 Dollars, or 50 Dollars 5 Cents
+     * Formats the given number... E.g. 50.5 becomes $50.5 Dollars, or 50 Dollars 5
+     * Cents
      *
      * @param balance The given number
      * @return The balance in human readable text.
@@ -117,21 +138,31 @@ public class Economy_Reserve extends AbstractEconomy {
     @Deprecated
     @Override
     public String format(double balance, @NotNull World world, @Nullable String currency) {
+
         try {
+
             return Objects.requireNonNull(reserve).format(BigDecimal.valueOf(balance), world.getName(), currency);
+
         } catch (Exception throwable) {
+
             plugin.getSentryErrorReporter().ignoreThrow();
             plugin.getLogger().log(Level.WARNING, errorMsg, throwable);
             return formatInternal(balance);
+
         }
+
     }
 
     private String formatInternal(double balance) {
+
         if (!isValid()) {
+
             return "Error";
+
         }
 
         return this.formatter.getInternalFormat(balance, null);
+
     }
 
     /**
@@ -144,20 +175,27 @@ public class Economy_Reserve extends AbstractEconomy {
     @Override
     @Deprecated
     public double getBalance(@NotNull UUID name, @NotNull World world, @Nullable String currency) {
+
         try {
+
             return Objects.requireNonNull(reserve).getHoldings(name, world.getName(), currency).doubleValue();
+
         } catch (Exception throwable) {
+
             plugin.getSentryErrorReporter().ignoreThrow();
             plugin.getLogger().log(Level.WARNING, errorMsg, throwable);
             return 0.0;
+
         }
+
     }
 
     @Override
     public double getBalance(@NotNull OfflinePlayer player, @NotNull World world, @Nullable String currency) {
-        return getBalance(player.getUniqueId(), world, currency);
-    }
 
+        return getBalance(player.getUniqueId(), world, currency);
+
+    }
 
     /**
      * Transfers the given amount of money from Player1 to Player2
@@ -165,23 +203,34 @@ public class Economy_Reserve extends AbstractEconomy {
      * @param from   The player who is paying money
      * @param to     The player who is receiving money
      * @param amount The amount to transfer
-     * @return true if success (Payer had enough cash, receiver was able to receive the funds)
+     * @return true if success (Payer had enough cash, receiver was able to receive
+     *         the funds)
      * @deprecated Reserve no-longer active after Minecraft 1.14.
      */
     @Override
     @Deprecated
-    public boolean transfer(@NotNull UUID from, @NotNull UUID to, double amount, @NotNull World world, @Nullable String currency) {
+    public boolean transfer(@NotNull UUID from, @NotNull UUID to, double amount, @NotNull World world,
+            @Nullable String currency)
+    {
+
         try {
-            return Objects.requireNonNull(reserve).transferHoldings(from, to, BigDecimal.valueOf(amount), world.getName(), currency);
+
+            return Objects.requireNonNull(reserve).transferHoldings(from, to, BigDecimal.valueOf(amount),
+                    world.getName(), currency);
+
         } catch (Exception throwable) {
+
             plugin.getSentryErrorReporter().ignoreThrow();
             plugin.getLogger().log(Level.WARNING, errorMsg, throwable);
             return false;
+
         }
+
     }
 
     /**
-     * Withdraws a given amount of money from the given username and turns it to thin air.
+     * Withdraws a given amount of money from the given username and turns it to
+     * thin air.
      *
      * @param name   The exact (case insensitive) username to take money from
      * @param amount The amount to take from them
@@ -189,20 +238,29 @@ public class Economy_Reserve extends AbstractEconomy {
      */
     @Override
     public boolean withdraw(@NotNull UUID name, double amount, @NotNull World world, @Nullable String currency) {
+
         try {
+
             return Objects.requireNonNull(reserve).removeHoldings(name, BigDecimal.valueOf(amount));
+
         } catch (Exception throwable) {
+
             plugin.getSentryErrorReporter().ignoreThrow();
             plugin.getLogger().log(Level.WARNING, errorMsg, throwable);
             return false;
+
         }
+
     }
 
     @Override
-    public boolean withdraw(@NotNull OfflinePlayer trader, double amount, @NotNull World world, @Nullable String currency) {
-        return withdraw(trader.getUniqueId(), amount, world, currency);
-    }
+    public boolean withdraw(@NotNull OfflinePlayer trader, double amount, @NotNull World world,
+            @Nullable String currency)
+    {
 
+        return withdraw(trader.getUniqueId(), amount, world, currency);
+
+    }
 
     /**
      * Gets the currency does exists
@@ -212,9 +270,11 @@ public class Economy_Reserve extends AbstractEconomy {
      */
     @Override
     public boolean hasCurrency(@NotNull World world, @NotNull String currency) {
+
         if (!isValid())
             return false;
         return reserve.hasCurrency(currency, world.getName());
+
     }
 
     /**
@@ -224,12 +284,16 @@ public class Economy_Reserve extends AbstractEconomy {
      */
     @Override
     public boolean supportCurrency() {
+
         return true;
+
     }
 
     @Override
     public @Nullable String getLastError() {
+
         return "Cannot provide: Reserve api doesn't support enhanced error tracing.";
+
     }
 
     /**
@@ -239,17 +303,23 @@ public class Economy_Reserve extends AbstractEconomy {
      */
     @Override
     public boolean isValid() {
+
         return reserve != null;
+
     }
 
     @Override
     public @NotNull String getName() {
+
         return "BuiltIn-Reserve";
+
     }
 
     @Override
     public @NotNull Plugin getPlugin() {
+
         return plugin;
+
     }
 
 }

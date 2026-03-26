@@ -28,30 +28,38 @@ import org.maxgamer.quickshop.shop.ContainerShop;
 import org.maxgamer.quickshop.util.MsgUtil;
 import org.maxgamer.quickshop.util.Util;
 
-
 public class SubCommand_SilentEmpty extends SubCommand_SilentBase {
 
     public SubCommand_SilentEmpty(QuickShop plugin) {
+
         super(plugin);
+
     }
 
     @Override
     protected void doSilentCommand(Player sender, @NotNull Shop shop, @NotNull String[] cmdArg) {
+
         if (!(shop instanceof ContainerShop)) {
+
             plugin.text().of(sender, "not-looking-at-shop").send();
             return;
+
         }
 
         final ContainerShop cs = (ContainerShop) shop;
         final Inventory inventory = cs.getInventory();
 
         if (inventory == null) {
+
             Util.debugLog("Inventory is empty! " + cs);
             return;
+
         }
 
         inventory.clear();
         MsgUtil.sendControlPanelInfo(sender, shop);
         plugin.text().of(sender, "empty-success").send();
+
     }
+
 }

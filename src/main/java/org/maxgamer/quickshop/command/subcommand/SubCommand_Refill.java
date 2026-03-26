@@ -39,9 +39,12 @@ public class SubCommand_Refill implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         if (cmdArg.length < 1) {
+
             plugin.text().of(sender, "command.no-amount-given").send();
             return;
+
         }
 
         int add;
@@ -49,36 +52,59 @@ public class SubCommand_Refill implements CommandHandler<Player> {
         final BlockIterator bIt = new BlockIterator(sender, 10);
 
         if (!bIt.hasNext()) {
+
             plugin.text().of(sender, "not-looking-at-shop").send();
             return;
+
         }
+
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
             if (shop == null) {
+
                 continue;
+
             }
+
             if (StringUtils.isNumeric(cmdArg[0])) {
+
                 add = Integer.parseInt(cmdArg[0]);
+
             } else {
+
                 if (cmdArg[0].equals(plugin.getConfig().getString("shop.word-for-trade-all-items"))) {
+
                     add = shop.getRemainingSpace();
+
                 } else {
+
                     plugin.text().of(sender, "thats-not-a-number").send();
                     return;
+
                 }
+
             }
+
             shop.add(shop.getItem(), add);
             plugin.text().of(sender, "refill-success").send();
             return;
+
         }
+
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
     @NotNull
     @Override
     public List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
-        return cmdArg.length == 1 ? Collections.singletonList(QuickShop.getInstance().text().of(sender, "tabcomplete.amount").forLocale()) : Collections.emptyList();
+
+        return cmdArg.length == 1
+                ? Collections.singletonList(QuickShop.getInstance().text().of(sender, "tabcomplete.amount").forLocale())
+                : Collections.emptyList();
+
     }
 
 }

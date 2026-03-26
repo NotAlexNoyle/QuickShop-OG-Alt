@@ -50,7 +50,9 @@ public class ShopDisplayItemSpawnEvent extends AbstractQSEvent implements Cancel
      */
     @Deprecated
     public ShopDisplayItemSpawnEvent(@NotNull Shop shop, @NotNull ItemStack itemStack) {
+
         this(shop, itemStack, AbstractDisplayItem.getNowUsing());
+
     }
 
     /**
@@ -60,21 +62,28 @@ public class ShopDisplayItemSpawnEvent extends AbstractQSEvent implements Cancel
      * @param displayType The displayType
      * @param itemStack   Target ItemStack
      */
-    public ShopDisplayItemSpawnEvent(
-            @NotNull Shop shop, @NotNull ItemStack itemStack, @NotNull DisplayType displayType) {
+    public ShopDisplayItemSpawnEvent(@NotNull Shop shop, @NotNull ItemStack itemStack,
+            @NotNull DisplayType displayType)
+    {
+
         this.shop = shop;
         this.itemStack = itemStack;
         this.displayType = displayType;
+
     }
 
     @Override
     public boolean isCancelled() {
+
         return this.cancelled;
+
     }
 
     @Override
     public void setCancelled(boolean cancelled) {
+
         this.cancelled = cancelled;
+
     }
 
     /**
@@ -83,7 +92,9 @@ public class ShopDisplayItemSpawnEvent extends AbstractQSEvent implements Cancel
      * @return DisplayType
      */
     public @NotNull DisplayType getDisplayType() {
+
         return this.displayType;
+
     }
 
     /**
@@ -92,7 +103,9 @@ public class ShopDisplayItemSpawnEvent extends AbstractQSEvent implements Cancel
      * @return The display ItemStack
      */
     public @NotNull ItemStack getItemStack() {
+
         return this.itemStack;
+
     }
 
     /**
@@ -101,6 +114,9 @@ public class ShopDisplayItemSpawnEvent extends AbstractQSEvent implements Cancel
      * @return the shop
      */
     public @NotNull Shop getShop() {
+
         return this.shop;
+
     }
+
 }

@@ -40,39 +40,58 @@ public class SubCommand_TaxAccount implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         BlockIterator bIt = new BlockIterator(sender, 10);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
             if (shop != null) {
+
                 if (cmdArg.length < 1) {
+
                     shop.setTaxAccount(null);
                     plugin.text().of(sender, "taxaccount-unset").send();
                     return;
+
                 }
+
                 if (Util.isUUID(cmdArg[0])) {
+
                     shop.setTaxAccount(UUID.fromString(cmdArg[0]));
+
                 } else {
+
                     UUID uuid = PlayerFinder.findUUIDByName(cmdArg[0], false, plugin.isIncludeOfflinePlayer());
                     if (uuid == null) {
+
                         plugin.text().of(sender, "unknown-player").send();
                         return;
+
                     }
+
                     shop.setTaxAccount(uuid);
+
                 }
+
                 plugin.text().of(sender, "taxaccount-set", cmdArg[0]).send();
                 return;
+
             }
+
         }
+
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
     @NotNull
     @Override
-    public List<String> onTabComplete(
-            @NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         return null;
+
     }
 
 }

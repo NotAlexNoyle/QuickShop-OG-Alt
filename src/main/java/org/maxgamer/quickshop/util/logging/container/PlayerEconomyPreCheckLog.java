@@ -27,6 +27,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 public class PlayerEconomyPreCheckLog implements ReadableLog {
+
     private static int v = 1;
     private boolean beforeTrading;
     private UUID player;
@@ -34,6 +35,9 @@ public class PlayerEconomyPreCheckLog implements ReadableLog {
 
     @Override
     public String toReadableLog() {
+
         return (beforeTrading ? "Before Trading: " : "After Trading: ") + player + " has " + holding;
+
     }
+
 }

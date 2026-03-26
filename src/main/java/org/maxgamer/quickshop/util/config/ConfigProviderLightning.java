@@ -38,28 +38,40 @@ import java.util.logging.Logger;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class ConfigProviderLightning extends QuickShopInstanceHolder {
+
     private final File configFile;
     private final Logger logger = plugin.getLogger();
     private Yaml config = null;
 
     public ConfigProviderLightning(QuickShop plugin, File configFile) {
+
         super(plugin);
         this.configFile = configFile;
+
     }
 
     public @NotNull Yaml get() {
+
         if (config == null) {
+
             reload();
+
         }
+
         return config;
+
     }
 
     public void save() {
+
         get().write();
+
     }
 
     public void reload() {
+
         reload(false);
+
     }
 
     /**
@@ -68,37 +80,58 @@ public class ConfigProviderLightning extends QuickShopInstanceHolder {
      * @param defaults is using default configuration
      */
     public void reload(boolean defaults) {
+
         if (!configFile.exists()) {
+
             plugin.saveDefaultConfig();
+
         }
 
         try (InputStream defaultConfigStream = plugin.getResource(configFile.getName())) {
-            config = LightningBuilder
-                    .fromFile(configFile)
-                    .addInputStreamFromResource(configFile.getName())
-                    .setReloadSettings(ReloadSettings.MANUALLY)
-                    .setConfigSettings(ConfigSettings.PRESERVE_COMMENTS)
+
+            config = LightningBuilder.fromFile(configFile).addInputStreamFromResource(configFile.getName())
+                    .setReloadSettings(ReloadSettings.MANUALLY).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS)
                     .createYaml();
 
             if (defaultConfigStream != null) {
-                //try (InputStreamReader reader = new InputStreamReader(defaultConfigStream, StandardCharsets.UTF_8)) {
+
+                // try (InputStreamReader reader = new InputStreamReader(defaultConfigStream,
+                // StandardCharsets.UTF_8)) {
                 config.addDefaultsFromInputStream(defaultConfigStream);
-                //}
+
+                // }
             }
+
         } catch (IOException exception) {
+
             if (!defaults) {
-                logger.log(Level.SEVERE, "Cannot reading the configuration " + configFile.getName() + ", doing backup configuration and use default", exception);
+
+                logger.log(Level.SEVERE, "Cannot reading the configuration " + configFile.getName()
+                        + ", doing backup configuration and use default", exception);
                 try {
-                    Files.copy(configFile.toPath(), plugin.getDataFolder().toPath().resolve(configFile.getName() + "-broken-" + UUID.randomUUID() + ".yml"), REPLACE_EXISTING);
+
+                    Files.copy(configFile.toPath(), plugin.getDataFolder().toPath()
+                            .resolve(configFile.getName() + "-broken-" + UUID.randomUUID() + ".yml"), REPLACE_EXISTING);
+
                 } catch (IOException fatalException) {
-                    throw new IllegalStateException("Failed to backup configuration " + configFile.getName(), fatalException);
+
+                    throw new IllegalStateException("Failed to backup configuration " + configFile.getName(),
+                            fatalException);
+
                 }
+
                 plugin.saveResource(configFile.getName(), true);
                 reload(true);
+
             } else {
-                throw new IllegalStateException("Failed to load default configuration " + configFile.getName(), exception);
+
+                throw new IllegalStateException("Failed to load default configuration " + configFile.getName(),
+                        exception);
+
             }
+
         }
 
     }
+
 }

@@ -36,31 +36,51 @@ public class HumanReadableJsonConfiguration extends JsonConfiguration {
     private static final Logger logger = Logger.getLogger(HumanReadableJsonConfiguration.class.getName());
 
     public static HumanReadableJsonConfiguration loadConfiguration(@NotNull File file) {
+
         HumanReadableJsonConfiguration configuration = new HumanReadableJsonConfiguration();
         try {
+
             if (!file.exists()) {
-                //noinspection ResultOfMethodCallIgnored
+
+                // noinspection ResultOfMethodCallIgnored
                 file.createNewFile();
+
             }
+
             configuration.load(file);
+
         } catch (IOException | InvalidConfigurationException var4) {
+
             logger.log(Level.SEVERE, "Cannot load json file " + file, var4);
+
         }
+
         return configuration;
+
     }
 
     public static HumanReadableJsonConfiguration loadConfiguration(@NotNull InputStreamReader inputStreamReader) {
+
         HumanReadableJsonConfiguration configuration = new HumanReadableJsonConfiguration();
         try {
+
             configuration.load(inputStreamReader);
+
         } catch (IOException | InvalidConfigurationException exception) {
+
             logger.log(Level.SEVERE, "Cannot load original language file", exception);
+
         }
+
         return configuration;
+
     }
 
     @Override
     public @NotNull String saveToString() {
+
         return JsonUtil.prettyPrinting().toJson(SerializationHelper.serialize(this.getValues(false)));
+
     }
+
 }

@@ -37,20 +37,22 @@ import java.util.Objects;
 public class SubCommand_Reset implements CommandHandler<CommandSender> {
 
     private final QuickShop plugin;
-    private final List<String> tabCompleteList = Collections.unmodifiableList(
-            Arrays.asList("lang", "config", "messages")
-    );
-
+    private final List<String> tabCompleteList = Collections
+            .unmodifiableList(Arrays.asList("lang", "config", "messages"));
 
     @Override
     @SneakyThrows
     public void onCommand(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         if (cmdArg.length < 1) {
+
             plugin.text().of(sender, "command.no-type-given").send();
             return;
+
         }
 
         switch (cmdArg[0]) {
+
             case "lang":
                 File cache = new File(plugin.getDataFolder(), "cache");
                 File item = new File(plugin.getDataFolder(), "itemi18n.yml");
@@ -60,7 +62,8 @@ public class SubCommand_Reset implements CommandHandler<CommandSender> {
                 item.delete();
                 ench.delete();
                 potion.delete();
-                MsgUtil.loadGameLanguage(Objects.requireNonNull(plugin.getConfig().getString("game-language", "default")));
+                MsgUtil.loadGameLanguage(
+                        Objects.requireNonNull(plugin.getConfig().getString("game-language", "default")));
                 MsgUtil.loadItemi18n();
                 MsgUtil.loadEnchi18n();
                 MsgUtil.loadPotioni18n();
@@ -82,13 +85,19 @@ public class SubCommand_Reset implements CommandHandler<CommandSender> {
                 break;
             default:
                 plugin.text().of(sender, "command.wrong-args").send();
+
         }
+
     }
 
     @NotNull
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull String commandLabel,
+            @NotNull String[] cmdArg)
+    {
+
         return tabCompleteList;
+
     }
 
 }

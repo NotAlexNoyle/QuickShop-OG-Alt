@@ -39,46 +39,70 @@ public class SubCommand_Currency implements CommandHandler<Player> {
 
     @Override
     public void onCommand(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         BlockIterator bIt = new BlockIterator(sender, 10);
 
         while (bIt.hasNext()) {
+
             final Block b = bIt.next();
             final Shop shop = plugin.getShopManager().getShop(b.getLocation());
 
-
             if (shop != null) {
-                if (shop.getModerator().isModerator(sender.getUniqueId()) || QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.currency")) {
+
+                if (shop.getModerator().isModerator(sender.getUniqueId())
+                        || QuickShop.getPermissionManager().hasPermission(sender, "quickshop.other.currency"))
+                {
+
                     if (cmdArg.length < 1) {
+
                         shop.setCurrency(null);
                         plugin.text().of(sender, "currency-unset").send();
                         return;
+
                     }
+
                     if (!plugin.getEconomy().supportCurrency()) {
+
                         plugin.text().of(sender, "currency-not-support").send();
                         return;
+
                     }
-                    if (!plugin.getEconomy().hasCurrency(Objects.requireNonNull(shop.getLocation().getWorld()), cmdArg[0])) {
+
+                    if (!plugin.getEconomy().hasCurrency(Objects.requireNonNull(shop.getLocation().getWorld()),
+                            cmdArg[0]))
+                    {
+
                         plugin.text().of(sender, "currency-not-exists").send();
                         return;
+
                     }
+
                     shop.setCurrency(cmdArg[0]);
                     plugin.text().of(sender, "currency-set", cmdArg[0]).send();
                     return;
 
                 } else {
+
                     plugin.text().of(sender, "not-managed-shop").send();
+
                 }
+
                 return;
+
             }
+
         }
+
         plugin.text().of(sender, "not-looking-at-shop").send();
+
     }
 
     @NotNull
     @Override
-    public List<String> onTabComplete(
-            @NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+    public List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+
         return Collections.emptyList();
+
     }
 
 }

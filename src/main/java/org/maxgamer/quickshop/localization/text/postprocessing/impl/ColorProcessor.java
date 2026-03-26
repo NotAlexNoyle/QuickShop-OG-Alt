@@ -26,9 +26,12 @@ import org.maxgamer.quickshop.api.localization.text.postprocessor.PostProcessor;
 import org.maxgamer.quickshop.util.Util;
 
 public class ColorProcessor implements PostProcessor {
+
     @Override
     public @NotNull String process(@NotNull String text, @Nullable CommandSender sender, Object... args) {
+
         return Util.parseColours(text);
+
     }
 
 }

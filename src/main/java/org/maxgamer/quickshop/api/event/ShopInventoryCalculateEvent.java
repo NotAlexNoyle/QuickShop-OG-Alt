@@ -9,6 +9,7 @@ import org.maxgamer.quickshop.api.shop.Shop;
 @Data
 @AllArgsConstructor
 public class ShopInventoryCalculateEvent extends AbstractQSEvent {
+
     private final Shop shop;
     private final int space;
     private final int stock;
@@ -19,7 +20,9 @@ public class ShopInventoryCalculateEvent extends AbstractQSEvent {
      * @return The shop
      */
     public Shop getShop() {
+
         return shop;
+
     }
 
     /**
@@ -28,7 +31,9 @@ public class ShopInventoryCalculateEvent extends AbstractQSEvent {
      * @return The inventory space (-1 if not get calculated)
      */
     public int getSpace() {
+
         return space;
+
     }
 
     /**
@@ -37,6 +42,9 @@ public class ShopInventoryCalculateEvent extends AbstractQSEvent {
      * @return The inventory stock (-1 if not get calculated)
      */
     public int getStock() {
+
         return stock;
+
     }
+
 }

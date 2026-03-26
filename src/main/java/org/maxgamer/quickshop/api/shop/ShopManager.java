@@ -38,7 +38,8 @@ import java.util.*;
 public interface ShopManager {
 
     /**
-     * Checks other plugins to make sure they can use the chest they're making a shop.
+     * Checks other plugins to make sure they can use the chest they're making a
+     * shop.
      *
      * @param p  The player to check
      * @param b  The block to check
@@ -52,40 +53,46 @@ public interface ShopManager {
      *
      * @return a map of World - Chunk - Shop
      */
-    @NotNull Map<String, Map<ShopChunk, Map<Location, Shop>>> getShops();
+    @NotNull
+    Map<String, Map<ShopChunk, Map<Location, Shop>>> getShops();
 
     /**
-     * Returns a new shop iterator object, allowing iteration over shops easily, instead of sorting
-     * through a 3D map.
+     * Returns a new shop iterator object, allowing iteration over shops easily,
+     * instead of sorting through a 3D map.
      *
      * @return a new shop iterator object.
      */
-    @NotNull Iterator<Shop> getShopIterator();
+    @NotNull
+    Iterator<Shop> getShopIterator();
 
     /**
-     * Removes all shops from memory and the world. Does not delete them from the database. Call
-     * this on plugin disable ONLY.
+     * Removes all shops from memory and the world. Does not delete them from the
+     * database. Call this on plugin disable ONLY.
      */
     void clear();
 
     /**
      * Returns a map of Shops
      *
-     * @param c The chunk to search. Referencing doesn't matter, only coordinates and world are
-     *          used.
+     * @param c The chunk to search. Referencing doesn't matter, only coordinates
+     *          and world are used.
      * @return Shops
      */
-    @Nullable Map<Location, Shop> getShops(@NotNull Chunk c);
+    @Nullable
+    Map<Location, Shop> getShops(@NotNull Chunk c);
 
-    @Nullable Map<Location, Shop> getShops(@NotNull String world, int chunkX, int chunkZ);
+    @Nullable
+    Map<Location, Shop> getShops(@NotNull String world, int chunkX, int chunkZ);
 
     /**
      * Returns a map of Chunk - Shop
      *
-     * @param world The name of the world (case sensitive) to get the list of shops from
+     * @param world The name of the world (case sensitive) to get the list of shops
+     *              from
      * @return a map of Chunk - Shop
      */
-    @Nullable Map<ShopChunk, Map<Location, Shop>> getShops(@NotNull String world);
+    @Nullable
+    Map<ShopChunk, Map<Location, Shop>> getShops(@NotNull String world);
 
     /**
      * Create a shop use Shop and Info object.
@@ -103,7 +110,8 @@ public interface ShopManager {
      * @param world    shop world
      * @return formated price
      */
-    @Nullable String format(double d, @NotNull World world, @Nullable String currency);
+    @Nullable
+    String format(double d, @NotNull World world, @Nullable String currency);
 
     /**
      * Format the price use formatter
@@ -112,57 +120,68 @@ public interface ShopManager {
      * @param shop The shop
      * @return formated price
      */
-    @Nullable String format(double d, @NotNull Shop shop);
+    @Nullable
+    String format(double d, @NotNull Shop shop);
 
     /**
-     * Gets a shop in a specific location
-     * ATTENTION: This not include attached shops (double-chest)
+     * Gets a shop in a specific location ATTENTION: This not include attached shops
+     * (double-chest)
      *
      * @param loc The location to get the shop from
      * @return The shop at that location
      */
-    @Nullable Shop getShop(@NotNull Location loc);
+    @Nullable
+    Shop getShop(@NotNull Location loc);
 
     /**
-     * Gets a shop in a specific location
-     * ATTENTION: This not include attached shops (double-chest)
+     * Gets a shop in a specific location ATTENTION: This not include attached shops
+     * (double-chest)
      *
      * @param loc                  The location to get the shop from
      * @param skipShopableChecking whether to check is shopable
      * @return The shop at that location
      */
-    @Nullable Shop getShop(@NotNull Location loc, boolean skipShopableChecking);
+    @Nullable
+    Shop getShop(@NotNull Location loc, boolean skipShopableChecking);
 
     /**
-     * Gets a shop in a specific location Include the attached shop, e.g DoubleChest shop.
+     * Gets a shop in a specific location Include the attached shop, e.g DoubleChest
+     * shop.
      *
      * @param loc The location to get the shop from
      * @return The shop at that location
      */
-    @Nullable Shop getShopIncludeAttached(@Nullable Location loc);
+    @Nullable
+    Shop getShopIncludeAttached(@Nullable Location loc);
 
     /**
-     * Gets a shop in a specific location Include the attached shop, e.g DoubleChest shop.
+     * Gets a shop in a specific location Include the attached shop, e.g DoubleChest
+     * shop.
      *
      * @param loc      The location to get the shop from
      * @param useCache whether to use cache
      * @return The shop at that location
      */
-    @Nullable Shop getShopIncludeAttached(@Nullable Location loc, boolean useCache);
+    @Nullable
+    Shop getShopIncludeAttached(@Nullable Location loc, boolean useCache);
 
     void bakeShopRuntimeRandomUniqueIdCache(@NotNull Shop shop);
 
-    @Nullable Shop getShopFromRuntimeRandomUniqueId(@NotNull UUID runtimeRandomUniqueId);
+    @Nullable
+    Shop getShopFromRuntimeRandomUniqueId(@NotNull UUID runtimeRandomUniqueId);
 
-    @Nullable Shop getShopFromRuntimeRandomUniqueId(@NotNull UUID runtimeRandomUniqueId, boolean includeInvalid);
+    @Nullable
+    Shop getShopFromRuntimeRandomUniqueId(@NotNull UUID runtimeRandomUniqueId, boolean includeInvalid);
 
     void handleChat(@NotNull Player p, @NotNull String msg);
 
-    //   void handleChat(@NotNull Player p, @NotNull String msg, boolean bypassProtectionChecks);
+    // void handleChat(@NotNull Player p, @NotNull String msg, boolean
+    // bypassProtectionChecks);
 
     /**
-     * Load shop method for loading shop into mapping, so getShops method will can find it. It also
-     * effects a lots of feature, make sure load it after create it.
+     * Load shop method for loading shop into mapping, so getShops method will can
+     * find it. It also effects a lots of feature, make sure load it after create
+     * it.
      *
      * @param world The world the shop is in
      * @param shop  The shop to load
@@ -170,8 +189,8 @@ public interface ShopManager {
     void loadShop(@NotNull String world, @NotNull Shop shop);
 
     /**
-     * Adds a shop to the world. Does NOT require the chunk or world to be loaded Call shop.onLoad
-     * by yourself
+     * Adds a shop to the world. Does NOT require the chunk or world to be loaded
+     * Call shop.onLoad by yourself
      *
      * @param world The name of the world
      * @param shop  The shop to add
@@ -179,8 +198,8 @@ public interface ShopManager {
     void addShop(@NotNull String world, @NotNull Shop shop);
 
     /**
-     * Removes a shop from the world. Does NOT remove it from the database. * REQUIRES * the world
-     * to be loaded Call shop.onUnload by your self.
+     * Removes a shop from the world. Does NOT remove it from the database. *
+     * REQUIRES * the world to be loaded Call shop.onUnload by your self.
      *
      * @param shop The shop to remove
      */
@@ -189,33 +208,40 @@ public interface ShopManager {
     /**
      * @return Returns the Map. Info contains what their last question etc was.
      */
-    @NotNull Map<UUID, Info> getActions();
+    @NotNull
+    Map<UUID, Info> getActions();
 
     /**
      * Get all loaded shops.
      *
      * @return All loaded shops.
      */
-    @NotNull Set<Shop> getLoadedShops();
+    @NotNull
+    Set<Shop> getLoadedShops();
 
     /**
      * Get a players all shops.
      *
-     * <p>Make sure you have caching this, because this need a while to get player's all shops
+     * <p>
+     * Make sure you have caching this, because this need a while to get player's
+     * all shops
      *
      * @param playerUUID The player's uuid.
      * @return The list have this player's all shops.
      */
-    @NotNull List<Shop> getPlayerAllShops(@NotNull UUID playerUUID);
+    @NotNull
+    List<Shop> getPlayerAllShops(@NotNull UUID playerUUID);
 
     /**
      * Returns all shops in the whole database, include unloaded.
      *
-     * <p>Make sure you have caching this, because this need a while to get all shops
+     * <p>
+     * Make sure you have caching this, because this need a while to get all shops
      *
      * @return All shop in the database
      */
-    @NotNull List<Shop> getAllShops();
+    @NotNull
+    List<Shop> getAllShops();
 
     /**
      * Get the all shops in the world.
@@ -223,7 +249,8 @@ public interface ShopManager {
      * @param world The world you want get the shops.
      * @return The list have this world all shops
      */
-    @NotNull List<Shop> getShopsInWorld(@NotNull World world);
+    @NotNull
+    List<Shop> getShopsInWorld(@NotNull World world);
 
     @Deprecated
     double getTax(@NotNull Shop shop, @NotNull Player p);
@@ -233,8 +260,7 @@ public interface ShopManager {
     boolean shopIsNotValid(@NotNull UUID uuid, @NotNull Info info, @NotNull Shop shop);
 
     /**
-     * Change the owner to unlimited shop owner.
-     * It defined in configuration.
+     * Change the owner to unlimited shop owner. It defined in configuration.
      */
     void migrateOwnerToUnlimitedShopOwner(Shop shop);
 

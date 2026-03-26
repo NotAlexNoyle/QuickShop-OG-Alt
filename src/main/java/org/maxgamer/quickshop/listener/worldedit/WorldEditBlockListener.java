@@ -38,6 +38,7 @@ import org.maxgamer.quickshop.util.logging.container.ShopRemoveLog;
  * Proxy class to handle WorldEdit actions
  */
 public class WorldEditBlockListener extends AbstractDelegateExtent {
+
     private final Actor actor;
     private final World world;
     private final Extent extent;
@@ -45,18 +46,26 @@ public class WorldEditBlockListener extends AbstractDelegateExtent {
 
     // Same Package access
     WorldEditBlockListener(Actor actor, World world, Extent originalExtent, QuickShop plugin) {
+
         super(originalExtent);
         this.actor = actor;
         this.world = world;
         this.extent = originalExtent;
         this.plugin = plugin;
+
     }
 
     @Override
-    public <T extends BlockStateHolder<T>> boolean setBlock(final BlockVector3 position, final T block) throws WorldEditException {
+    public <T extends BlockStateHolder<T>> boolean setBlock(final BlockVector3 position, final T block)
+            throws WorldEditException
+    {
+
         if (!(this.world instanceof BukkitWorld)) {
+
             return super.setBlock(position, block);
+
         }
+
         org.bukkit.World world = ((BukkitWorld) this.world).getWorld();
         BlockState oldBlock = extent.getBlock(position);
         BlockState newBlock = block.toImmutableState();
@@ -64,16 +73,31 @@ public class WorldEditBlockListener extends AbstractDelegateExtent {
         Location location = new Location(world, position.getBlockX(), position.getBlockY(), position.getBlockZ());
 
         if (extent.setBlock(position, block)) {
+
             // Block Changed
-            if (oldBlock.getBlockType().getMaterial().hasContainer() && !newBlock.getBlockType().getMaterial().hasContainer()) {
-                Shop shop = plugin.getShopManager().getShop(location, true); // Because WorldEdit can only remove half of shop, so we can keep another half as shop if it is doublechest shop.
+            if (oldBlock.getBlockType().getMaterial().hasContainer()
+                    && !newBlock.getBlockType().getMaterial().hasContainer())
+            {
+
+                Shop shop = plugin.getShopManager().getShop(location, true); // Because WorldEdit can only remove half
+                                                                             // of shop, so we can keep another half as
+                                                                             // shop if it is doublechest shop.
                 if (shop != null) {
+
                     plugin.getLogger().info("Removing shop at " + location + " because removed by WorldEdit.");
-                    plugin.logEvent(new ShopRemoveLog(actor.getUniqueId() != null ? actor.getUniqueId() : Util.getNilUniqueId(), "WorldEdit", shop.saveToInfoStorage()));
+                    plugin.logEvent(
+                            new ShopRemoveLog(actor.getUniqueId() != null ? actor.getUniqueId() : Util.getNilUniqueId(),
+                                    "WorldEdit", shop.saveToInfoStorage()));
                     Util.runOnRegion(shop, shop::delete);
+
                 }
+
             }
+
         }
+
         return super.setBlock(position, block);
+
     }
+
 }

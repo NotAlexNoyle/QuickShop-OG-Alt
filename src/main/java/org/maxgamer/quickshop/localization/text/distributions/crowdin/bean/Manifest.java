@@ -25,14 +25,15 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
 public class Manifest {
+
     private List<String> files;
     private List<String> languages;
-    //private List<?> custom_languages;
+    // private List<?> custom_languages;
     private long timestamp;
     private boolean local;
+
 }

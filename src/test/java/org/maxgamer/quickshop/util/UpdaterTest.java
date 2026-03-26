@@ -19,13 +19,12 @@
 
 package org.maxgamer.quickshop.util;
 
-
 public class UpdaterTest {
 
 //    @Test
 //    //TODO: Apply to new updater.
 //    public void TestUpdateVer() {
-////        Assertions.assertTrue(Updater.hasUpdate("3", "4"));
+    ////        Assertions.assertTrue(Updater.hasUpdate("3", "4"));
 ////        Assertions.assertFalse(Updater.hasUpdate("3.2.3", "3.2.3"));
 ////        Assertions.assertTrue(Updater.hasUpdate("3.2.0", "3.2.3"));
 ////        Assertions.assertTrue(Updater.hasUpdate("3.2.3", "3.2.3.1"));
