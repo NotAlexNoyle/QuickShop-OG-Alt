@@ -2,7 +2,7 @@
 
 QuickShop-OG is a GPLv3-only shop plugin fork focused on keeping a non-AGPL QuickShop codebase available.
 
-This repository is named `QuickShop-OG-Alt`, but the project, plugin, and built jar are `QuickShop-OG`.
+This repository is named `QuickShop-OG-Alt`, because its a backup branch based on ReRemake, while the main [QuickShop-OG](https://github.com/true-og/QuickShop-OG) is based on pre-AGPL Hikari.
 
 ## Goals
 
@@ -13,10 +13,10 @@ This repository is named `QuickShop-OG-Alt`, but the project, plugin, and built 
 
 ## Build
 
-Use Java 17 and Maven:
+Use Java 17 and Gradle:
 
 ```bash
-./mvnw -Pdebug package
+./gradlew build
 ```
 
 ## Runtime Notes
