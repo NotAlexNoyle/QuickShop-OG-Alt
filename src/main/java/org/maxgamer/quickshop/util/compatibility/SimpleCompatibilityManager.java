@@ -43,7 +43,6 @@ public class SimpleCompatibilityManager extends QuickShopInstanceHolder implemen
     static {
 
         MODULE_MAP.put("NoCheatPlus", NCPCompatibilityModule.class);
-        MODULE_MAP.put("Spartan", SpartanCompatibilityModule.class);
 
     }
 

@@ -190,7 +190,6 @@ public class Economy_Vault extends AbstractEconomy implements Listener {
 
         } catch (Exception t) {
 
-            plugin.getSentryErrorReporter().ignoreThrow();
             if (trader.getName() == null) {
 
                 plugin.getLogger().warning("Deposit failed and player name is NULL, Player uuid: "
@@ -281,7 +280,6 @@ public class Economy_Vault extends AbstractEconomy implements Listener {
 
         } catch (Exception t) {
 
-            plugin.getSentryErrorReporter().ignoreThrow();
             plugin.getLogger().log(Level.WARNING, String.format(ERROR_MESSAGE, getProviderName()), t);
             return 0.0;
 
@@ -331,7 +329,6 @@ public class Economy_Vault extends AbstractEconomy implements Listener {
 
         } catch (Exception t) {
 
-            plugin.getSentryErrorReporter().ignoreThrow();
             if (trader.getName() == null) {
 
                 plugin.getLogger().warning("Withdraw failed and player name is NULL, Player uuid: "

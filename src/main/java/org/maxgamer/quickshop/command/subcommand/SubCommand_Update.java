@@ -80,7 +80,6 @@ public class SubCommand_Update implements CommandHandler<CommandSender> {
 
                 MsgUtil.sendDirectMessage(sender,
                         ChatColor.RED + "Update failed! Please check your console for more information.");
-                plugin.getSentryErrorReporter().ignoreThrow();
                 plugin.getLogger().log(Level.WARNING, "Failed to update QuickShop because of the following error:", e);
                 return;
 

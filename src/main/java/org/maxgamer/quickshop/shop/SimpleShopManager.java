@@ -1788,6 +1788,8 @@ public class SimpleShopManager implements ShopManager, Reloadable {
 
                 for (PotionEffect potionEffect : effectsToPrint) {
 
+                    // Internal api notes: amplifier starts from zero, so plus one to get the
+                    // correct result
                     int level = potionEffect.getAmplifier() + 1;
                     chatSheetPrinter.printLine(ChatColor.YELLOW + MsgUtil.getPotioni18n(potionEffect.getType()) + " "
                             + (level <= 10 ? RomanNumber.toRoman(potionEffect.getAmplifier()) : level));

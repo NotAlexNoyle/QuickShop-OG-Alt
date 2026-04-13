@@ -36,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.shop.ItemMatcher;
-import org.maxgamer.quickshop.util.ReflectFactory;
 import org.maxgamer.quickshop.util.Util;
 import org.maxgamer.quickshop.util.reload.ReloadResult;
 import org.maxgamer.quickshop.util.reload.ReloadStatus;
@@ -787,62 +786,54 @@ public class QuickShopItemMatcherImpl implements ItemMatcher, Reloadable {
                 return true;
 
             }));
-            if (!"v1_13_R1".equals(ReflectFactory.getNMSVersion())
-                    && !"v1_13_R2".equals(ReflectFactory.getNMSVersion()))
-            {
 
-                addIfEnable(itemMatcherConfig, "custommodeldata", ((meta1, meta2) -> {
+            addIfEnable(itemMatcherConfig, "custommodeldata", ((meta1, meta2) -> {
 
-                    if (meta1.hasCustomModelData() != meta2.hasCustomModelData()) {
+                if (meta1.hasCustomModelData() != meta2.hasCustomModelData()) {
+
+                    return false;
+
+                }
+
+                if (meta1.hasCustomModelData()) {
+
+                    return meta1.getCustomModelData() == meta2.getCustomModelData();
+
+                }
+
+                return true;
+
+            }));
+
+            addIfEnable(itemMatcherConfig, "suspiciousStew", ((meta1, meta2) -> {
+
+                if ((meta1 instanceof SuspiciousStewMeta) != (meta2 instanceof SuspiciousStewMeta)) {
+
+                    return false;
+
+                }
+
+                if (meta1 instanceof SuspiciousStewMeta) {
+
+                    SuspiciousStewMeta stewMeta1 = ((SuspiciousStewMeta) meta1);
+                    SuspiciousStewMeta stewMeta2 = ((SuspiciousStewMeta) meta2);
+                    if (stewMeta1.hasCustomEffects() != stewMeta2.hasCustomEffects()) {
 
                         return false;
 
                     }
 
-                    if (meta1.hasCustomModelData()) {
+                    if (stewMeta1.hasCustomEffects()) {
 
-                        return meta1.getCustomModelData() == meta2.getCustomModelData();
+                        return stewMeta1.getCustomEffects().equals(stewMeta2.getCustomEffects());
 
                     }
 
-                    return true;
-
-                }));
-                if (!"v1_14_R1".equals(ReflectFactory.getNMSVersion())) {
-
-                    addIfEnable(itemMatcherConfig, "suspiciousStew", ((meta1, meta2) -> {
-
-                        if ((meta1 instanceof SuspiciousStewMeta) != (meta2 instanceof SuspiciousStewMeta)) {
-
-                            return false;
-
-                        }
-
-                        if (meta1 instanceof SuspiciousStewMeta) {
-
-                            SuspiciousStewMeta stewMeta1 = ((SuspiciousStewMeta) meta1);
-                            SuspiciousStewMeta stewMeta2 = ((SuspiciousStewMeta) meta2);
-                            if (stewMeta1.hasCustomEffects() != stewMeta2.hasCustomEffects()) {
-
-                                return false;
-
-                            }
-
-                            if (stewMeta1.hasCustomEffects()) {
-
-                                return stewMeta1.getCustomEffects().equals(stewMeta2.getCustomEffects());
-
-                            }
-
-                        }
-
-                        return true;
-
-                    }));
-
                 }
 
-            }
+                return true;
+
+            }));
 
         }
 

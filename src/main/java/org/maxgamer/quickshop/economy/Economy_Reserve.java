@@ -110,7 +110,6 @@ public class Economy_Reserve extends AbstractEconomy {
 
         } catch (Exception throwable) {
 
-            plugin.getSentryErrorReporter().ignoreThrow();
             plugin.getLogger().log(Level.WARNING, errorMsg, throwable);
             return false;
 
@@ -145,7 +144,6 @@ public class Economy_Reserve extends AbstractEconomy {
 
         } catch (Exception throwable) {
 
-            plugin.getSentryErrorReporter().ignoreThrow();
             plugin.getLogger().log(Level.WARNING, errorMsg, throwable);
             return formatInternal(balance);
 
@@ -182,7 +180,6 @@ public class Economy_Reserve extends AbstractEconomy {
 
         } catch (Exception throwable) {
 
-            plugin.getSentryErrorReporter().ignoreThrow();
             plugin.getLogger().log(Level.WARNING, errorMsg, throwable);
             return 0.0;
 
@@ -220,7 +217,6 @@ public class Economy_Reserve extends AbstractEconomy {
 
         } catch (Exception throwable) {
 
-            plugin.getSentryErrorReporter().ignoreThrow();
             plugin.getLogger().log(Level.WARNING, errorMsg, throwable);
             return false;
 
@@ -245,7 +241,6 @@ public class Economy_Reserve extends AbstractEconomy {
 
         } catch (Exception throwable) {
 
-            plugin.getSentryErrorReporter().ignoreThrow();
             plugin.getLogger().log(Level.WARNING, errorMsg, throwable);
             return false;
 

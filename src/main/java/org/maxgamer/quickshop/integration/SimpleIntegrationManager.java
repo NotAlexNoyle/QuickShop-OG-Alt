@@ -26,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.integration.*;
 import org.maxgamer.quickshop.integration.advancedregionmarket.AdvancedShopRegionMarketIntegration;
-import org.maxgamer.quickshop.integration.fabledskyblock.FabledIntegration;
 import org.maxgamer.quickshop.integration.factionsuuid.FactionsUUIDIntegration;
 import org.maxgamer.quickshop.integration.griefprevention.GriefPreventionIntegration;
 import org.maxgamer.quickshop.integration.iridiumskyblock.IridiumSkyblockIntegration;
@@ -46,7 +45,7 @@ import java.util.logging.Level;
 
 public class SimpleIntegrationManager extends QuickShopInstanceHolder implements IntegrationManager {
 
-    private static final Map<String, Class<? extends IntegratedPlugin>> INTEGRATION_MAPPING = new HashMap<>(7);
+    private static final Map<String, Class<? extends IntegratedPlugin>> INTEGRATION_MAPPING = new HashMap<>();
 
     static {
 
@@ -57,7 +56,6 @@ public class SimpleIntegrationManager extends QuickShopInstanceHolder implements
         INTEGRATION_MAPPING.put("Residence", ResidenceIntegration.class);
         INTEGRATION_MAPPING.put("Towny", TownyIntegration.class);
         INTEGRATION_MAPPING.put("WorldGuard", WorldGuardIntegration.class);
-        INTEGRATION_MAPPING.put("FabledSkyblock", FabledIntegration.class);
         INTEGRATION_MAPPING.put("IridiumSkyblock", IridiumSkyblockIntegration.class);
         INTEGRATION_MAPPING.put("SuperiorSkyblock", SuperiorSkyblock2Integration.class);
         INTEGRATION_MAPPING.put("AdvancedRegionMarket", AdvancedShopRegionMarketIntegration.class);

@@ -44,8 +44,6 @@ repositories {
     maven(url = "https://repo.papermc.io/repository/maven-public/")
     maven(url = "https://repo.bg-software.com/repository/api/")
     maven(url = "https://maven.enginehub.org/repo/")
-    maven(url = "https://repo.songoda.com/repository/public/")
-    maven(url = "https://repo.craftaro.com/repository/public/")
     maven(url = "https://repo.minebench.de/")
 }
 
@@ -62,27 +60,17 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.github.angeschossen:LandsAPI:6.35.0")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
-    testImplementation("com.github.seeseemelk:MockBukkit-v1.20:3.87.0")
-    testImplementation("org.xerial:sqlite-jdbc:3.40.1.0")
-    testImplementation("mysql:mysql-connector-java:8.0.33")
-
     implementation("org.apache.commons:commons-compress:1.22")
     implementation("org.apache.commons:commons-lang3:3.12.0")
-    compileOnly(files("lib/SpartanAPI-9.1.jar"))
     compileOnly("com.github.TownyAdvanced:Towny:0.97.0.5")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.9")
     compileOnly("com.plotsquared:PlotSquared-Core:6.11.1") { isTransitive = false }
     compileOnly(files("lib/Residence5.0.1.0.jar"))
     compileOnly("com.massivecraft:Factions:1.6.9.5-U0.6.0")
     compileOnly(files("lib/BlocksHub-3.2.1.jar"))
-    implementation("com.rollbar:rollbar-java:1.10.0")
     implementation("com.github.PotatoCraft-Studio:MineDown:1.7.1-modified")
     compileOnly(files("lib/GemsEconomy-4.9.2.jar"))
     compileOnly(files("lib/TNE-0.1.1.17-PRE-2.jar"))
-    compileOnly("com.songoda:skyblock:2.3.30")
-    compileOnly("com.songoda:SongodaCore:2.6.18")
     implementation("commons-codec:commons-codec:1.15")
     implementation("org.slf4j:slf4j-nop:1.7.32")
     implementation("io.papermc:paperlib:1.0.7")
@@ -99,10 +87,7 @@ dependencies {
 
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
-    testCompileOnly("org.projectlombok:lombok:1.18.30")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
     compileOnly("org.jetbrains:annotations:24.0.1")
-    testCompileOnly("org.jetbrains:annotations:24.0.1")
 }
 
 tasks.named<ProcessResources>("processResources") {
@@ -113,8 +98,6 @@ tasks.named<ProcessResources>("processResources") {
     from("LICENSE") { into("/") }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-
-tasks.withType<Test>().configureEach { useJUnitPlatform() }
 
 tasks.withType<AbstractArchiveTask>().configureEach {
     isPreserveFileTimestamps = false
@@ -165,7 +148,6 @@ tasks.named<ShadowJar>("shadowJar") {
     relocate("net.minidev.json", "org.maxgamer.quickshop.shade.net.minidev.json.minidev.json")
     relocate("com.fasterxml.jackson.core", "org.maxgamer.quickshop.shade.com.fasterxml.jackson.jackson.core")
     relocate("me.lucko", "org.maxgamer.quickshop.shade.me.lucko")
-    relocate("com.rollbar", "org.maxgamer.quickshop.shade.com.rollbar")
     relocate(
         "com.dumptruckman.bukkit.configuration",
         "org.maxgamer.quickshop.shade.com.dumptruckman.bukkit.configuration",

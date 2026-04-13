@@ -219,8 +219,8 @@ public class ContainerShop implements Shop {
         this.taxAccount = taxAccount;
         initDisplayItem();
         this.dirty = false;
-        // updateShopData();
 
+        // updateShopData();
     }
 
     private void updateShopData() {

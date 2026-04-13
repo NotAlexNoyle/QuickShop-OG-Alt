@@ -33,7 +33,6 @@ import org.maxgamer.quickshop.api.economy.AbstractEconomy;
 import org.maxgamer.quickshop.api.economy.EconomyCore;
 import org.maxgamer.quickshop.economy.Economy_Vault;
 import org.maxgamer.quickshop.util.MsgUtil;
-import org.maxgamer.quickshop.util.ReflectFactory;
 import org.maxgamer.quickshop.util.Util;
 
 import java.io.File;
@@ -124,27 +123,9 @@ public class Paste {
         finalReport.append("\tName: ").append(plugin.getServer().getName()).append("\n");
         finalReport.append("\tServer Name: ").append(plugin.getServer().getName()).append("\n");
         finalReport.append("\tBuild: ").append(plugin.getServer().getVersion()).append("\n");
-        finalReport.append("\tNMSV: ").append(ReflectFactory.getNMSVersion()).append("\n");
+        finalReport.append("\tVersion: ").append(plugin.getServer().getMinecraftVersion()).append("\n");
         // noinspection deprecation
         finalReport.append("\tData Version: ").append(plugin.getServer().getUnsafe().getDataVersion()).append("\n");
-        if (plugin.getEnvironmentChecker().isFabricBasedServer()
-                || plugin.getEnvironmentChecker().isForgeBasedServer())
-        {
-
-            if (plugin.getEnvironmentChecker().isForgeBasedServer()) {
-
-                finalReport.append("\tModded Server: Forge (No support offer on this platform)\n");
-
-            }
-
-            if (plugin.getEnvironmentChecker().isFabricBasedServer()) {
-
-                finalReport.append("\tModded Server: Fabric (No support offer on this platform)\n");
-
-            }
-
-        }
-
         finalReport.append("\tJava: ").append(System.getProperty("java.version")).append("\n");
         RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
         List<String> arguments = runtimeMxBean.getInputArguments();

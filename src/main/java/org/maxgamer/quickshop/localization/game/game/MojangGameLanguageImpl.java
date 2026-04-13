@@ -268,9 +268,6 @@ public class MojangGameLanguageImpl extends BukkitGameLanguageImpl implements Ga
 
     }
 
-    private static final boolean isPotionSupportMinecraftKey = Util
-            .isMethodAvailable("org.bukkit.potion.PotionEffectType", "getKey");
-
     @Override
     public @NotNull String getPotion(@NotNull PotionEffectType potionEffectType) {
 
@@ -281,14 +278,11 @@ public class MojangGameLanguageImpl extends BukkitGameLanguageImpl implements Ga
 
         }
 
-        JsonElement jsonElement;
-        if (isPotionSupportMinecraftKey) {
+        JsonElement jsonElement = lang.get().get("item.minecraft.potion.effect." + potionEffectType.getKey().getKey());
 
-            jsonElement = lang.get().get("effect.minecraft." + potionEffectType.getKey().getKey().toLowerCase());
+        if (jsonElement == null) {
 
-        } else {
-
-            jsonElement = lang.get().get("effect.minecraft." + potionEffectType.getName().toLowerCase());
+            jsonElement = lang.get().get("effect.minecraft." + potionEffectType.getKey().getKey());
 
         }
 
@@ -553,7 +547,6 @@ public class MojangGameLanguageImpl extends BukkitGameLanguageImpl implements Ga
 
             } catch (Exception e) {
 
-                plugin.getSentryErrorReporter().ignoreThrow();
                 plugin.getLogger().log(Level.WARNING, "Something going wrong when loading game translation assets", e);
 
             } finally {

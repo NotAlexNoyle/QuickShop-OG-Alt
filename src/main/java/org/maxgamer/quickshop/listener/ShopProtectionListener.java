@@ -455,7 +455,7 @@ public class ShopProtectionListener extends AbstractProtectionListener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onInventoryMove(InventoryMoveItemEvent event) {
 
-        if (!plugin.getConfig().getBoolean("protect.hopper")) {
+        if (!protectHoppers) {
 
             return;
 
